@@ -19,6 +19,7 @@ CREATE TABLE partita (
     par_longitudine FLOAT NOT NULL,
     par_data TIMESTAMP NOT NULL, -- Supabase consiglia TIMESTAMPTZ, ma TIMESTAMP va bene per emulare DATETIME
     par_descrizione VARCHAR(100) NULL,
+par_codice VARCHAR(20),
     FOREIGN KEY (par_organizzatore) REFERENCES utente(ute_id)
 );
 
