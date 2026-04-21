@@ -65,4 +65,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    //Supbase dependence
+    implementation(libs.supabase.postgrest.kt) // Per il database
+    implementation(libs.gotrue.kt)    // Per l'autenticazione
+    implementation(libs.ktor.client.android)
 }
