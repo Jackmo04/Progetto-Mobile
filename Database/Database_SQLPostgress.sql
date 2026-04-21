@@ -1,4 +1,3 @@
--- Pulizia iniziale: elimina le tabelle se esistono già (utile per resettare l'ambiente)
 DROP TABLE IF EXISTS tag CASCADE;
 DROP TABLE IF EXISTS partecipazione CASCADE;
 DROP TABLE IF EXISTS partita CASCADE;
