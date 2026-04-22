@@ -4,9 +4,8 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Utente(
-    val ute_id: Int,
-    val ute_username: String,
-    val ute_password: String,
-    val ute_immagine: String
-
+    val ute_id: Int? = null,
+    val ute_username: String? = null,
+    val ute_password: String? = null,
+    val ute_immagine: String? = null
 )
