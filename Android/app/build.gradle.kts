@@ -73,4 +73,8 @@ dependencies {
     implementation(libs.supabase.postgrest.kt) // Per il database
     implementation(libs.gotrue.kt)    // Per l'autenticazione
     implementation(libs.ktor.client.android)
+    implementation(libs.slf4j.simple)
+
+    //Test
+    testImplementation(libs.kotlinx.coroutines.test)
 }
