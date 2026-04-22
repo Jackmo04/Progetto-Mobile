@@ -58,6 +58,9 @@ dependencies {
     implementation(platform(libs.bom))
     implementation(libs.postgrest.kt)
     implementation(libs.ktor.client.android)
+    implementation(libs.maps.compose)
+    implementation(libs.play.services.maps)
+    implementation(libs.play.services.location)
     testImplementation(libs.junit)
     androidTestImplementation(libs.androidx.junit)
     androidTestImplementation(libs.androidx.espresso.core)
@@ -65,4 +68,9 @@ dependencies {
     androidTestImplementation(libs.androidx.compose.ui.test.junit4)
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
+
+    //Supbase dependence
+    implementation(libs.supabase.postgrest.kt) // Per il database
+    implementation(libs.gotrue.kt)    // Per l'autenticazione
+    implementation(libs.ktor.client.android)
 }
