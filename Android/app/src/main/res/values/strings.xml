@@ -1,3 +1,11 @@
 <resources>
-    <string name="app_name">Caccia Al Tesoro</string>
+    <string name="app_name">Treasure Hunt</string>
+    <string name="event_details">Event details</string>
+    <string name="home">Home</string>
+    <string name="new_event">New event</string>
+    <string name="login">Login</string>
+    <string name="register">Register</string>
+    <string name="events">Events</string>
+    <string name="my_events">My events</string>
+    <string name="edit_tag">Edit tag</string>
 </resources>

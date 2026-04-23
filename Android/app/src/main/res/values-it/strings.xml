@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="app_name">Caccia Al Tesoro</string>
+    <string name="event_details">Dettagli evento</string>
+    <string name="home">Home</string>
+    <string name="new_event">Nuovo evento</string>
+    <string name="login">Accedi</string>
+    <string name="register">Registrati</string>
+    <string name="events">Eventi</string>
+    <string name="my_events">I miei eventi</string>
+    <string name="edit_tag">Modifica tag</string>
+</resources>
