@@ -73,7 +73,11 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     //Supbase dependence
-    implementation(libs.supabase.postgrest.kt) // Per il database
-    implementation(libs.gotrue.kt)    // Per l'autenticazione
+    implementation(libs.supabase.postgrest.kt)
+    implementation(libs.gotrue.kt)
     implementation(libs.ktor.client.android)
+    implementation(libs.slf4j.simple)
+
+    //Test
+    testImplementation(libs.kotlinx.coroutines.test)
 }
