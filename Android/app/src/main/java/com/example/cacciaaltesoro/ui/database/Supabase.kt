@@ -10,6 +10,7 @@ import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.toJsonObject
 import kotlinx.serialization.json.buildJsonObject
+import kotlinx.serialization.json.JsonPrimitive
 
 object Supabase {
     val supabase = createSupabaseClient(
@@ -26,22 +27,18 @@ object Supabase {
         supabase.auth.signUpWith(Email) {
             this.email = email
             this.password = pass
-            // Salviamo lo username nei metadati dell'utente Auth
+
             data = buildJsonObject {
-                put("username", username.toJsonObject())
+                put("username", JsonPrimitive(username))
             }
         }
     }
 
     suspend public fun login(email: String, pass: String) {
-        try {
             supabase.auth.signInWith(Email) {
                 this.email = email
                 this.password = pass
             }
-            println("Login effettuato!")
-        } catch (e: Exception) {
-            println("Errore: ${e.message}")
-        }
+
     }
 }
