@@ -2,16 +2,16 @@ package com.example.cacciaaltesoro.ui.database.DAO
 
 import com.example.cacciaaltesoro.ui.database.Supabase
 import com.example.cacciaaltesoro.ui.database.api.Utente
+import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 
-class UtenteDAO {
+class UtenteDAO() {
 
-    val conn = Supabase.supabase
 
     suspend public fun getUserByUsername( username: String): Utente?{
-
+        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
         return try {
-            conn.from(TableName.UTENTI.tableName).select {
+            Supabase.supabase.from(TableName.UTENTI.tableName).select {
                 filter {
                     Utente::ute_username eq username
                 }
@@ -24,9 +24,9 @@ class UtenteDAO {
     }
 
     suspend public fun getAllUsere(): List<Utente>?{
-
+        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
         return try {
-            conn.from(TableName.UTENTI.tableName).select().decodeList<Utente>()
+            Supabase.supabase.from(TableName.UTENTI.tableName).select().decodeList<Utente>()
         } catch (e: Exception) {
             e.printStackTrace()
             null

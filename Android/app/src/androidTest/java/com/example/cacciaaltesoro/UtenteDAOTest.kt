@@ -1,12 +1,15 @@
 package com.example.cacciaaltesoro
 
-import com.example.cacciaaltesoro.ui.database.DAO.TableName
+import androidx.test.espresso.util.filter
 import com.example.cacciaaltesoro.ui.database.DAO.UtenteDAO
 import com.example.cacciaaltesoro.ui.database.Supabase
 import com.example.cacciaaltesoro.ui.database.api.Utente
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -14,27 +17,28 @@ import org.junit.Test
  */
 class UtenteDAOTest {
 
+    val dao: UtenteDAO
+        get() = UtenteDAO()
+
+
     @Test
     fun `test recupero utente tramite username` () = runTest {
-
-        val conn = Supabase.supabase;
-        Supabase.login("mattia.cavina2@studio.unibo.it","psw123")
         val username = "mattia.cavina2@studio.unibo.it"
 
-        val user = UtenteDAO().getUserByUsername("mattia.cavina2@studio.unibo.it")
+        val user =dao.getUserByUsername(username)
 
+        Assert.assertNotNull(user)
         Assert.assertEquals(
             username,
-            UtenteDAO().getUserByUsername("mattia.cavina2@studio.unibo.it")?.ute_username
+            user?.ute_username
         )
     }
+
 
     @Test
     fun `test recupero tutti gli utenti` () = runTest {
 
-        val username = "mattia.cavina2@studio.unibo.it"
-
-        val result = UtenteDAO().getAllUsere();
+        val result = dao.getAllUsere();
 
         Assert.assertNotNull(result)
     }
