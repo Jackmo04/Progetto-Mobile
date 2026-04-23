@@ -1,4 +1,4 @@
-package com.example.cacciaaltesoro.ui.database
+package com.example.cacciaaltesoro.data.database
 
 import android.provider.ContactsContract
 import io.github.jan.supabase.annotations.SupabaseInternal

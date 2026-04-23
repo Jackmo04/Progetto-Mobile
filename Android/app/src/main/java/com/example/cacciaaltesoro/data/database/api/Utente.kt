@@ -1,4 +1,4 @@
-package com.example.cacciaaltesoro.ui.database.api
+package com.example.cacciaaltesoro.data.database.api
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable

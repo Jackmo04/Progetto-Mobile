@@ -1,16 +1,9 @@
 package com.example.cacciaaltesoro
 
-import androidx.test.espresso.util.filter
-import com.example.cacciaaltesoro.ui.database.DAO.PartitaDAO
-import com.example.cacciaaltesoro.ui.database.DAO.UtenteDAO
-import com.example.cacciaaltesoro.ui.database.Supabase
-import com.example.cacciaaltesoro.ui.database.api.Utente
-import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.providers.builtin.Email
-import io.github.jan.supabase.postgrest.from
+import com.example.cacciaaltesoro.data.database.DAO.PartitaDAO
+import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
-import org.junit.Before
 import org.junit.Test
 
 /**
