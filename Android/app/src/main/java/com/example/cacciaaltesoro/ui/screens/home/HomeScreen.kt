@@ -7,10 +7,14 @@ import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.navigation.NavHostController
+import com.example.cacciaaltesoro.ui.composables.AppBar
 
 @Composable
 fun HomeScreen(navController: NavHostController) {
-    Scaffold(modifier = Modifier.fillMaxSize()) { innerPadding ->
+    Scaffold(
+        modifier = Modifier.fillMaxSize(),
+        topBar = { AppBar("Home", navController) }
+    ) { innerPadding ->
         Text(
             text = "Home",
             modifier = Modifier.padding(innerPadding)
