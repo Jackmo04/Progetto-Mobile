@@ -22,4 +22,15 @@ class UtenteDAO {
         }
 
     }
+
+    suspend public fun getAllUsere(): List<Utente>?{
+
+        return try {
+            conn.from(TableName.UTENTI.tableName).select().decodeList<Utente>()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+
+    }
 }
