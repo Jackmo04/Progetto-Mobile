@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro
 
 import androidx.test.espresso.util.filter
+import com.example.cacciaaltesoro.ui.database.DAO.PartitaDAO
 import com.example.cacciaaltesoro.ui.database.DAO.UtenteDAO
 import com.example.cacciaaltesoro.ui.database.Supabase
 import com.example.cacciaaltesoro.ui.database.api.Utente
@@ -15,33 +16,24 @@ import org.junit.Test
 /**
  * Test to connect supabase with application
  */
-class UtenteDAOTest {
+class PartitaDAOTest {
 
-    val dao: UtenteDAO
-        get() = UtenteDAO()
+    val dao: PartitaDAO
+        get() = PartitaDAO()
 
 
     @Test
-    fun `test recupero utente tramite username` () = runTest {
+    fun `test partita by id` () = runTest {
         Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
-        val username = "mattia.cavina2@studio.unibo.it"
 
-        val user =dao.getUserByUsername(username)
+        val result =dao.getPartitaByID(1)
 
-        Assert.assertNotNull(user)
+        Assert.assertNotNull(result)
         Assert.assertEquals(
-            username,
-            user?.ute_username
+            "PARTITA1",
+            result?.par_nome
         )
     }
 
 
-    @Test
-    fun `test recupero tutti gli utenti` () = runTest {
-        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
-
-        val result = dao.getAllUsere();
-
-        Assert.assertNotNull(result)
-    }
 }
