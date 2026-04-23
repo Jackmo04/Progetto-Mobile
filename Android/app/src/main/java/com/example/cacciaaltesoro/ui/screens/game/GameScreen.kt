@@ -1,9 +1,9 @@
 package com.example.cacciaaltesoro.ui.screens.game
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 
 @Composable
-fun GameScreen(navController: NavController, eventId: String) {
+fun GameScreen(navController: NavHostController, eventId: String) {
     TODO()
 }

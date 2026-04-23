@@ -1,9 +1,9 @@
 package com.example.cacciaaltesoro.ui.screens.newevent
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 
 @Composable
-fun NewEventScreen(navController: NavController) {
+fun NewEventScreen(navController: NavHostController) {
     TODO()
 }

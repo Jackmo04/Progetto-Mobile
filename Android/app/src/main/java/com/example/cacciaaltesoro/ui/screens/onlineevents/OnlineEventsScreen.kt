@@ -1,9 +1,9 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import androidx.compose.runtime.Composable
-import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 
 @Composable
-fun OnlineEventsScreen(navController: NavController) {
+fun OnlineEventsScreen(navController: NavHostController) {
     TODO()
 }
