@@ -38,7 +38,6 @@ class ConnectionUnitTest {
         try {
             Supabase.login(email = "mattia.cavina2@studio.unibo.it", pass = "psw123")
 
-            // Verifichiamo che la sessione utente non sia nulla dopo il login
             val sessioneAttuale = Supabase.supabase.auth.currentSessionOrNull()
             Assert.assertNotNull("La sessione dovrebbe esistere dopo il login", sessioneAttuale)
 
