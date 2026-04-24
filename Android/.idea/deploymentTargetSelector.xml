@@ -17,6 +17,11 @@
       </SelectionState>
       <SelectionState runConfigName="test login flow()">
         <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
+      </SelectionState>
+      <SelectionState runConfigName="test recupero tutti le notifiche()">
+        <option name="selectionMode" value="DROPDOWN" />
+        <DialogSelection />
       </SelectionState>
     </selectionStates>
   </component>
