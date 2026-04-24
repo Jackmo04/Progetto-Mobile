@@ -1,7 +1,6 @@
--- Grant access to your API schema (e.g., 'public')
+-- 2. Grant access to your API schema (e.g., 'public')
 GRANT USAGE ON SCHEMA public TO anon;
 
--- Pulizia iniziale: elimina le tabelle se esistono già
 DROP TABLE IF EXISTS tagraccolti CASCADE;
 DROP TABLE IF EXISTS tags CASCADE;
 DROP TABLE IF EXISTS partecipazioni CASCADE;
@@ -29,7 +28,7 @@ CREATE TABLE partite (
     par_data TIMESTAMP NOT NULL,
     par_descrizione text NULL,
     par_codice text NOT NULL,
-    par_privato boolean NULL DEFAULT (false),
+par_privato boolean NULL DEFAULT (false),
     FOREIGN KEY (par_organizzatore) REFERENCES utenti(ute_id)
 );
 GRANT SELECT ON public.partite TO anon;
@@ -112,7 +111,7 @@ INSERT INTO partite (par_nome, par_organizzatore, par_latitudine, par_longitudin
 ('PARTITA4','a6f03999-fcd7-4fa1-976c-6c1187a1c109', 45.4384, 10.9916, NOW() - INTERVAL '1 day', 'Caccia al tesoro Verona' ,'HASH_4_XDFS'),
 ('PARTITA5','7e29a1ec-ece2-4076-80b4-4284059e5a2e', 40.8518, 14.2681, NOW(), 'Caccia al tesoro Napoli' ,'HASH_5_XDFS'); 
 
--- 3. Creare delle partecipazioni
+-- 3. Creare delle partecipazioni (Sostituiti i numeri utente con gli UUID)
 INSERT INTO partecipazioni (prt_partita, prt_utente) VALUES
 (1, '970be8b4-7771-4e8a-90af-d4336b9eecf0'),
 (1, 'a6f03999-fcd7-4fa1-976c-6c1187a1c109'),
@@ -157,52 +156,22 @@ INSERT INTO notifiche (not_utente,not_messaggio) VALUES
 ('970be8b4-7771-4e8a-90af-d4336b9eecf0','PROVA2'),
 ('a6f03999-fcd7-4fa1-976c-6c1187a1c109','PROVA3');
 
+-- ==========================================
+-- ROW LEVEL SECURITY (RLS) & POLICIES
+-- ==========================================
 
-alter policy "notifiche"
-on "public"."notifiche"
-to authenticated
-using (
-  true
-) with check (
-  true
-);
-alter policy "utenti"
-on "public"."utenti"
-to authenticated
-using (
-  true
-) with check (
-  true
-);
-alter policy "partite"
-on "public"."partite"
-to authenticated
-using (
-  true
-) with check (
-  true
-);
-alter policy "tags"
-on "public"."tags"
-to authenticated
-using (
-  true
-) with check (
-  true
-);
-alter policy "partecipazioni"
-on "public"."partecipazioni"
-to authenticated
-using (
-  true
-) with check (
-  true
-);
-alter policy "tagraccolti"
-on "public"."tagraccolti"
-to authenticated
-using (
-  true
-) with check (
-  true
-);
+-- Abilita RLS su tutte le tabelle
+ALTER TABLE notifiche ENABLE ROW LEVEL SECURITY;
+ALTER TABLE utenti ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partite ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tags ENABLE ROW LEVEL SECURITY;
+ALTER TABLE partecipazioni ENABLE ROW LEVEL SECURITY;
+ALTER TABLE tagraccolti ENABLE ROW LEVEL SECURITY;
+
+-- Creazione delle policy
+CREATE POLICY "Permetti tutto agli utenti autenticati su notifiche" ON public.notifiche FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Permetti tutto agli utenti autenticati su utenti" ON public.utenti FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Permetti tutto agli utenti autenticati su partite" ON public.partite FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Permetti tutto agli utenti autenticati su tags" ON public.tags FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Permetti tutto agli utenti autenticati su partecipazioni" ON public.partecipazioni FOR ALL TO authenticated USING (true) WITH CHECK (true);
+CREATE POLICY "Permetti tutto agli utenti autenticati su tagraccolti" ON public.tagraccolti FOR ALL TO authenticated USING (true) WITH CHECK (true);
