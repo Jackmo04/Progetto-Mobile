@@ -8,4 +8,8 @@
     <string name="events">Events</string>
     <string name="my_events">My events</string>
     <string name="edit_tag">Edit tag</string>
+    <string name="save">Save</string>
+    <string name="cancel">Cancel</string>
+    <string name="delete">Delete</string>
+    <string name="click_to_delete">Click to delete</string>
 </resources>
