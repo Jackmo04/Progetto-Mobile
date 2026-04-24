@@ -9,4 +9,8 @@
     <string name="events">Eventi</string>
     <string name="my_events">I miei eventi</string>
     <string name="edit_tag">Modifica tag</string>
+    <string name="save">Salva</string>
+    <string name="cancel">Annulla</string>
+    <string name="delete">Elimina</string>
+    <string name="click_to_delete">Premi per eliminare</string>
 </resources>
