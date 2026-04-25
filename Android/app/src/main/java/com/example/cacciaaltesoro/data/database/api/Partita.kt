@@ -7,7 +7,7 @@ import kotlinx.serialization.Serializable
 data class Partita(
     @SerialName("par_id") val par_id: Int,
     @SerialName("par_nome") val par_nome: String,
-    @SerialName("par_organizzatore") val par_organizzatore: String,
+    @SerialName("par_organizzatore") val par_organizzatore: Utente?,
     @SerialName("par_latitudine") val par_latitudine: Double,
     @SerialName("par_longitudine") val par_longitudine: Double,
     @SerialName("par_data")  val par_data: String,

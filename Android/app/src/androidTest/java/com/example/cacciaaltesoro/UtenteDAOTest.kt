@@ -34,8 +34,20 @@ class UtenteDAOTest {
     fun `test recupero tutti gli utenti` () = runTest {
         Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
 
-        val result = dao.getAllUsere();
+        val result = dao.getAllUser();
 
         Assert.assertNotNull(result)
+    }
+
+    @Test
+    fun `test recupero utente con partite` () = runTest {
+        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
+        val username = "mattia.cavina2@studio.unibo.it"
+
+        val result = dao.getAllUserSMatch(username)
+
+        Assert.assertNotNull(result)
+        Assert.assertEquals(username, result?.ute_username)
+        Assert.assertNotNull(result?.partite)
     }
 }
