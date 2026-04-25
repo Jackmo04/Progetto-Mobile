@@ -26,6 +26,8 @@ class PartitaDAOTest {
             "PARTITA1",
             result?.par_nome
         )
+
+       Assert.assertEquals("mattia.cavina2@studio.unibo.it" , result?.utente?.ute_username)
     }
 
 

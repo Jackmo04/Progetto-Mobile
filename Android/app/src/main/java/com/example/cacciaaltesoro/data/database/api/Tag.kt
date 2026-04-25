@@ -12,5 +12,7 @@ data class Tag(
     @SerialName("tag_latitudine") val tag_latitudine: Double,
     @SerialName("tag_longitudine") val tag_longitudine: Double,
     @SerialName("tag_indizio") val tag_indizio: String,
-    @SerialName("tag_immagine") val tag_immagine: String
+    @SerialName("tag_immagine") val tag_immagine: String,
+
+    @SerialName("partite")  val partita : Partita?
 )

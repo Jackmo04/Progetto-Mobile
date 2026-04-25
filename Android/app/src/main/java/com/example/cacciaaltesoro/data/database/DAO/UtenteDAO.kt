@@ -36,7 +36,20 @@ class UtenteDAO() {
 
     suspend public fun getAllUserSMatch(username: String): Utente?{
         return try {
-            Supabase.supabase.from(TableName.UTENTI.tableName).select(columns = Columns.raw("* , partite(*)"))
+            Supabase.supabase.from(TableName.UTENTI.tableName).select(columns = Columns.raw("*, partite!partecipazioni(*)"))
+            {
+                filter { Utente::ute_username eq username }
+            }.decodeSingleOrNull<Utente>()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+
+    }
+
+    suspend public fun getAllUserSCatchesTag(username: String): Utente?{
+        return try {
+            Supabase.supabase.from(TableName.UTENTI.tableName).select(columns = Columns.raw("*, tags!tagraccolti(*)"))
             {
                 filter { Utente::ute_username eq username }
             }.decodeSingleOrNull<Utente>()

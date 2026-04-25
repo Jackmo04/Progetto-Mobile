@@ -4,13 +4,14 @@ import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.database.api.Partita
 import com.example.cacciaaltesoro.data.database.api.Utente
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.postgrest.query.Columns
 
 class PartitaDAO() {
 
 
     suspend public fun getPartitaByID( id: Int): Partita?{
         return try {
-            Supabase.supabase.from(TableName.PARTITE.tableName).select {
+            Supabase.supabase.from(TableName.PARTITE.tableName).select(columns = Columns.raw("*, utenti!partite_par_organizzatore_fkey(*)")) {
                 filter {
                     Partita::par_id eq id
                 }

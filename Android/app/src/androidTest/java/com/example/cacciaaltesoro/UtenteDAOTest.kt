@@ -44,6 +44,10 @@ class UtenteDAOTest {
         Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
         val username = "mattia.cavina2@studio.unibo.it"
 
+        val utente = dao.getUserByUsername(username)
+
+        Assert.assertNotNull(utente)
+
         val result = dao.getAllUserSMatch(username)
 
         Assert.assertNotNull(result)
