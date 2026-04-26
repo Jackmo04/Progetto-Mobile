@@ -37,7 +37,9 @@ import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
@@ -61,12 +63,15 @@ fun NewEventScreen(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
                 .padding(innerPadding)
+                .padding(horizontal = 12.dp)
                 .fillMaxSize()
         ) {
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.actions.onNameChange(it) },
-                label = { Text(stringResource(R.string.event_name)) }
+                label = { Text(stringResource(R.string.event_name)) },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -74,7 +79,8 @@ fun NewEventScreen(
             OutlinedTextField(
                 value = state.description,
                 onValueChange = { viewModel.actions.onDescriptionChange(it) },
-                label = { Text(stringResource(R.string.description)) }
+                label = { Text(stringResource(R.string.description)) },
+                modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -95,9 +101,14 @@ fun NewEventScreen(
 //                modifier = Modifier.clickable { showMapDialog = true }
 //            )
 
-            Button(onClick = { showMapDialog = true }) {
+            Button(
+                onClick = { showMapDialog = true },
+                enabled = !showMapDialog
+            ) {
                 Text(stringResource(R.string.choose_meeting_point))
             }
+
+            Spacer(modifier = Modifier.height(12.dp))
 
             if (state.location != null) {
                 OutlinedTextField(
@@ -107,15 +118,14 @@ fun NewEventScreen(
                     } ?: "",
                     onValueChange = {},
                     readOnly = true,
-                    label = { Text(stringResource(R.string.meeting_point)) }
+                    label = { Text(stringResource(R.string.meeting_point)) },
+                    modifier = Modifier.fillMaxWidth()
                 )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
 
-
-
-
+            // TODO add other fields
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -140,6 +150,57 @@ fun NewEventScreen(
                 }
             )
         }
+    }
+}
+
+@Composable
+fun MapPickerBox(
+    startingMarkerPosition: LatLng? = null,
+    onLocationSelected: (LatLng) -> Unit
+) {
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(
+            startingMarkerPosition ?: LatLng(44.148, 12.236),
+            13f
+        )
+    }
+    var isMapLoaded by remember { mutableStateOf(false) }
+    val markerState = rememberUpdatedMarkerState(position = startingMarkerPosition ?: LatLng(44.148, 12.236))
+    var hasSelectedLocation by remember { mutableStateOf(startingMarkerPosition != null) }
+
+    Box(
+        modifier = Modifier
+            .padding(horizontal = 12.dp)
+            .fillMaxWidth()
+            .height(300.dp)
+    ) {
+        GoogleMap(
+            modifier = Modifier.fillMaxSize(),
+            cameraPositionState = cameraPositionState,
+            uiSettings = MapUiSettings(
+                zoomControlsEnabled = false,
+                mapToolbarEnabled = false
+            ),
+            onMapLoaded = { isMapLoaded = true },
+            onMapClick = { latLng ->
+                markerState.position = latLng
+                hasSelectedLocation = true
+            }
+        ) {
+            if (hasSelectedLocation) {
+                Marker(
+                    state = markerState,
+                    draggable = true
+                )
+            }
+        }
+
+        if (!isMapLoaded) {
+            CircularProgressIndicator(
+                modifier = Modifier.align(Alignment.Center)
+            )
+        }
+
     }
 }
 
@@ -181,6 +242,7 @@ fun MapPickerDialog(
                         uiSettings = MapUiSettings(
                             zoomControlsEnabled = false,
                             mapToolbarEnabled = false
+                            //myLocationButtonEnabled = true // TODO get permissions
                         ),
                         onMapLoaded = { isMapLoaded = true },
                         onMapClick = { latLng ->
