@@ -17,4 +17,6 @@
     <string name="meeting_point">Meeting point</string>
     <string name="open_map">Open map</string>
     <string name="confirm">Confirm</string>
+    <string name="choose_meeting_point">Choose meeting point</string>
+    <string name="create_event">Create event</string>
 </resources>

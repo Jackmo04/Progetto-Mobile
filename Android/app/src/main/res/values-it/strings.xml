@@ -18,4 +18,6 @@
     <string name="meeting_point">Punto di ritrovo</string>
     <string name="open_map">Apri mappa</string>
     <string name="confirm">Conferma</string>
+    <string name="choose_meeting_point">Scegli punto di ritrovo</string>
+    <string name="create_event">Crea evento</string>
 </resources>
