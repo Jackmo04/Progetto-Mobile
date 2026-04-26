@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.screens.newevent
 
+import android.graphics.fonts.FontStyle
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -14,6 +15,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -36,7 +38,9 @@ import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
@@ -141,7 +145,7 @@ fun NewEventScreen(
 
 @Composable
 fun MapPickerDialog(
-    startingMarkerPosition: LatLng?,
+    startingMarkerPosition: LatLng? = null,
     onDismiss: () -> Unit,
     onLocationSelected: (LatLng) -> Unit
 ) {
@@ -162,10 +166,8 @@ fun MapPickerDialog(
                         13f
                     )
                 }
-                val markerState = rememberUpdatedMarkerState(
-                    startingMarkerPosition ?: LatLng(44.148, 12.236)
-                )
                 var isMapLoaded by remember { mutableStateOf(false) }
+                var markerPosition by remember { mutableStateOf(startingMarkerPosition) }
                 var hasSelectedLocation by remember { mutableStateOf(startingMarkerPosition != null) }
 
                 Box(
@@ -176,14 +178,20 @@ fun MapPickerDialog(
                     GoogleMap(
                         modifier = Modifier.fillMaxSize(),
                         cameraPositionState = cameraPositionState,
+                        uiSettings = MapUiSettings(
+                            zoomControlsEnabled = false,
+                            mapToolbarEnabled = false
+                        ),
                         onMapLoaded = { isMapLoaded = true },
                         onMapClick = { latLng ->
-                            markerState.position = latLng
+                            markerPosition = latLng
                             hasSelectedLocation = true
                         }
                     ) {
-                        if (hasSelectedLocation) {
-                            Marker(markerState)
+                        markerPosition?.let { latLng ->
+                            Marker(
+                                state = MarkerState(position = latLng)
+                            )
                         }
                     }
 
@@ -203,7 +211,7 @@ fun MapPickerDialog(
                 ) {
                     TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
                     Button(
-                        onClick = { onLocationSelected(markerState.position) },
+                        onClick = { markerPosition?.let { onLocationSelected(it) } },
                         enabled = isMapLoaded && hasSelectedLocation
                     ) {
                         Text(stringResource(R.string.confirm))
