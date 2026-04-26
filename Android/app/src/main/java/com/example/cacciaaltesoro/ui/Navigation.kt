@@ -7,6 +7,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsScreen
 import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorScreen
+import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.game.GameScreen
 import com.example.cacciaaltesoro.ui.screens.home.HomeScreen
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreen
@@ -15,6 +16,7 @@ import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
 import com.example.cacciaaltesoro.ui.screens.tageditor.TagEditorScreen
 import kotlinx.serialization.Serializable
+import org.koin.androidx.compose.koinViewModel
 
 sealed interface CacciaAlTesoroRoute {
     @Serializable data object Home : CacciaAlTesoroRoute
@@ -60,7 +62,8 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         }
         composable<CacciaAlTesoroRoute.EventMapEditor> { backStackEntry ->
             val route = backStackEntry.toRoute<CacciaAlTesoroRoute.EventMapEditor>()
-            EventMapEditorScreen(navController, route.eventId)
+            val eventMapEditorVM = koinViewModel<EventMapEditorViewModel>()
+            EventMapEditorScreen(navController, eventMapEditorVM, route.eventId)
         }
         composable<CacciaAlTesoroRoute.TagEditor> { backStackEntry ->
             val route = backStackEntry.toRoute<CacciaAlTesoroRoute.TagEditor>()

@@ -31,8 +31,8 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun EventMapEditorScreen(
     navController: NavHostController,
+    viewModel: EventMapEditorViewModel,
     eventId: String,
-    viewModel: EventMapEditorViewModel = koinViewModel()
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     Scaffold(
