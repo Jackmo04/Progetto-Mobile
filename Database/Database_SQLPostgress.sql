@@ -13,7 +13,6 @@ DROP FUNCTION IF EXISTS public.handle_new_user() CASCADE;
 CREATE TABLE utenti (
     ute_id UUID PRIMARY KEY DEFAULT gen_random_uuid(), 
     ute_username text NOT NULL,
-    ute_password text NOT NULL,
     ute_immagine text NOT NULL,
     unique(ute_username)
 );
@@ -74,12 +73,11 @@ CREATE TABLE notifiche (
 CREATE OR REPLACE FUNCTION public.handle_new_user()
 RETURNS trigger AS $$
 BEGIN
-  INSERT INTO public.utenti (ute_id, ute_username, ute_immagine, ute_password)
+  INSERT INTO public.utenti (ute_id, ute_username, ute_immagine)
   VALUES (
     new.id, 
     new.raw_user_meta_data->>'username', 
-    'default.png', 
-    'AUTH_MANAGED'
+    'default.png'
   );
   RETURN new;
 END;
@@ -97,11 +95,11 @@ CREATE TRIGGER on_auth_user_created
 -- ==========================================
 
 -- 1. Inserimento Utenti
-INSERT INTO utenti (ute_id, ute_username, ute_password, ute_immagine) VALUES 
-('115133f6-4760-4214-bcb2-51d33f281211', 'mattia.cavina2@studio.unibo.it', 'pwd123', 'default.png'),
-('970be8b4-7771-4e8a-90af-d4336b9eecf0', 'matteo.grandini@studio.unibo.it', 'pwd123', 'default.png'),
-('a6f03999-fcd7-4fa1-976c-6c1187a1c109', 'giuliabianchi@example.it', 'pwd123', 'default.png'),
-('7e29a1ec-ece2-4076-80b4-4284059e5a2e', 'annaneri@example.it', 'pwd123', 'default.png');
+INSERT INTO utenti (ute_id, ute_username, ute_immagine) VALUES 
+('115133f6-4760-4214-bcb2-51d33f281211', 'mattia.cavina2@studio.unibo.it', 'default.png'),
+('970be8b4-7771-4e8a-90af-d4336b9eecf0', 'matteo.grandini@studio.unibo.it', 'default.png'),
+('a6f03999-fcd7-4fa1-976c-6c1187a1c109', 'giuliabianchi@example.it', 'default.png'),
+('7e29a1ec-ece2-4076-80b4-4284059e5a2e', 'annaneri@example.it', 'default.png');
 
 -- 2. Inserimento Partite
 INSERT INTO partite (par_nome, par_organizzatore, par_latitudine, par_longitudine, par_data , par_descrizione, par_codice) VALUES 
