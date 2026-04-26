@@ -3,13 +3,13 @@ package com.example.cacciaaltesoro.data.repositories
 import android.util.Log
 import com.google.android.gms.maps.model.LatLng
 
-interface MapEditorRepository {
+interface TagRepository {
     suspend fun saveMarkers(eventId: String, markers: List<LatLng>)
     suspend fun getMarkers(eventId: String): List<LatLng>
 }
 
 // TODO Add SupabaseClient as a dependency
-class MapEditorRepositoryImpl() : MapEditorRepository {
+class TagRepositoryImpl() : TagRepository {
     override suspend fun saveMarkers(eventId: String, markers: List<LatLng>) {
         // TODO
         Log.d("MAP_EDITOR", "Saved $markers for event $eventId")

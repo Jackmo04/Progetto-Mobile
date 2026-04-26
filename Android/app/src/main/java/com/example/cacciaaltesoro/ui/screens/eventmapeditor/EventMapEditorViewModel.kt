@@ -2,7 +2,7 @@ package com.example.cacciaaltesoro.ui.screens.eventmapeditor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cacciaaltesoro.data.repositories.MapEditorRepository
+import com.example.cacciaaltesoro.data.repositories.TagRepository
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -19,7 +19,7 @@ data class MapEditorActions(
     val onSaveMarkers: (eventId: String) -> Unit
 )
 
-class EventMapEditorViewModel(private val repository: MapEditorRepository) : ViewModel() {
+class EventMapEditorViewModel(private val repository: TagRepository) : ViewModel() {
     private val _state = MutableStateFlow(MapEditorState(emptyList()))
     val state = _state.asStateFlow()
 

@@ -12,6 +12,7 @@ import com.example.cacciaaltesoro.ui.screens.game.GameScreen
 import com.example.cacciaaltesoro.ui.screens.home.HomeScreen
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreen
 import com.example.cacciaaltesoro.ui.screens.newevent.NewEventScreen
+import com.example.cacciaaltesoro.ui.screens.newevent.NewEventViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
 import com.example.cacciaaltesoro.ui.screens.tageditor.TagEditorScreen
@@ -58,7 +59,8 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             SavedEventsScreen(navController)
         }
         composable<CacciaAlTesoroRoute.NewEvent> {
-            NewEventScreen(navController)
+            val newEventVM = koinViewModel<NewEventViewModel>()
+            NewEventScreen(navController, newEventVM)
         }
         composable<CacciaAlTesoroRoute.EventMapEditor> { backStackEntry ->
             val route = backStackEntry.toRoute<CacciaAlTesoroRoute.EventMapEditor>()
