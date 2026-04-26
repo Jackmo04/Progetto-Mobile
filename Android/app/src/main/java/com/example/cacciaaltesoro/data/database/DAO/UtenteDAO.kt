@@ -34,30 +34,36 @@ class UtenteDAO() {
 
     }
 
-    suspend public fun getAllUserSMatch(username: String): Utente?{
+    suspend fun getAllUserSMatch(username: String): Utente? {
         return try {
-            Supabase.supabase.from(TableName.UTENTI.tableName).select(columns = Columns.raw("*, partite!partecipazioni(*)"))
-            {
+            // Using the relationship for organized matches
+            Supabase.supabase.from(TableName.UTENTI.tableName).select(
+                columns = Columns.raw("*, partite!partite_par_organizzatore_fkey(*)")
+            ) {
                 filter { Utente::ute_username eq username }
             }.decodeSingleOrNull<Utente>()
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
-
     }
 
-    suspend public fun getAllUserSCatchesTag(username: String): Utente?{
+    suspend fun getAllUserSCatchesTag(username: String, partita: Int): Utente? {
         return try {
-            Supabase.supabase.from(TableName.UTENTI.tableName).select(columns = Columns.raw("*, tags!tagraccolti(*)"))
-            {
-                filter { Utente::ute_username eq username }
-            }.decodeSingleOrNull<Utente>()
+            // We fetch the user and filter the nested tags by the partita ID
+            Supabase.supabase.from(TableName.UTENTI.tableName).select(
+                columns = Columns.raw("*, tags!tagraccolti(*)")
+            ) {
+                filter { 
+                    Utente::ute_username eq username
+                }
+            }.decodeSingleOrNull<Utente>()?.let { user ->
+                user.copy(tags = user.tags.filter { it.tag_partita == partita })
+            }
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
-
     }
 }
 

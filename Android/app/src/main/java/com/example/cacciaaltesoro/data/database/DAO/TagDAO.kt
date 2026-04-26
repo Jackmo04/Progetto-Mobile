@@ -23,13 +23,4 @@ class TagDAO() {
 
     }
 
-    suspend public fun getAllUsere(): List<Utente>?{
-        return try {
-            Supabase.supabase.from(TableName.UTENTI.tableName).select().decodeList<Utente>()
-        } catch (e: Exception) {
-            e.printStackTrace()
-            null
-        }
-
-    }
 }

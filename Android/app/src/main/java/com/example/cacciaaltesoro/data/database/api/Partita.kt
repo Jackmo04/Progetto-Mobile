@@ -14,6 +14,6 @@ data class Partita(
     @SerialName("par_descrizione") val par_descrizione: String,
     @SerialName("par_codice") val par_codice: String,
 
-    @SerialName("utenti")  val utente : Utente?
+    @SerialName("utenti")  val utente : Utente? = null
 
 )

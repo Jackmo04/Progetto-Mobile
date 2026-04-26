@@ -14,5 +14,5 @@ data class Tag(
     @SerialName("tag_indizio") val tag_indizio: String,
     @SerialName("tag_immagine") val tag_immagine: String,
 
-    @SerialName("partite")  val partita : Partita?
+    @SerialName("partite")  val partita : Partita? = null
 )

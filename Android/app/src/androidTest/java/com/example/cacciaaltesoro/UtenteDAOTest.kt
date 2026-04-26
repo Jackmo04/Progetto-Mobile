@@ -44,14 +44,26 @@ class UtenteDAOTest {
         Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
         val username = "mattia.cavina2@studio.unibo.it"
 
-        val utente = dao.getUserByUsername(username)
-
-        Assert.assertNotNull(utente)
-
         val result = dao.getAllUserSMatch(username)
 
         Assert.assertNotNull(result)
         Assert.assertEquals(username, result?.ute_username)
-        Assert.assertNotNull(result?.partite)
+
+        Assert.assertTrue( result?.partite?.isNotEmpty() == true)
+    }
+
+    @Test
+    fun `test recupero tag raccolti da utente in partita` () = runTest {
+        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
+        val username = "mattia.cavina2@studio.unibo.it"
+        val partitaId = 1
+
+        val result = dao.getAllUserSCatchesTag(username, partitaId)
+
+        Assert.assertNotNull(result)
+        Assert.assertEquals(username, result?.ute_username)
+        result?.tags?.forEach { tag ->
+            Assert.assertEquals(partitaId, tag.tag_partita)
+        }
     }
 }
