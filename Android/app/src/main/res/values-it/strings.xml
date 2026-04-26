@@ -17,4 +17,5 @@
     <string name="description">Descrizione</string>
     <string name="meeting_point">Punto di ritrovo</string>
     <string name="open_map">Apri mappa</string>
+    <string name="confirm">Conferma</string>
 </resources>

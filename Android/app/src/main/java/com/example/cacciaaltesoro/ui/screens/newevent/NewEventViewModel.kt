@@ -15,8 +15,6 @@ data class NewEventState(
     val location: LatLng? = null,
     val startDateTime: String = "",
     val description: String = "",
-
-    val showMapModal: Boolean = false
 )
 
 data class NewEventActions(
@@ -25,9 +23,7 @@ data class NewEventActions(
     val onStartDateTimeChange: (String) -> Unit,
     val onDescriptionChange: (String) -> Unit,
     val onSaveEvent: () -> Unit,
-    val onCancelCreation: () -> Unit,
-    val onSelectChooseLocation: () -> Unit,
-    val onDismissChooseLocation: () -> Unit
+    val onCancelCreation: () -> Unit
 )
 
 class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
@@ -64,12 +60,6 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
         onCancelCreation = {
             // TODO add functionality to remove tags if needed
             _state.update { NewEventState() }
-        },
-        onSelectChooseLocation = {
-            _state.update { it.copy(showMapModal = true) }
-        },
-        onDismissChooseLocation = {
-            _state.update { it.copy(showMapModal = false) }
         }
     )
 }

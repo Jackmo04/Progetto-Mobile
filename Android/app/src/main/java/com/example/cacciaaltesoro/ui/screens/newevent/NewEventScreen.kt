@@ -1,7 +1,9 @@
 package com.example.cacciaaltesoro.ui.screens.newevent
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,24 +13,25 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.LocationOn
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Card
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalBottomSheet
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberModalBottomSheetState
+import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.draw.clip
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.Dialog
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
@@ -37,7 +40,6 @@ import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberMarkerState
 import com.google.maps.android.compose.rememberUpdatedMarkerState
 
 @Composable
@@ -46,6 +48,8 @@ fun NewEventScreen(
     viewModel: NewEventViewModel
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+
+    var showMapDialog by remember { mutableStateOf(false) }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -72,23 +76,22 @@ fun NewEventScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
+            // TODO change to button?
             OutlinedTextField(
                 value = state.location?.let { "${it.latitude}, ${it.longitude}" } ?: "",
                 onValueChange = {},
                 readOnly = true,
                 label = { Text(stringResource(R.string.meeting_point)) },
                 trailingIcon = {
-                    IconButton(onClick = { viewModel.actions.onSelectChooseLocation() }) {
+                    IconButton(onClick = { showMapDialog = true }) {
                         Icon(
                             Icons.Default.LocationOn,
                             contentDescription = stringResource(R.string.open_map)
                         )
                     }
                 },
-                modifier = Modifier
-                    .clickable { viewModel.actions.onSelectChooseLocation() }
+                modifier = Modifier.clickable { showMapDialog = true }
             )
-
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -100,57 +103,56 @@ fun NewEventScreen(
 //            }
         }
 
-        if (state.showMapModal) {
-            MapPickerBottomSheet(
-                viewModel.actions.onDismissChooseLocation,
-                viewModel.actions.onLocationChange
+        if (showMapDialog) {
+            MapPickerDialog (
+                onDismiss = { showMapDialog = false },
+                onLocationSelected = { latLng ->
+                    viewModel.actions.onLocationChange(latLng)
+                    showMapDialog = false
+                }
             )
         }
     }
-
 }
-@OptIn(ExperimentalMaterial3Api::class)
+
 @Composable
-fun MapPickerBottomSheet(
+fun MapPickerDialog(
     onDismiss: () -> Unit,
     onLocationSelected: (LatLng) -> Unit
 ) {
-    val sheetState = rememberModalBottomSheetState(skipPartiallyExpanded = true)
-
-    ModalBottomSheet(
+    Dialog(
         onDismissRequest = onDismiss,
-        sheetState = sheetState,
-        dragHandle = { BottomSheetDefaults.DragHandle() }
+        properties = DialogProperties(usePlatformDefaultWidth = false)
     ) {
-        Column(
+        Card(
             modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(0.8f) // Occupa l'80% dello schermo
-                .padding(16.dp)
+                .fillMaxWidth(0.95f)
+                .fillMaxHeight(0.7f),
+            shape = RoundedCornerShape(16.dp)
         ) {
-            Text("Seleziona un punto", style = MaterialTheme.typography.titleLarge)
+            Column {
+                val cameraPositionState = rememberCameraPositionState()
+                val markerState = rememberUpdatedMarkerState()
 
-            val cameraPositionState = rememberCameraPositionState()
-            val markerState = rememberUpdatedMarkerState()
+                GoogleMap(
+                    modifier = Modifier.weight(1f),
+                    cameraPositionState = cameraPositionState,
+                    onMapClick = { latLng ->
+                        markerState.position = latLng
+                    }
+                ) {
+                    Marker(state = markerState)
+                }
 
-            GoogleMap(
-                modifier = Modifier
-                    .weight(1f)
-                    .clip(RoundedCornerShape(12.dp)),
-                cameraPositionState = cameraPositionState,
-                onMapClick = { markerState.position = it }
-            ) {
-                Marker(state = markerState)
-            }
-
-            Button(
-                onClick = {
-                    onLocationSelected(markerState.position)
-                    onDismiss()
-                },
-                modifier = Modifier.fillMaxWidth().padding(vertical = 16.dp)
-            ) {
-                Text("Conferma Posizione")
+                Row(
+                    modifier = Modifier.fillMaxWidth().padding(8.dp),
+                    horizontalArrangement = Arrangement.End
+                ) {
+                    TextButton(onClick = onDismiss) { Text(stringResource(R.string.cancel)) }
+                    Button(onClick = { onLocationSelected(markerState.position) }) {
+                        Text(stringResource(R.string.confirm))
+                    }
+                }
             }
         }
     }
