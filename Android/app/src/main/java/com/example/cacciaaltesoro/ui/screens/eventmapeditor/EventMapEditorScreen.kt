@@ -21,6 +21,8 @@ import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
+import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
@@ -53,7 +55,8 @@ fun EventMapEditorScreen(
             GoogleMap(
                 modifier = Modifier.weight(1f),
                 cameraPositionState = cameraPositionState,
-                onMapClick = { viewModel.actions.onAddMarker(it) }
+                onMapClick = { viewModel.actions.onAddMarker(it) },
+                properties = MapProperties(mapType = MapType.SATELLITE)
             ) {
                 state.markerPositions.forEachIndexed { index, latLng ->
                     Marker(
