@@ -49,6 +49,7 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             LoginScreen(
                 onSignUp = loginVm::onSignUp,
                 onLogIn = loginVm::onLogIn,
+                logOut = loginVm::logOut,
                 navController = navController,
                 isSignUp = true
             )
@@ -58,6 +59,7 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             LoginScreen(
                 onSignUp = loginVm::onSignUp,
                 onLogIn = loginVm::onLogIn,
+                logOut = loginVm::logOut,
                 navController = navController,
                 isSignUp = false
             )

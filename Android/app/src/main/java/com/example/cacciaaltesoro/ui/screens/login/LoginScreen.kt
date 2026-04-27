@@ -38,8 +38,9 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
-    onSignUp: (String, String) -> Unit,
+    onSignUp: (String, String , String) -> Unit,
     onLogIn: (String, String) -> Unit,
+    logOut: () -> Unit,
     navController: NavHostController,
     isSignUp: Boolean,
     viewModel: LoginScreenViewModel = koinViewModel()
@@ -78,22 +79,24 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth(),
                 enabled = !viewModel.isLoading
             )
-            
-            viewModel.errorMessage?.let {
-                Text(
-                    text = it,
-                    color = MaterialTheme.colorScheme.error,
-                    modifier = Modifier.padding(top = 8.dp)
-                )
-            }
 
-            Spacer(modifier = Modifier.size(36.dp))
+            Spacer(modifier = Modifier.size(8.dp))
             
             if (viewModel.isLoading) {
                 CircularProgressIndicator()
             } else {
                 if (isSignUp) {
-                    MyButton("Accedi", onClick = { onLogIn(username, password) })
+                    MyButton("Accedi", onClick = {
+                        try {
+                            onLogIn(username, password)
+                           // navController.navigateUp()
+                        }
+                        catch (e: Exception){
+
+                        }
+                    })
+                    ErrorText(viewModel)
+                    SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
                     LoginAnswer(navController, isSignUp)
                 } else {
@@ -105,9 +108,13 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !viewModel.isLoading
                     )
-                    Spacer(modifier = Modifier.size(36.dp))
-                    MyButton("Registrati", onClick = { onSignUp(username, password) })
+                    ErrorText(viewModel)
+                    SuccessText(viewModel)
+                    Spacer(modifier = Modifier.size(8.dp))
+                    MyButton("Registrati", onClick = { onSignUp(username, password , passwordConfirm) })
                 }
+
+                MyButton("Log Out", onClick = { logOut() })
             }
 
 
@@ -159,4 +166,26 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
         append(".")
     }
     Text(text = annotatedText)
+}
+
+@Composable
+fun ErrorText( viewModel: LoginScreenViewModel){
+    viewModel.errorMessage?.let {
+        Text(
+            text = it,
+            color = MaterialTheme.colorScheme.error,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
+}
+
+@Composable
+fun SuccessText( viewModel: LoginScreenViewModel){
+    viewModel.successMessage?.let {
+        Text(
+            text = it,
+            color = MaterialTheme.colorScheme.inversePrimary,
+            modifier = Modifier.padding(top = 8.dp)
+        )
+    }
 }

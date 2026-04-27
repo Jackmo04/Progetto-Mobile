@@ -25,7 +25,9 @@ class LoginScreenViewModel(
         private set
 
     var errorMessage by mutableStateOf<String?>(null)
+    var successMessage by mutableStateOf<String?>(null)
         private set
+
 
     fun onLogIn(username: String, password: String) {
         if (username.isBlank() || password.isBlank()) {
@@ -36,6 +38,7 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             isLoading = true
             errorMessage = null
+            successMessage= null
             try {
                 this@LoginScreenViewModel.username = username
                 
@@ -44,25 +47,34 @@ class LoginScreenViewModel(
                     this.password = password
                 }
 
-                repository.setUsername(username)
+
                 val userId = supabase.auth.currentUserOrNull()?.id
                 if (userId != null) {
                     repository.setUserId(userId)
+                    repository.setUsername(username)
+                    repository.setIsLogin(true)
                 }
 
+                successMessage = "Login eseguito correttamente"
                 Log.i("LoginDebug", "Login eseguito con successo")
+
             } catch (e: Exception) {
                 Log.e("LoginDebug", "Errore durante il login!", e)
-                errorMessage = "Errore durante il login: ${e.localizedMessage}"
+                errorMessage = "Errore durante il login: Username o Password non corretti"
             } finally {
                 isLoading = false
             }
         }
     }
 
-    fun onSignUp(username: String, password: String) {
+    fun onSignUp(username: String, password: String , passwordConfirm: String) {
         if (username.isBlank() || password.isBlank()) {
             errorMessage = "Username e password non possono essere vuoti"
+            return
+        }
+
+        if(password!= passwordConfirm){
+            errorMessage = "Password e Conferma Password devono essere uguali"
             return
         }
 
@@ -78,7 +90,7 @@ class LoginScreenViewModel(
                 }
 
                 Log.i("LoginDebug", "Registrazione eseguita con successo")
-                errorMessage = "Controlla la tua email per confermare l'account"
+                successMessage = "Registrazione avvenuta con successo!"
             } catch (e: Exception) {
                 Log.e("LoginDebug", "Errore durante la registrazione!", e)
                 errorMessage = "Errore durante la registrazione: ${e.localizedMessage}"
@@ -86,6 +98,19 @@ class LoginScreenViewModel(
                 isLoading = false
             }
         }
+    }
+    fun logOut(){
+        viewModelScope.launch {
+            try {
+                supabase.auth.signOut()
+                successMessage = "Logout avvenuto con successo"
+
+            } catch (e: Exception) {
+                errorMessage = "Errore nel Log Out"
+
+            }
+        }
+
     }
 
     init {
