@@ -12,11 +12,12 @@ import org.junit.Test
  */
 class TagDAOTest {
 
-    private val dao = TagDAO()
+    val conn = Supabase()
+    private val dao = TagDAO(conn.supabase)
 
     @Before
     fun setup() = runTest {
-        Supabase.login("mattia.cavina2@studio.unibo.it", "psw123")
+        conn.login("mattia.cavina2@studio.unibo.it", "psw123")
     }
 
     @Test
@@ -24,9 +25,9 @@ class TagDAOTest {
         val tagId = 1
         val result = dao.getTagByID(tagId)
 
-        Assert.assertNotNull( result)
+        Assert.assertNotNull(result)
         Assert.assertEquals(tagId, result?.tag_id)
-        Assert.assertNotNull( result?.partita)
+        Assert.assertNotNull(result?.partita)
     }
 
 

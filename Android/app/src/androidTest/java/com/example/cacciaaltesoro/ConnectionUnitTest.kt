@@ -13,7 +13,7 @@ class ConnectionUnitTest {
 
     @Test
     fun testConnection() {
-        val conn = Supabase.supabase;
+        val conn = Supabase().supabase
 
         Assert.assertEquals("sb_publishable_G8rS-8Q792RWbbTQB3cMUQ_D7lUQHcY", conn.supabaseKey)
     }
@@ -23,9 +23,10 @@ class ConnectionUnitTest {
         val testEmail = "test_utente_${System.currentTimeMillis()}@gmail.com"
         val testPass = "psw123!"
         val testUsername = "tester"
+        val client = Supabase()
 
         try {
-            Supabase.signUp(email = testEmail, pass = testPass, username = testUsername)
+            client.signUp(email = testEmail, pass = testPass, username = testUsername)
             println("Registrazione riuscita per: $testEmail")
         } catch (e: Exception) {
             Assert.fail("La registrazione è fallita: ${e.message}")
@@ -34,11 +35,12 @@ class ConnectionUnitTest {
 
         @Test
         fun `test login flow`() = runTest {
+        val client = Supabase()
 
         try {
-            Supabase.login(email = "mattia.cavina2@studio.unibo.it", pass = "psw123")
+            client.login(email = "mattia.cavina2@studio.unibo.it", pass = "psw123")
 
-            val sessioneAttuale = Supabase.supabase.auth.currentSessionOrNull()
+            val sessioneAttuale = client.supabase.auth.currentSessionOrNull()
             Assert.assertNotNull("La sessione dovrebbe esistere dopo il login", sessioneAttuale)
 
         } catch (e: Exception) {

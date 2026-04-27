@@ -12,14 +12,16 @@ import org.junit.Test
  */
 class NotificheDAOTest {
 
+    val conn = Supabase()
+
     val dao: NotificheDAO
-        get() = NotificheDAO()
+        get() = NotificheDAO(conn.supabase)
 
 
 
     @Test
     fun `test recupero tutti le notifiche` () = runTest {
-        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
+        conn.login("mattia.cavina2@studio.unibo.it" , "psw123")
 
         val result = dao.getAllNotify();
 

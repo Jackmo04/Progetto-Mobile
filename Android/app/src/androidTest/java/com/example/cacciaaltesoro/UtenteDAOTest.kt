@@ -4,6 +4,7 @@ import com.example.cacciaaltesoro.data.database.DAO.UtenteDAO
 import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
+import org.junit.Before
 import org.junit.Test
 
 /**
@@ -11,13 +12,18 @@ import org.junit.Test
  */
 class UtenteDAOTest {
 
+    val conn = Supabase()
     val dao: UtenteDAO
-        get() = UtenteDAO()
+        get() = UtenteDAO(conn.supabase)
 
+
+    @Before
+    fun setup() = runTest {
+        conn.login("mattia.cavina2@studio.unibo.it", "psw123")
+    }
 
     @Test
     fun `test recupero utente tramite username` () = runTest {
-        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
         val username = "mattia.cavina2@studio.unibo.it"
 
         val user =dao.getUserByUsername(username)
@@ -32,7 +38,6 @@ class UtenteDAOTest {
 
     @Test
     fun `test recupero tutti gli utenti` () = runTest {
-        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
 
         val result = dao.getAllUser();
 
@@ -41,7 +46,6 @@ class UtenteDAOTest {
 
     @Test
     fun `test recupero utente con partite` () = runTest {
-        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
         val username = "mattia.cavina2@studio.unibo.it"
 
         val result = dao.getAllUserSMatch(username)
@@ -54,7 +58,6 @@ class UtenteDAOTest {
 
     @Test
     fun `test recupero tag raccolti da utente in partita` () = runTest {
-        Supabase.login("mattia.cavina2@studio.unibo.it" , "psw123")
         val username = "mattia.cavina2@studio.unibo.it"
         val partitaId = 1
 
