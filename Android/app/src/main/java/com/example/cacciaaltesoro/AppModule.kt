@@ -28,7 +28,7 @@ val appModule = module {
 
     single<SupabaseClient> { Supabase().supabase }
 
-    viewModel { LoginScreenViewModel(get()) }
+    viewModel { LoginScreenViewModel(get() , get()) }
     viewModel { NewEventViewModel(get()) }
     viewModel { EventMapEditorViewModel(get()) }
 }

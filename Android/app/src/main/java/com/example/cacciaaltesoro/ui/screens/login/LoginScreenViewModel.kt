@@ -1,40 +1,92 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.builtin.Email
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 
 class LoginScreenViewModel(
-    private val repository: LoginRepository
+    private val repository: LoginRepository,
+    private val supabase: SupabaseClient
 ) : ViewModel() {
-    // We are using Compose state directly inside the ViewModel
-    // Pro: no need to use .collectAsStateWithLifecycle() in the UI
-    // Cons: not thread-safe, ties the ViewModel to Jetpack Compose
-    var username by mutableStateOf((""))
+
+
+    var isLoading by mutableStateOf(false)
         private set
 
-    var password by mutableStateOf((""))
+    var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    fun onLogIn(username: String , password: String ) {
-        this.username = username
+
+    fun onLogIn(username: String , password: String) {
+        if (username.isBlank() || password.isBlank()) {
+            errorMessage = "Username e password non possono essere vuoti"
+            return
+        }
+
         viewModelScope.launch {
-            repository.setUsername(username)
+            isLoading = true
+            errorMessage = null
+            try {
+
+                supabase.auth.signInWith(Email) {
+                    this.email = username
+                    this.password = password
+                }
+
+                repository.setUsername(username)
+                val userId = supabase.auth.currentUserOrNull()?.id
+                if (userId != null) {
+                    repository.setUserId(userId)
+                }
+
+                Log.i("LoginDebug", "Login eseguito con successo")
+
+            } catch (e: Exception) {
+                Log.e("LoginDebug", "Errore durante il login!", e)
+                errorMessage = "Errore durante il login: ${e.localizedMessage}"
+            } finally {
+                isLoading = false
+            }
         }
     }
 
-    fun onSignUp(username: String , password: String  ) {
-        //TO DO
-    }
+    fun onSignUp(username: String , password: String) {
+        if (username.isBlank() || password.isBlank()) {
+            errorMessage = "Username e password non possono essere vuoti"
+            return
+        }
 
+        viewModelScope.launch {
+            isLoading = true
+            errorMessage = null
+            try {
+                supabase.auth.signUpWith(Email) {
+                    this.email = username
+                    this.password = password
+                }
+
+                Log.i("LoginDebug", "Registrazione eseguita con successo")
+            } catch (e: Exception) {
+                Log.e("LoginDebug", "Errore durante la registrazione!", e)
+                errorMessage = "Errore durante la registrazione: ${e.localizedMessage}"
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+/*
     init {
         viewModelScope.launch {
-            username = repository.username.first()
+            username = repository.username
         }
-    }
+    }*/
 }

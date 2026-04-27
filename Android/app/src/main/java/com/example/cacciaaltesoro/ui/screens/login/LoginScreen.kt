@@ -78,7 +78,7 @@ fun LoginScreen(
             )
             Spacer(modifier = Modifier.size(36.dp))
             if (isSignUp) {
-                MyButton("Accedi" , onClick ={ onLogIn(username , password) })
+                MyButton("Accedi" , onClick ={ suspend {onLogIn(username , password) }})
                 Spacer(modifier = Modifier.size(36.dp))
                 LoginAnswer(navController)
             }else{
