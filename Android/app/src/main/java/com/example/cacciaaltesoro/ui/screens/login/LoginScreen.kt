@@ -49,10 +49,11 @@ fun LoginScreen(
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
 
+    val title = if (isSignUp)   "Accedi" else "Registrati"
 
     Scaffold(
         topBar = {
-            AppBar("Login", navController)
+            AppBar(title, navController)
         }
     ) { contentPadding ->
         Column(
@@ -106,11 +107,11 @@ fun MyButton(label: String, onClick: () -> Unit) {
 fun LoginAnswer( navController: NavController) {
 
     val annotatedText = buildAnnotatedString {
-        append("Non sei registrato?")
+        append("Non sei registrato? ")
 
 
         val clickableLink = LinkAnnotation.Clickable(
-            tag = "open_activity",
+            tag = "toggle_mode",
             styles = TextLinkStyles(
                 style = SpanStyle(
                     color = Color.Blue
@@ -127,6 +128,7 @@ fun LoginAnswer( navController: NavController) {
 
         append(".")
     }
+    Text(text = annotatedText)
 
 }
 
