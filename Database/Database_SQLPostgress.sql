@@ -76,7 +76,8 @@ BEGIN
   INSERT INTO public.utenti (ute_id, ute_username, ute_immagine)
   VALUES (
     new.id, 
-    new.raw_user_meta_data->>'username', 
+    -- Usa l'username dai metadati, ma se è NULL usa l'email dell'utente
+    COALESCE(new.raw_user_meta_data->>'username', new.email), 
     'default.png'
   );
   RETURN new;

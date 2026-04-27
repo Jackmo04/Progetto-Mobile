@@ -12,7 +12,7 @@ import kotlinx.serialization.json.JsonPrimitive
 class Supabase {
     val supabase = createSupabaseClient(
         supabaseUrl = "https://dkgltvsqbhtxfyywexlw.supabase.co",
-        supabaseKey = "sb_publishable_G8rS-8Q792RWbbTQB3cMUQ_D7lUQHcY"
+        supabaseKey = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRrZ2x0dnNxYmh0eGZ5eXdleGx3Iiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzYyODk1NjcsImV4cCI6MjA5MTg2NTU2N30.HgZx1WiMAoz73OjAUjgjv3EnvH8juFdQ5CWmbN8V2hU"
     ) {
         install(Postgrest);
         install(Auth);
