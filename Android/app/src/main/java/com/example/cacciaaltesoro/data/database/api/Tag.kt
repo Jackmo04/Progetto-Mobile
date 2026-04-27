@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Tag(
-    @SerialName("tag_id")  val tag_id: Int,
+    @SerialName("tag_id")  val tag_id: String,
     @SerialName("tag_posizione")  val tag_posizione: Int,
     @SerialName("tag_partita") val tag_partita: Int,
     @SerialName("tag_hash") val tag_hash: String,

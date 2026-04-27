@@ -10,11 +10,12 @@ import io.github.jan.supabase.postgrest.query.Columns
 class TagDAO(private val supabase: SupabaseClient) {
 
 
-    suspend public fun getTagByID( id: Int): Tag?{
+    suspend public fun getTagByPosMatch( pos: Int , partita: Int): Tag?{
         return try {
             supabase.from(TableName.TAGS.tableName).select(columns = Columns.raw("*, partite(*)")) {
                 filter {
-                    Tag::tag_id eq id
+                    Tag::tag_posizione eq pos
+                    Tag::tag_partita eq partita
                 }
             }.decodeSingleOrNull<Tag>()
         } catch (e: Exception) {

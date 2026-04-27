@@ -21,13 +21,14 @@ class TagDAOTest {
     }
 
     @Test
-    fun `test getTagByID returns correct tag`() = runTest {
-        val tagId = 1
-        val result = dao.getTagByID(tagId)
+    fun `test getTagByPosMatch returns correct tag`() = runTest {
+        val tagPos = 1
+        val partita = 1
+        val result = dao.getTagByPosMatch(tagPos , partita)
 
         Assert.assertNotNull(result)
-        Assert.assertEquals(tagId, result?.tag_id)
-        Assert.assertNotNull(result?.partita)
+        Assert.assertEquals(tagPos, result?.tag_posizione)
+        Assert.assertEquals(partita, result?.tag_partita)
     }
 
 
