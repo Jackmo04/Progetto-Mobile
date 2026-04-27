@@ -85,21 +85,14 @@ fun LoginScreen(
             if (viewModel.isLoading) {
                 CircularProgressIndicator()
             } else {
-                if (isSignUp) {
-                    MyButton("Accedi", onClick = {
-                        try {
-                            onLogIn(username, password)
-                           // navController.navigateUp()
-                        }
-                        catch (e: Exception){
-
-                        }
-                    })
+                if (isSignUp && !viewModel.isLogin) {
+                    MyButton("Accedi", onClick = {onLogIn(username, password)
+ })
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
                     LoginAnswer(navController, isSignUp)
-                } else {
+                } else if(!isSignUp){
                     OutlinedTextField(
                         value = passwordConfirm,
                         onValueChange = { passwordConfirm = it },
@@ -113,8 +106,11 @@ fun LoginScreen(
                     Spacer(modifier = Modifier.size(8.dp))
                     MyButton("Registrati", onClick = { onSignUp(username, password , passwordConfirm) })
                 }
-
-                MyButton("Log Out", onClick = { logOut() })
+                else{
+                    ErrorText(viewModel)
+                    SuccessText(viewModel)
+                    MyButton("Log Out", onClick = { logOut() })
+                }
             }
 
 

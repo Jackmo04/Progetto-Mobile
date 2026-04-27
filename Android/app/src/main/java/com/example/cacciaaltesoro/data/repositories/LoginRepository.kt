@@ -29,6 +29,7 @@ class LoginRepository(
     suspend fun clearSession() = dataStore.edit {
         it.remove(USERNAME_KEY)
         it.remove(USERNAME_UUID)
+        it.remove(IS_LOGIN)
     }
 
 }

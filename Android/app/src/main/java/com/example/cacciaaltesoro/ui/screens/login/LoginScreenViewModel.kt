@@ -24,12 +24,16 @@ class LoginScreenViewModel(
     var isLoading by mutableStateOf(false)
         private set
 
+    var isLogin by mutableStateOf(false)
+        private set
+
     var errorMessage by mutableStateOf<String?>(null)
     var successMessage by mutableStateOf<String?>(null)
         private set
 
 
     fun onLogIn(username: String, password: String) {
+        isLogin = repository.isLogin.equals("true")
         if (username.isBlank() || password.isBlank()) {
             errorMessage = "Username e password non possono essere vuoti"
             return
@@ -55,6 +59,7 @@ class LoginScreenViewModel(
                     repository.setIsLogin(true)
                 }
 
+                isLogin = true
                 successMessage = "Login eseguito correttamente"
                 Log.i("LoginDebug", "Login eseguito con successo")
 
@@ -89,6 +94,7 @@ class LoginScreenViewModel(
                     this.password = password
                 }
 
+                isLogin = true
                 Log.i("LoginDebug", "Registrazione eseguita con successo")
                 successMessage = "Registrazione avvenuta con successo!"
             } catch (e: Exception) {
@@ -103,11 +109,12 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             try {
                 supabase.auth.signOut()
+                repository.clearSession()
+                isLogin = false
                 successMessage = "Logout avvenuto con successo"
 
             } catch (e: Exception) {
                 errorMessage = "Errore nel Log Out"
-
             }
         }
 
