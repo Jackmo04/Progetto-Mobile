@@ -1,6 +1,5 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
-import android.content.Intent
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -11,6 +10,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -30,26 +30,25 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
-import androidx.lifecycle.viewModelScope
 import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
-import kotlin.jvm.java
+import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
     onSignUp: (String, String) -> Unit,
     onLogIn: (String, String) -> Unit,
     navController: NavHostController,
-    isSignUp : Boolean
+    isSignUp: Boolean,
+    viewModel: LoginScreenViewModel = koinViewModel()
 ) {
     var username by remember { mutableStateOf("") }
     var password by remember { mutableStateOf("") }
+    var passwordConfirm by remember { mutableStateOf("") }
 
-    val title = if (isSignUp)   "Accedi" else "Registrati"
+    val title = if (isSignUp) "Accedi" else "Registrati"
 
     Scaffold(
         topBar = {
@@ -65,25 +64,53 @@ fun LoginScreen(
         ) {
             OutlinedTextField(
                 value = username,
-                onValueChange = { username= it },
-                label = { Text("Username") },
-                modifier = Modifier.fillMaxWidth()
+                onValueChange = { username = it },
+                label = { Text("Email") },
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !viewModel.isLoading
             )
+            Spacer(modifier = Modifier.size(8.dp))
             OutlinedTextField(
                 value = password,
                 onValueChange = { password = it },
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                enabled = !viewModel.isLoading
             )
-            Spacer(modifier = Modifier.size(36.dp))
-            if (isSignUp) {
-                MyButton("Accedi" , onClick ={ suspend {onLogIn(username , password) }})
-                Spacer(modifier = Modifier.size(36.dp))
-                LoginAnswer(navController)
-            }else{
-                MyButton("Registrati" , onClick ={ onSignUp(username , password) })
+            
+            viewModel.errorMessage?.let {
+                Text(
+                    text = it,
+                    color = MaterialTheme.colorScheme.error,
+                    modifier = Modifier.padding(top = 8.dp)
+                )
             }
+
+            Spacer(modifier = Modifier.size(36.dp))
+            
+            if (viewModel.isLoading) {
+                CircularProgressIndicator()
+            } else {
+                if (isSignUp) {
+                    MyButton("Accedi", onClick = { onLogIn(username, password) })
+                    Spacer(modifier = Modifier.size(36.dp))
+                    LoginAnswer(navController, isSignUp)
+                } else {
+                    OutlinedTextField(
+                        value = passwordConfirm,
+                        onValueChange = { passwordConfirm = it },
+                        label = { Text("Conferma Password") },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !viewModel.isLoading
+                    )
+                    Spacer(modifier = Modifier.size(36.dp))
+                    MyButton("Registrati", onClick = { onSignUp(username, password) })
+                }
+            }
+
+
         }
     }
 }
@@ -104,31 +131,32 @@ fun MyButton(label: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun LoginAnswer( navController: NavController) {
-
+fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
     val annotatedText = buildAnnotatedString {
-        append("Non sei registrato? ")
-
-
-        val clickableLink = LinkAnnotation.Clickable(
-            tag = "toggle_mode",
-            styles = TextLinkStyles(
-                style = SpanStyle(
-                    color = Color.Blue
-                )
-            )
-        ) {
-            navController.navigate(CacciaAlTesoroRoute.SignUp)
-
+        if (isSignUp) {
+            append("Non sei registrato? ")
+            val clickableLink = LinkAnnotation.Clickable(
+                tag = "go_to_signup",
+                styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
+            ) {
+                navController.navigate(CacciaAlTesoroRoute.SignUp)
+            }
+            withLink(clickableLink) {
+                append("Registrati")
+            }
+        } else {
+            append("Hai già un account? ")
+            val clickableLink = LinkAnnotation.Clickable(
+                tag = "go_to_login",
+                styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
+            ) {
+                navController.navigate(CacciaAlTesoroRoute.Login)
+            }
+            withLink(clickableLink) {
+                append("Accedi")
+            }
         }
-
-        withLink(clickableLink) {
-            append("Registrati")
-        }
-
         append(".")
     }
     Text(text = annotatedText)
-
 }
-
