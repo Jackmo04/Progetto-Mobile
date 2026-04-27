@@ -5,6 +5,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
+import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsScreen
 import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorScreen
 import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorViewModel
@@ -27,12 +28,13 @@ sealed interface CacciaAlTesoroRoute {
     @Serializable data class Game(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data object SavedEvents : CacciaAlTesoroRoute
     @Serializable data object Login : CacciaAlTesoroRoute
+
+    @Serializable data object SignUp : CacciaAlTesoroRoute
     @Serializable data object NewEvent : CacciaAlTesoroRoute
     @Serializable data class EventMapEditor(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data class TagEditor(val tagId: String) : CacciaAlTesoroRoute
 }
 
-// TODO: Add ViewModels to the routes.
 @Composable
 fun CacciaAlTesoroNavGraph(navController: NavHostController) {
     NavHost(
@@ -43,8 +45,22 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             HomeScreen(navController)
         }
         composable<CacciaAlTesoroRoute.Login> {
-            val settingsVm = koinViewModel< LoginScreenViewModel>()
-            LoginScreen("",settingsVm::updateUsername, navController = navController)
+            val loginVm = koinViewModel<LoginScreenViewModel>()
+            LoginScreen(
+                onSignUp = loginVm::onSignUp,
+                onLogIn = loginVm::onLogIn,
+                navController = navController,
+                isSignUp = true
+            )
+        }
+        composable<CacciaAlTesoroRoute.SignUp> {
+            val loginVm = koinViewModel<LoginScreenViewModel>()
+            LoginScreen(
+                onSignUp = loginVm::onSignUp,
+                onLogIn = loginVm::onLogIn,
+                navController = navController,
+                isSignUp = false
+            )
         }
         composable<CacciaAlTesoroRoute.OnlineEvents> {
             OnlineEventsScreen(navController)

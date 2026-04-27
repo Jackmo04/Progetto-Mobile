@@ -21,15 +21,15 @@ class LoginScreenViewModel(
     var password by mutableStateOf((""))
         private set
 
-    fun updateUsername(value: String) {
-        username = value
+    fun onLogIn(username: String , password: String ) {
+        this.username = username
         viewModelScope.launch {
-            repository.setUsername(value)
+            repository.setUsername(username)
         }
     }
 
-    fun updatePassword(value: String) {
-        password = value
+    fun onSignUp(username: String , password: String  ) {
+        //TO DO
     }
 
     init {

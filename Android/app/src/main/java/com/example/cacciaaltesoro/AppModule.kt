@@ -10,6 +10,7 @@ import com.example.cacciaaltesoro.data.repositories.TagRepository
 import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
 import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
 import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorViewModel
+import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.ui.screens.newevent.NewEventViewModel
 import io.github.jan.supabase.SupabaseClient
 import org.koin.core.module.dsl.viewModel
@@ -27,6 +28,7 @@ val appModule = module {
 
     single<SupabaseClient> { Supabase().supabase }
 
+    viewModel { LoginScreenViewModel(get()) }
     viewModel { NewEventViewModel(get()) }
     viewModel { EventMapEditorViewModel(get()) }
 }
