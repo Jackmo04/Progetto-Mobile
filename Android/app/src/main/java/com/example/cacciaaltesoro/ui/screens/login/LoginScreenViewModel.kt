@@ -95,6 +95,7 @@ class LoginScreenViewModel(
                 }
 
                 isLogin = true
+                repository.setIsLogin(true)
                 Log.i("LoginDebug", "Registrazione eseguita con successo")
                 successMessage = "Registrazione avvenuta con successo!"
             } catch (e: Exception) {
