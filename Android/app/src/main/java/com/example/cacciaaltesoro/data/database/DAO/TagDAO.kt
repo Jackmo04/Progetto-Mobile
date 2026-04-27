@@ -25,4 +25,18 @@ class TagDAO(private val supabase: SupabaseClient) {
 
     }
 
+    suspend public fun getTagByUUID( id: String): Tag?{
+        return try {
+            supabase.from(TableName.TAGS.tableName).select(columns = Columns.raw("*, partite(*)")) {
+                filter {
+                    Tag::tag_id eq id
+                }
+            }.decodeSingleOrNull<Tag>()
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
+
+    }
+
 }
