@@ -28,6 +28,15 @@ class LoginScreenViewModel(
     private var _state by mutableStateOf(LoginState())
     fun getState() = _state
 
+    var errorMessage by mutableStateOf<String?>(null)
+        private set
+
+    var successMessage by mutableStateOf<String?>(null)
+        private set
+
+    var isLoading by mutableStateOf(false)
+        private set
+
     init {
         viewModelScope.launch {
             repository.isLogin.collect { isLogin ->
@@ -49,28 +58,46 @@ class LoginScreenViewModel(
     val action = LoginAction(
         onLogIn = { username, password ->
             viewModelScope.launch {
+                isLoading = true
+                errorMessage = null
+                successMessage = null
                 try {
                     repository.onLogIn(username, password)
-                } catch (_: Exception) {
-                    // Ignored as requested (no messages in VM)
+                    successMessage = "Login eseguito con successo"
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante il login: Email o PAssword non corrette"
+                } finally {
+                    isLoading = false
                 }
             }
         },
         onSignOn = { username, password ->
             viewModelScope.launch {
+                isLoading = true
+                errorMessage = null
+                successMessage = null
                 try {
                     repository.onSignOn(username, password)
-                } catch (_: Exception) {
-                    // Ignored as requested (no messages in VM)
+                    successMessage = "Registrazione completata"
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante la registrazione"
+                } finally {
+                    isLoading = false
                 }
             }
         },
         onLogOut = {
             viewModelScope.launch {
+                isLoading = true
+                errorMessage = null
+                successMessage = null
                 try {
                     repository.logOut()
-                } catch (_: Exception) {
-                    // Ignored as requested (no messages in VM)
+                    successMessage = "Logout effettuato"
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante il logout"
+                } finally {
+                    isLoading = false
                 }
             }
         }

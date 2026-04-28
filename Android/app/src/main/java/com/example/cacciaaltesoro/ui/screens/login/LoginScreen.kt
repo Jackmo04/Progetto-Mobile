@@ -65,7 +65,7 @@ fun LoginScreen(
                 onValueChange = { username = it },
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = true
+                enabled = !viewModel.isLoading
             )
             Spacer(modifier = Modifier.size(8.dp))
             OutlinedTextField(
@@ -74,42 +74,41 @@ fun LoginScreen(
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = true
+                enabled = !viewModel.isLoading
             )
 
             Spacer(modifier = Modifier.size(8.dp))
 
-            if (false) {
+            if (viewModel.isLoading) {
                 CircularProgressIndicator()
             } else {
                 if (isSignUp && !viewModel.getState().isLogin) {
-                    MyButton("Accedi", onClick = {viewModel.action.onLogIn(username, password)})
-                    //ErrorText(viewModel)
-                    //SuccessText(viewModel)
+                    MyButton("Accedi", onClick = { viewModel.action.onLogIn(username, password) })
+                    ErrorText(viewModel)
+                    SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
                     LoginAnswer(navController, isSignUp)
-                } else if(!isSignUp){
+                } else if (!isSignUp) {
                     OutlinedTextField(
                         value = passwordConfirm,
                         onValueChange = { passwordConfirm = it },
                         label = { Text("Conferma Password") },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = true
+                        enabled = !viewModel.isLoading
                     )
-                    //ErrorText(viewModel)
-                   // SuccessText(viewModel)
+                    ErrorText(viewModel)
+                    SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(8.dp))
                     MyButton("Registrati", onClick = { viewModel.action.onSignOn(username, password) })
-                }
-                else{
-                    //ErrorText(viewModel)
-                  //  SuccessText(viewModel)
+                    Spacer(modifier = Modifier.size(36.dp))
+                    LoginAnswer(navController, isSignUp)
+                } else {
+                    ErrorText(viewModel)
+                    SuccessText(viewModel)
                     MyButton("Log Out", onClick = { viewModel.action.onLogOut() })
                 }
             }
-
-
         }
     }
 }
@@ -159,9 +158,9 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
     }
     Text(text = annotatedText)
 }
-/*
+
 @Composable
-fun ErrorText( viewModel: LoginScreenViewModel){
+fun ErrorText(viewModel: LoginScreenViewModel) {
     viewModel.errorMessage?.let {
         Text(
             text = it,
@@ -172,13 +171,12 @@ fun ErrorText( viewModel: LoginScreenViewModel){
 }
 
 @Composable
-fun SuccessText( viewModel: LoginScreenViewModel){
+fun SuccessText(viewModel: LoginScreenViewModel) {
     viewModel.successMessage?.let {
         Text(
             text = it,
-            color = MaterialTheme.colorScheme.inversePrimary,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 8.dp)
         )
     }
 }
-*/
