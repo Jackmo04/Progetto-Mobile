@@ -35,10 +35,9 @@ class Supabase {
     }
 
     suspend fun login(email: String, pass: String) {
-            supabase.auth.signInWith(Email) {
-                this.email = email
-                this.password = pass
-            }
-
+        supabase.auth.signInWith(Email) {
+            this.email = email
+            this.password = pass
+        }
     }
 }
