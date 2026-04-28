@@ -1,6 +1,5 @@
-package com.example.cacciaaltesoro
+package com.example.cacciaaltesoro.data.database.dao
 
-import com.example.cacciaaltesoro.data.database.dao.UtenteDAO
 import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert

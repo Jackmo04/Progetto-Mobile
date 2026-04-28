@@ -1,6 +1,5 @@
-package com.example.cacciaaltesoro
+package com.example.cacciaaltesoro.data.database
 
-import com.example.cacciaaltesoro.data.database.Supabase
 import io.github.jan.supabase.auth.auth
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert

@@ -1,6 +1,5 @@
-package com.example.cacciaaltesoro
+package com.example.cacciaaltesoro.data.database.dao
 
-import com.example.cacciaaltesoro.data.database.dao.NotificheDAO
 import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -22,7 +21,7 @@ class NotificheDAOTest {
     fun `test recupero tutti le notifiche` () = runTest {
         conn.login("mattia.cavina2@studio.unibo.it" , "psw123")
 
-        val result = dao.getAllNotify();
+        val result = dao.getAllNotify()
 
         Assert.assertNotNull(result)
         Assert.assertEquals("PROVA1",result?.firstOrNull()?.message)
