@@ -1,7 +1,6 @@
 package com.example.cacciaaltesoro
 
-import com.example.cacciaaltesoro.data.database.DAO.NotificheDAO
-import com.example.cacciaaltesoro.data.database.DAO.UtenteDAO
+import com.example.cacciaaltesoro.data.database.dao.NotificheDAO
 import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -26,7 +25,7 @@ class NotificheDAOTest {
         val result = dao.getAllNotify();
 
         Assert.assertNotNull(result)
-        Assert.assertEquals("PROVA1",result?.firstOrNull()?.not_messaggio)
-        Assert.assertNotNull(result?.firstOrNull()?.utente)
+        Assert.assertEquals("PROVA1",result?.firstOrNull()?.message)
+        Assert.assertNotNull(result?.firstOrNull()?.user)
     }
 }

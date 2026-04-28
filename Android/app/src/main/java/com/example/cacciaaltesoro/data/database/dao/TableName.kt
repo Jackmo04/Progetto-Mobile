@@ -1,4 +1,4 @@
-package com.example.cacciaaltesoro.data.database.DAO
+package com.example.cacciaaltesoro.data.database.dao
 
 enum class TableName(val tableName : String) {
     UTENTI("utenti"),

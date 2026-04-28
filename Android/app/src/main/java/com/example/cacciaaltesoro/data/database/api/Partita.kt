@@ -5,15 +5,15 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Partita(
-    @SerialName("par_id") val par_id: Int,
-    @SerialName("par_nome") val par_nome: String,
-    @SerialName("par_organizzatore") val par_organizzatore: String?,
-    @SerialName("par_latitudine") val par_latitudine: Double,
-    @SerialName("par_longitudine") val par_longitudine: Double,
-    @SerialName("par_data")  val par_data: String,
-    @SerialName("par_descrizione") val par_descrizione: String,
-    @SerialName("par_codice") val par_codice: String,
+    @SerialName("par_id") val id: Int,
+    @SerialName("par_nome") val name: String,
+    @SerialName("par_organizzatore") val organizerUUID: String?,
+    @SerialName("par_latitudine") val lat: Double,
+    @SerialName("par_longitudine") val lon: Double,
+    @SerialName("par_data")  val dateTime: String,
+    @SerialName("par_descrizione") val description: String,
+    @SerialName("par_codice") val code: String,
 
-    @SerialName("utenti")  val utente : Utente? = null
+    @SerialName("utenti")  val user : Utente? = null
 
 )

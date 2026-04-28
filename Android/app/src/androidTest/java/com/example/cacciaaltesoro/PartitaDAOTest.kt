@@ -1,6 +1,6 @@
 package com.example.cacciaaltesoro
 
-import com.example.cacciaaltesoro.data.database.DAO.PartitaDAO
+import com.example.cacciaaltesoro.data.database.dao.PartitaDAO
 import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -25,10 +25,10 @@ class PartitaDAOTest {
         Assert.assertNotNull(result)
         Assert.assertEquals(
             "PARTITA1",
-            result?.par_nome
+            result?.name
         )
 
-       Assert.assertEquals("mattia.cavina2@studio.unibo.it" , result?.utente?.ute_username)
+       Assert.assertEquals("mattia.cavina2@studio.unibo.it" , result?.user?.username)
     }
 
 

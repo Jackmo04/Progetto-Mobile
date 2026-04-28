@@ -1,8 +1,6 @@
-package com.example.cacciaaltesoro.data.database.DAO
+package com.example.cacciaaltesoro.data.database.dao
 
-import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.database.api.Notifiche
-import com.example.cacciaaltesoro.data.database.api.Utente
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns

@@ -1,12 +1,8 @@
-package com.example.cacciaaltesoro.data.database.DAO
+package com.example.cacciaaltesoro.data.database.dao
 
-import android.R
-import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.database.api.Utente
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
-import io.github.jan.supabase.postgrest.query.PostgrestQueryBuilder
-import io.github.jan.supabase.postgrest.query.request.SelectRequestBuilder
 import io.github.jan.supabase.postgrest.query.Columns
 class UtenteDAO(private val supabase: SupabaseClient) {
 
@@ -15,7 +11,7 @@ class UtenteDAO(private val supabase: SupabaseClient) {
         return try {
             supabase.from(TableName.UTENTI.tableName).select {
                 filter {
-                    Utente::ute_username eq username
+                    Utente::username eq username
                 }
             }.decodeSingleOrNull<Utente>()
         } catch (e: Exception) {
@@ -41,7 +37,7 @@ class UtenteDAO(private val supabase: SupabaseClient) {
             supabase.from(TableName.UTENTI.tableName).select(
                 columns = Columns.raw("*, partite!partite_par_organizzatore_fkey(*)")
             ) {
-                filter { Utente::ute_username eq username }
+                filter { Utente::username eq username }
             }.decodeSingleOrNull<Utente>()
         } catch (e: Exception) {
             e.printStackTrace()
@@ -56,10 +52,10 @@ class UtenteDAO(private val supabase: SupabaseClient) {
                 columns = Columns.raw("*, tags!tagraccolti(*)")
             ) {
                 filter { 
-                    Utente::ute_username eq username
+                    Utente::username eq username
                 }
             }.decodeSingleOrNull<Utente>()?.let { user ->
-                user.copy(tags = user.tags.filter { it.tag_partita == partita })
+                user.copy(tags = user.tags.filter { it.eventId == partita })
             }
         } catch (e: Exception) {
             e.printStackTrace()

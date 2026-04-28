@@ -5,14 +5,14 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class Tag(
-    @SerialName("tag_id")  val tag_id: String,
-    @SerialName("tag_posizione")  val tag_posizione: Int,
-    @SerialName("tag_partita") val tag_partita: Int,
-    @SerialName("tag_hash") val tag_hash: String,
-    @SerialName("tag_latitudine") val tag_latitudine: Double,
-    @SerialName("tag_longitudine") val tag_longitudine: Double,
-    @SerialName("tag_indizio") val tag_indizio: String,
-    @SerialName("tag_immagine") val tag_immagine: String,
+    @SerialName("tag_id")  val id: String,
+    @SerialName("tag_posizione")  val number: Int,
+    @SerialName("tag_partita") val eventId: Int,
+    @SerialName("tag_hash") val hash: String,
+    @SerialName("tag_latitudine") val lat: Double,
+    @SerialName("tag_longitudine") val lon: Double,
+    @SerialName("tag_indizio") val textHint: String,
+    @SerialName("tag_immagine") val imageHint: String,
 
-    @SerialName("partite")  val partita : Partita? = null
+    @SerialName("partite")  val event : Partita? = null
 )

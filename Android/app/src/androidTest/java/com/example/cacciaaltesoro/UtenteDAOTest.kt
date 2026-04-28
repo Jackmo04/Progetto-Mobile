@@ -1,6 +1,6 @@
 package com.example.cacciaaltesoro
 
-import com.example.cacciaaltesoro.data.database.DAO.UtenteDAO
+import com.example.cacciaaltesoro.data.database.dao.UtenteDAO
 import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -31,7 +31,7 @@ class UtenteDAOTest {
         Assert.assertNotNull(user)
         Assert.assertEquals(
             username,
-            user?.ute_username
+            user?.username
         )
     }
 
@@ -51,9 +51,9 @@ class UtenteDAOTest {
         val result = dao.getAllUserSMatch(username)
 
         Assert.assertNotNull(result)
-        Assert.assertEquals(username, result?.ute_username)
+        Assert.assertEquals(username, result?.username)
 
-        Assert.assertTrue( result?.partite?.isNotEmpty() == true)
+        Assert.assertTrue( result?.events?.isNotEmpty() == true)
     }
 
     @Test
@@ -64,9 +64,9 @@ class UtenteDAOTest {
         val result = dao.getAllUserSCatchesTag(username, partitaId)
 
         Assert.assertNotNull(result)
-        Assert.assertEquals(username, result?.ute_username)
+        Assert.assertEquals(username, result?.username)
         result?.tags?.forEach { tag ->
-            Assert.assertEquals(partitaId, tag.tag_partita)
+            Assert.assertEquals(partitaId, tag.eventId)
         }
     }
 }

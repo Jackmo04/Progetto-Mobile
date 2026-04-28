@@ -1,6 +1,6 @@
 package com.example.cacciaaltesoro
 
-import com.example.cacciaaltesoro.data.database.DAO.TagDAO
+import com.example.cacciaaltesoro.data.database.dao.TagDAO
 import com.example.cacciaaltesoro.data.database.Supabase
 import kotlinx.coroutines.test.runTest
 import org.junit.Assert
@@ -27,8 +27,8 @@ class TagDAOTest {
         val result = dao.getTagByPosMatch(tagPos , partita)
 
         Assert.assertNotNull(result)
-        Assert.assertEquals(tagPos, result?.tag_posizione)
-        Assert.assertEquals(partita, result?.tag_partita)
+        Assert.assertEquals(tagPos, result?.number)
+        Assert.assertEquals(partita, result?.eventId)
     }
 
     @Test
@@ -38,12 +38,12 @@ class TagDAOTest {
         val tag = dao.getTagByPosMatch(tagPos , partita)
         Assert.assertNotNull(tag)
 
-        val result = dao.getTagByUUID(tag!!.tag_id)
+        val result = dao.getTagByUUID(tag!!.id)
 
         Assert.assertNotNull(result)
-        Assert.assertEquals(tag.tag_id, result?.tag_id)
-        Assert.assertEquals(tagPos, result?.tag_posizione)
-        Assert.assertEquals(partita, result?.tag_partita)
+        Assert.assertEquals(tag.id, result?.id)
+        Assert.assertEquals(tagPos, result?.number)
+        Assert.assertEquals(partita, result?.eventId)
     }
 
 

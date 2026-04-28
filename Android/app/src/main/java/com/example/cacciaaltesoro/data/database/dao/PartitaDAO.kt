@@ -1,6 +1,5 @@
-package com.example.cacciaaltesoro.data.database.DAO
+package com.example.cacciaaltesoro.data.database.dao
 
-import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.database.api.Partita
 import com.example.cacciaaltesoro.data.database.api.Utente
 import io.github.jan.supabase.SupabaseClient
@@ -14,7 +13,7 @@ class PartitaDAO(private val supabase: SupabaseClient) {
         return try {
             supabase.from(TableName.PARTITE.tableName).select(columns = Columns.raw("*, utenti!partite_par_organizzatore_fkey(*)")) {
                 filter {
-                    Partita::par_id eq id
+                    Partita::id eq id
                 }
             }.decodeSingleOrNull<Partita>()
         } catch (e: Exception) {
