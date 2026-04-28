@@ -38,9 +38,6 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
-    onSignUp: (String, String , String) -> Unit,
-    onLogIn: (String, String) -> Unit,
-    logOut: () -> Unit,
     navController: NavHostController,
     isSignUp: Boolean,
     viewModel: LoginScreenViewModel = koinViewModel()
@@ -68,7 +65,7 @@ fun LoginScreen(
                 onValueChange = { username = it },
                 label = { Text("Email") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isLoading
+                enabled = true
             )
             Spacer(modifier = Modifier.size(8.dp))
             OutlinedTextField(
@@ -77,17 +74,16 @@ fun LoginScreen(
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isLoading
+                enabled = true
             )
 
             Spacer(modifier = Modifier.size(8.dp))
             
-            if (viewModel.isLoading) {
+            if (false) {
                 CircularProgressIndicator()
             } else {
-                if (isSignUp && !viewModel.isLogin) {
-                    MyButton("Accedi", onClick = {onLogIn(username, password)
- })
+                if (isSignUp && !viewModel.getState().isLogin) {
+                    MyButton("Accedi", onClick = {viewModel.action.onLogIn(username, password)})
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
@@ -99,17 +95,17 @@ fun LoginScreen(
                         label = { Text("Conferma Password") },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !viewModel.isLoading
+                        enabled = true
                     )
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(8.dp))
-                    MyButton("Registrati", onClick = { onSignUp(username, password , passwordConfirm) })
+                    MyButton("Registrati", onClick = { viewModel.action.onSignOn(username, password) })
                 }
                 else{
                     ErrorText(viewModel)
                     SuccessText(viewModel)
-                    MyButton("Log Out", onClick = { logOut() })
+                    MyButton("Log Out", onClick = { viewModel.action.onLogOut() })
                 }
             }
 

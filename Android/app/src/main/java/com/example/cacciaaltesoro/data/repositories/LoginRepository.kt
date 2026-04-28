@@ -23,16 +23,22 @@ class LoginRepository(
         private val USERNAME_KEY = stringPreferencesKey("username")
         private val USERNAME_UUID = stringPreferencesKey("idUser")
 
+        private val PASSWORD = stringPreferencesKey("password")
+
         private val IS_LOGIN = booleanPreferencesKey("isLogin")
     }
 
     val username = dataStore.data.map { it[USERNAME_KEY] ?: "" }
+
+    val password = dataStore.data.map{it[PASSWORD]?:""}
     val userId = dataStore.data.map { it[USERNAME_UUID] ?: "" }
     val isLogin = dataStore.data.map { it[IS_LOGIN]?: false }
 
     suspend fun setUsername(username: String) = dataStore.edit { it[USERNAME_KEY] = username }
 
     suspend fun setUserId(userId: String) = dataStore.edit { it[USERNAME_UUID] = userId }
+
+    suspend fun setPassword(password: String) = dataStore.edit { it[PASSWORD] = password }
 
     suspend fun setIsLogin(isLogin: Boolean) = dataStore.edit { it[IS_LOGIN] = isLogin }
 
@@ -48,21 +54,19 @@ class LoginRepository(
                 this.email = username
                 this.password = password
             }
-
-                val userId = supabase.auth.currentUserOrNull()?.id
-                if (userId != null) {
-                    setUserId(userId)
-                    setUsername(username)
-
-                }
-    setIsLogin(true)
-            } catch (e: Exception) {
-                Log.e("LoginDebug", "Errore durante il login!", e)
+            val userId = supabase.auth.currentUserOrNull()?.id
+            if (userId != null) {
+                setUserId(userId)
+                setUsername(username)
             }
-
+            setIsLogin(true)
+        } catch (e: Exception) {
+            Log.e("LoginDebug", "Errore durante il login!", e)
+            throw e
+        }
     }
 
-    suspend fun onSignUp(username: String, password: String) {
+    suspend fun onSignOn(username: String, password: String) {
             try {
 
                 supabase.auth.signUpWith(Email) {
