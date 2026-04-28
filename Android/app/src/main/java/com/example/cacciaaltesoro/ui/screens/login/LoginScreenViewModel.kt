@@ -10,29 +10,40 @@ import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import org.koin.core.component.getScopeId
+import org.koin.core.component.getScopeName
+
+data class LoginState(
+    val username: String,
+    val userId: String,
+    val isLogin: Boolean
+)
+
+data class LoginAction(
+    val onLogin: (String, String) -> Unit,
+    val onSignOn: (String, String) -> Unit,
+    val onLogOut: () -> Unit
+)
 
 class LoginScreenViewModel(
     private val repository: LoginRepository,
     private val supabase: SupabaseClient
 ) : ViewModel() {
 
-    var username by mutableStateOf("")
-        private set
+    private val _state = MutableStateFlow(LoginState("","", false))
 
-    var isLoading by mutableStateOf(false)
-        private set
+    init {
+        viewModelScope.launch {
+            _state.update { it.copy(username = repository.username.first(), userId = repository.userId.first() , isLogin = repository.isLogin.first()) }
+        }
+    }
 
-    var isLogin by mutableStateOf(false)
-        private set
-
-    var errorMessage by mutableStateOf<String?>(null)
-    var successMessage by mutableStateOf<String?>(null)
-        private set
-
-
-    fun onLogIn(username: String, password: String) {
+    val action= LoginAction(
+     onLogIn = {(username: String, password: String) {
         isLogin = repository.isLogin.equals("true")
         if (username.isBlank() || password.isBlank()) {
             errorMessage = "Username e password non possono essere vuoti"
@@ -70,9 +81,9 @@ class LoginScreenViewModel(
                 isLoading = false
             }
         }
-    }
+    },
 
-    fun onSignUp(username: String, password: String , passwordConfirm: String) {
+   onSignUp = {(username: String, password: String , passwordConfirm: String) {
         if (username.isBlank() || password.isBlank()) {
             errorMessage = "Username e password non possono essere vuoti"
             return
@@ -105,8 +116,8 @@ class LoginScreenViewModel(
                 isLoading = false
             }
         }
-    }
-    fun logOut(){
+    }},
+    onLogOut = (){
         viewModelScope.launch {
             try {
                 supabase.auth.signOut()
@@ -119,11 +130,5 @@ class LoginScreenViewModel(
             }
         }
 
-    }
-
-    init {
-        viewModelScope.launch {
-            username = repository.username.first()
-        }
     }
 }
