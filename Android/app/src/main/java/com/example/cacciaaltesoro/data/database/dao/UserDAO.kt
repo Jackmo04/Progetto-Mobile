@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.data.database.dao
 
+import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
@@ -9,7 +10,7 @@ class UserDAO(private val supabase: SupabaseClient) {
 
     suspend fun getUserByUsername(username: String): UserDTO?{
         return try {
-            supabase.from(TableName.UTENTI.tableName).select {
+            supabase.from(SupabaseTables.USERS.tableName).select {
                 filter {
                     UserDTO::username eq username
                 }
@@ -23,7 +24,7 @@ class UserDAO(private val supabase: SupabaseClient) {
 
     suspend fun getAllUsers(): List<UserDTO>?{
         return try {
-            supabase.from(TableName.UTENTI.tableName).select().decodeList<UserDTO>()
+            supabase.from(SupabaseTables.USERS.tableName).select().decodeList<UserDTO>()
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -34,7 +35,7 @@ class UserDAO(private val supabase: SupabaseClient) {
     suspend fun getAllUserSMatch(username: String): UserDTO? {
         return try {
             // Using the relationship for organized matches
-            supabase.from(TableName.UTENTI.tableName).select(
+            supabase.from(SupabaseTables.USERS.tableName).select(
                 columns = Columns.raw("*, partite!partite_par_organizzatore_fkey(*)")
             ) {
                 filter { UserDTO::username eq username }
@@ -48,7 +49,7 @@ class UserDAO(private val supabase: SupabaseClient) {
     suspend fun getAllUserSCatchesTag(username: String, partita: Int): UserDTO? {
         return try {
             // We fetch the user and filter the nested tags by the partita ID
-            supabase.from(TableName.UTENTI.tableName).select(
+            supabase.from(SupabaseTables.USERS.tableName).select(
                 columns = Columns.raw("*, tags!tagraccolti(*)")
             ) {
                 filter { 

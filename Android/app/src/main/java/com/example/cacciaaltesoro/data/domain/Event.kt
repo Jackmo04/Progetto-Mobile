@@ -5,7 +5,7 @@ import kotlin.time.Instant
 
 @OptIn(ExperimentalTime::class)
 data class Event (
-    val id: Int,
+    val id: Int?,
     val name: String?,
     val organizerUUID: String,
     val lat: Double,

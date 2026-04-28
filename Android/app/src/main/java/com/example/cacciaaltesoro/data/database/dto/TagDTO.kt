@@ -5,7 +5,7 @@ import kotlinx.serialization.Serializable
 
 @Serializable
 data class TagDTO(
-    @SerialName("tag_id")  val id: String,
+    @SerialName("tag_id")  val id: String?,
     @SerialName("tag_posizione")  val number: Int,
     @SerialName("tag_partita") val eventId: Int,
     @SerialName("tag_hash") val hash: String,

@@ -1,26 +1,23 @@
 package com.example.cacciaaltesoro.data.repositories
 
 import android.util.Log
-import com.google.android.gms.maps.model.LatLng
-import kotlinx.datetime.LocalDateTime
+import com.example.cacciaaltesoro.data.database.SupabaseTables
+import com.example.cacciaaltesoro.data.domain.Event
+import com.example.cacciaaltesoro.data.mappers.toDto
+import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.postgrest.from
 
 interface EventRepository {
-    suspend fun insertEvent(
-        name: String,
-        location: LatLng,
-        startDateTime: String,
-        description: String
-    )
+    suspend fun insertEvent(event: Event)
 }
 
-class EventRepositoryImpl : EventRepository {
-    override suspend fun insertEvent(
-        name: String,
-        location: LatLng,
-        startDateTime: String,
-        description: String
-    ) {
-        // TODO: Implement network call to save the event
-        Log.d("NEW_EVENT", "Saved new event: $name, $location, $startDateTime, $description")
+class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepository {
+    override suspend fun insertEvent(event: Event) {
+        try {
+            supabase.from(SupabaseTables.EVENTS.tableName).insert(event.toDto())
+            Log.d("EventRepository", "Successfully saved new event: ${event.id}")
+        } catch (e: Exception) {
+            Log.e("EventRepository", "Error inserting event", e)
+        }
     }
 }

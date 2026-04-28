@@ -19,7 +19,7 @@ fun Tag.toDto(): TagDTO {
 
 fun TagDTO.toDomain(): Tag {
     return Tag(
-        id = id,
+        id = id ?: throw IllegalArgumentException("Missing tag UUID"),
         number = number,
         eventId = eventId,
         hash = hash,

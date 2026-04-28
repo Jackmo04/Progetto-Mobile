@@ -24,7 +24,7 @@ val appModule = module {
 
     single { LoginRepository(get()) }
     single<TagRepository> { TagRepositoryImpl() }
-    single<EventRepository> { EventRepositoryImpl() }
+    single<EventRepository> { EventRepositoryImpl(get()) }
 
     single<SupabaseClient> { Supabase().supabase }
 

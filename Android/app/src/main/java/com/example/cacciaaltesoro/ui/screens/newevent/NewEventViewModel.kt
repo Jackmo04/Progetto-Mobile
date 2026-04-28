@@ -2,6 +2,7 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,12 +49,7 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
                 if (_state.value.name.isBlank() || _state.value.location == null) {
                     return@launch
                 }
-                repository.insertEvent(
-                    name = _state.value.name,
-                    location = _state.value.location!!,
-                    startDateTime = _state.value.startDateTime,
-                    description = _state.value.description
-                )
+//                repository.insertEvent(Event()) TODO
                 _state.update { NewEventState() }
             }
         },

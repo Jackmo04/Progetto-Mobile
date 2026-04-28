@@ -20,7 +20,7 @@ fun Event.toDto(): EventDTO {
     )
 }
 fun EventDTO.toDomain(): Event = Event(
-    id = id,
+    id = id ?: throw IllegalArgumentException("Missing Event ID"),
     name = name,
     organizerUUID = organizerUUID,
     lat = lat,
