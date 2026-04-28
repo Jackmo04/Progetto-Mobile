@@ -78,14 +78,14 @@ fun LoginScreen(
             )
 
             Spacer(modifier = Modifier.size(8.dp))
-            
+
             if (false) {
                 CircularProgressIndicator()
             } else {
                 if (isSignUp && !viewModel.getState().isLogin) {
                     MyButton("Accedi", onClick = {viewModel.action.onLogIn(username, password)})
-                    ErrorText(viewModel)
-                    SuccessText(viewModel)
+                    //ErrorText(viewModel)
+                    //SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
                     LoginAnswer(navController, isSignUp)
                 } else if(!isSignUp){
@@ -97,14 +97,14 @@ fun LoginScreen(
                         modifier = Modifier.fillMaxWidth(),
                         enabled = true
                     )
-                    ErrorText(viewModel)
-                    SuccessText(viewModel)
+                    //ErrorText(viewModel)
+                   // SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(8.dp))
                     MyButton("Registrati", onClick = { viewModel.action.onSignOn(username, password) })
                 }
                 else{
-                    ErrorText(viewModel)
-                    SuccessText(viewModel)
+                    //ErrorText(viewModel)
+                  //  SuccessText(viewModel)
                     MyButton("Log Out", onClick = { viewModel.action.onLogOut() })
                 }
             }
@@ -159,7 +159,7 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
     }
     Text(text = annotatedText)
 }
-
+/*
 @Composable
 fun ErrorText( viewModel: LoginScreenViewModel){
     viewModel.errorMessage?.let {
@@ -181,3 +181,4 @@ fun SuccessText( viewModel: LoginScreenViewModel){
         )
     }
 }
+*/

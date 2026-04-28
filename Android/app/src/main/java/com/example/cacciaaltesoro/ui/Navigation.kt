@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.ui
 
 import androidx.compose.runtime.Composable
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
@@ -47,21 +48,17 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         composable<CacciaAlTesoroRoute.Login> {
             val loginVm = koinViewModel<LoginScreenViewModel>()
             LoginScreen(
-                onSignUp = loginVm::onSignUp,
-                onLogIn = loginVm::onLogIn,
-                logOut = loginVm::logOut,
                 navController = navController,
-                isSignUp = true
+                isSignUp = true,
+                viewModel= loginVm
             )
         }
         composable<CacciaAlTesoroRoute.SignUp> {
             val loginVm = koinViewModel<LoginScreenViewModel>()
             LoginScreen(
-                onSignUp = loginVm::onSignUp,
-                onLogIn = loginVm::onLogIn,
-                logOut = loginVm::logOut,
                 navController = navController,
-                isSignUp = false
+                isSignUp = false,
+                viewModel= loginVm
             )
         }
         composable<CacciaAlTesoroRoute.OnlineEvents> {

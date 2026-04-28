@@ -22,13 +22,13 @@ val Context.dataStore by preferencesDataStore("settings")
 val appModule = module {
     single { get<Context>().dataStore }
 
-    single { LoginRepository(get()) }
+    single { LoginRepository(get() , get()) }
     single<TagRepository> { TagRepositoryImpl() }
     single<EventRepository> { EventRepositoryImpl() }
 
     single<SupabaseClient> { Supabase().supabase }
 
-    viewModel { LoginScreenViewModel(get() , get()) }
+    viewModel { LoginScreenViewModel(get() ) }
     viewModel { NewEventViewModel(get()) }
     viewModel { EventMapEditorViewModel(get()) }
 }

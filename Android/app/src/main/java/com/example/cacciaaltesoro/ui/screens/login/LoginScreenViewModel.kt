@@ -1,19 +1,18 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
-import io.github.jan.supabase.SupabaseClient
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.update
+import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 data class LoginState(
-    val username: String,
-    val password: String,
-    val userId: String,
-    val isLogin: Boolean
+    val username: String = "",
+    val userId: String = "",
+    val isLogin: Boolean = false
 )
 
 data class LoginAction(
@@ -23,34 +22,56 @@ data class LoginAction(
 )
 
 class LoginScreenViewModel(
-    private val repository: LoginRepository,
-    private val supabase: SupabaseClient
+    private val repository: LoginRepository
 ) : ViewModel() {
 
-    private val _state = MutableStateFlow(LoginState("","","", false))
-
-    fun getState ():LoginState {return _state.value}
+    private var _state by mutableStateOf(LoginState())
+    fun getState() = _state
 
     init {
         viewModelScope.launch {
-            _state.update { it.copy(username = repository.username.first(), password = repository.password.first(), userId = repository.userId.first() , isLogin = repository.isLogin.first()) }
+            repository.isLogin.collect { isLogin ->
+                _state = _state.copy(isLogin = isLogin)
+            }
+        }
+        viewModelScope.launch {
+            repository.username.collect { username ->
+                _state = _state.copy(username = username)
+            }
+        }
+        viewModelScope.launch {
+            repository.userId.collect { userId ->
+                _state = _state.copy(userId = userId)
+            }
         }
     }
 
     val action = LoginAction(
         onLogIn = { username, password ->
             viewModelScope.launch {
-                repository.onLogIn(username, password)
+                try {
+                    repository.onLogIn(username, password)
+                } catch (_: Exception) {
+                    // Ignored as requested (no messages in VM)
+                }
             }
         },
         onSignOn = { username, password ->
             viewModelScope.launch {
-                repository.onSignOn(username, password)
+                try {
+                    repository.onSignOn(username, password)
+                } catch (_: Exception) {
+                    // Ignored as requested (no messages in VM)
+                }
             }
         },
         onLogOut = {
             viewModelScope.launch {
-                repository.setIsLogin(false)
+                try {
+                    repository.logOut()
+                } catch (_: Exception) {
+                    // Ignored as requested (no messages in VM)
+                }
             }
         }
     )
