@@ -52,7 +52,7 @@ class UserDAOTest {
         Assert.assertNotNull(result)
         Assert.assertEquals(username, result?.username)
 
-        Assert.assertTrue( result?.events?.isNotEmpty() == true)
+        Assert.assertTrue( result?.eventDTOS?.isNotEmpty() == true)
     }
 
     @Test
@@ -64,7 +64,7 @@ class UserDAOTest {
 
         Assert.assertNotNull(result)
         Assert.assertEquals(username, result?.username)
-        result?.tags?.forEach { tag ->
+        result?.tagDTOS?.forEach { tag ->
             Assert.assertEquals(partitaId, tag.eventId)
         }
     }

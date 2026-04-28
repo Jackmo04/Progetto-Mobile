@@ -24,10 +24,10 @@ CREATE TABLE partite (
     par_organizzatore UUID NOT NULL,
     par_latitudine FLOAT NOT NULL,
     par_longitudine FLOAT NOT NULL,
-    par_data TIMESTAMP NOT NULL,
+    par_data TIMESTAMPTZ NOT NULL,
     par_descrizione text NULL,
     par_codice text NOT NULL,
-par_privato boolean NULL DEFAULT (false),
+    par_privato boolean NOT NULL DEFAULT (false),
     FOREIGN KEY (par_organizzatore) REFERENCES utenti(ute_id)
 );
 GRANT SELECT ON public.partite TO anon;
@@ -47,8 +47,8 @@ CREATE TABLE tags (
     tag_hash text NOT NULL,
     tag_latitudine FLOAT NOT NULL,
     tag_longitudine FLOAT NOT NULL,
-    tag_indizio text NOT NULL,
-    tag_immagine text NOT NULL,
+    tag_indizio text NULL,
+    tag_immagine text NULL,
     FOREIGN KEY (tag_partita) REFERENCES partite(par_id)
 );
 

@@ -27,7 +27,7 @@ class EventDAOTest {
             result?.name
         )
 
-       Assert.assertEquals("mattia.cavina2@studio.unibo.it" , result?.user?.username)
+       Assert.assertEquals("mattia.cavina2@studio.unibo.it" , result?.userDTO?.username)
     }
 
 

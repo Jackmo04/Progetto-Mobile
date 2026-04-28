@@ -1,10 +1,10 @@
-package com.example.cacciaaltesoro.data.database.api
+package com.example.cacciaaltesoro.data.database.dto
 
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Tag(
+data class TagDTO(
     @SerialName("tag_id")  val id: String,
     @SerialName("tag_posizione")  val number: Int,
     @SerialName("tag_partita") val eventId: Int,
@@ -14,5 +14,5 @@ data class Tag(
     @SerialName("tag_indizio") val textHint: String,
     @SerialName("tag_immagine") val imageHint: String,
 
-    @SerialName("partite")  val event : Event? = null
+    @SerialName("partite")  val eventDTO : EventDTO? = null
 )

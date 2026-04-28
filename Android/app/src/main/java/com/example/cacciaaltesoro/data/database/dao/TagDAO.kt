@@ -1,20 +1,20 @@
 package com.example.cacciaaltesoro.data.database.dao
 
-import com.example.cacciaaltesoro.data.database.api.Tag
+import com.example.cacciaaltesoro.data.database.dto.TagDTO
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 
 class TagDAO(private val supabase: SupabaseClient) {
 
-    suspend fun getTagByPosMatch( pos: Int , partita: Int): Tag?{
+    suspend fun getTagByPosMatch( pos: Int , partita: Int): TagDTO?{
         return try {
             supabase.from(TableName.TAGS.tableName).select(columns = Columns.raw("*, partite(*)")) {
                 filter {
-                    Tag::number eq pos
-                    Tag::eventId eq partita
+                    TagDTO::number eq pos
+                    TagDTO::eventId eq partita
                 }
-            }.decodeSingleOrNull<Tag>()
+            }.decodeSingleOrNull<TagDTO>()
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -22,13 +22,13 @@ class TagDAO(private val supabase: SupabaseClient) {
 
     }
 
-    suspend fun getTagByUUID( id: String): Tag?{
+    suspend fun getTagByUUID( id: String): TagDTO?{
         return try {
             supabase.from(TableName.TAGS.tableName).select(columns = Columns.raw("*, partite(*)")) {
                 filter {
-                    Tag::id eq id
+                    TagDTO::id eq id
                 }
-            }.decodeSingleOrNull<Tag>()
+            }.decodeSingleOrNull<TagDTO>()
         } catch (e: Exception) {
             e.printStackTrace()
             null

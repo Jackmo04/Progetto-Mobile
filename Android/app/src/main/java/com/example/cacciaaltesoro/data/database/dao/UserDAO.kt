@@ -1,19 +1,19 @@
 package com.example.cacciaaltesoro.data.database.dao
 
-import com.example.cacciaaltesoro.data.database.api.User
+import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 class UserDAO(private val supabase: SupabaseClient) {
 
 
-    suspend fun getUserByUsername(username: String): User?{
+    suspend fun getUserByUsername(username: String): UserDTO?{
         return try {
             supabase.from(TableName.UTENTI.tableName).select {
                 filter {
-                    User::username eq username
+                    UserDTO::username eq username
                 }
-            }.decodeSingleOrNull<User>()
+            }.decodeSingleOrNull<UserDTO>()
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -21,9 +21,9 @@ class UserDAO(private val supabase: SupabaseClient) {
 
     }
 
-    suspend fun getAllUsers(): List<User>?{
+    suspend fun getAllUsers(): List<UserDTO>?{
         return try {
-            supabase.from(TableName.UTENTI.tableName).select().decodeList<User>()
+            supabase.from(TableName.UTENTI.tableName).select().decodeList<UserDTO>()
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -31,31 +31,31 @@ class UserDAO(private val supabase: SupabaseClient) {
 
     }
 
-    suspend fun getAllUserSMatch(username: String): User? {
+    suspend fun getAllUserSMatch(username: String): UserDTO? {
         return try {
             // Using the relationship for organized matches
             supabase.from(TableName.UTENTI.tableName).select(
                 columns = Columns.raw("*, partite!partite_par_organizzatore_fkey(*)")
             ) {
-                filter { User::username eq username }
-            }.decodeSingleOrNull<User>()
+                filter { UserDTO::username eq username }
+            }.decodeSingleOrNull<UserDTO>()
         } catch (e: Exception) {
             e.printStackTrace()
             null
         }
     }
 
-    suspend fun getAllUserSCatchesTag(username: String, partita: Int): User? {
+    suspend fun getAllUserSCatchesTag(username: String, partita: Int): UserDTO? {
         return try {
             // We fetch the user and filter the nested tags by the partita ID
             supabase.from(TableName.UTENTI.tableName).select(
                 columns = Columns.raw("*, tags!tagraccolti(*)")
             ) {
                 filter { 
-                    User::username eq username
+                    UserDTO::username eq username
                 }
-            }.decodeSingleOrNull<User>()?.let { user ->
-                user.copy(tags = user.tags.filter { it.eventId == partita })
+            }.decodeSingleOrNull<UserDTO>()?.let { user ->
+                user.copy(tagDTOS = user.tagDTOS.filter { it.eventId == partita })
             }
         } catch (e: Exception) {
             e.printStackTrace()

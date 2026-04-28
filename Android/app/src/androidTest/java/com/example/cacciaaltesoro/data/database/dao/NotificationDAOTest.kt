@@ -25,6 +25,6 @@ class NotificationDAOTest {
 
         Assert.assertNotNull(result)
         Assert.assertEquals("PROVA1",result?.firstOrNull()?.message)
-        Assert.assertNotNull(result?.firstOrNull()?.user)
+        Assert.assertNotNull(result?.firstOrNull()?.userDTO)
     }
 }
