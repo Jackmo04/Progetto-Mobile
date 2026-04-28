@@ -1,21 +1,20 @@
 package com.example.cacciaaltesoro.data.database.dao
 
-import com.example.cacciaaltesoro.data.database.api.Partita
-import com.example.cacciaaltesoro.data.database.api.Utente
+import com.example.cacciaaltesoro.data.database.api.Event
+import com.example.cacciaaltesoro.data.database.api.User
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import io.github.jan.supabase.postgrest.query.Columns
 
-class PartitaDAO(private val supabase: SupabaseClient) {
+class EventDAO(private val supabase: SupabaseClient) {
 
-
-    suspend public fun getPartitaByID( id: Int): Partita?{
+    suspend fun getEventById(id: Int): Event? {
         return try {
             supabase.from(TableName.PARTITE.tableName).select(columns = Columns.raw("*, utenti!partite_par_organizzatore_fkey(*)")) {
                 filter {
-                    Partita::id eq id
+                    Event::id eq id
                 }
-            }.decodeSingleOrNull<Partita>()
+            }.decodeSingleOrNull<Event>()
         } catch (e: Exception) {
             e.printStackTrace()
             null
@@ -23,9 +22,9 @@ class PartitaDAO(private val supabase: SupabaseClient) {
 
     }
 
-    suspend public fun getAllUsere(): List<Utente>?{
+    suspend fun getAllUsers(): List<User>? {
         return try {
-            supabase.from(TableName.UTENTI.tableName).select().decodeList<Utente>()
+            supabase.from(TableName.UTENTI.tableName).select().decodeList<User>()
         } catch (e: Exception) {
             e.printStackTrace()
             null

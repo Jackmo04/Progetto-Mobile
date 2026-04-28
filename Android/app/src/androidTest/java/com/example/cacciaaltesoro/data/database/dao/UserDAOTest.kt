@@ -9,11 +9,11 @@ import org.junit.Test
 /**
  * Test to connect supabase with application
  */
-class UtenteDAOTest {
+class UserDAOTest {
 
     val conn = Supabase()
-    val dao: UtenteDAO
-        get() = UtenteDAO(conn.supabase)
+    val dao: UserDAO
+        get() = UserDAO(conn.supabase)
 
 
     @Before
@@ -38,7 +38,7 @@ class UtenteDAOTest {
     @Test
     fun `test recupero tutti gli utenti` () = runTest {
 
-        val result = dao.getAllUser();
+        val result = dao.getAllUsers();
 
         Assert.assertNotNull(result)
     }

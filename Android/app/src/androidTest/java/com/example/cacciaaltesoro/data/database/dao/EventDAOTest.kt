@@ -8,18 +8,18 @@ import org.junit.Test
 /**
  * Test to connect supabase with application
  */
-class PartitaDAOTest {
+class EventDAOTest {
 
     val conn = Supabase()
-    val dao: PartitaDAO
-        get() = PartitaDAO(conn.supabase)
+    val dao: EventDAO
+        get() = EventDAO(conn.supabase)
 
 
     @Test
     fun `test partita by id` () = runTest {
         conn.login("mattia.cavina2@studio.unibo.it" , "psw123")
 
-        val result = dao.getPartitaByID(1)
+        val result = dao.getEventById(1)
 
         Assert.assertNotNull(result)
         Assert.assertEquals(

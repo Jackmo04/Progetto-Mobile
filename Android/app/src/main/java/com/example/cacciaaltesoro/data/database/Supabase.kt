@@ -6,6 +6,7 @@ import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
+import io.github.jan.supabase.postgrest.PropertyConversionMethod
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -14,8 +15,10 @@ class Supabase {
         supabaseUrl = "https://dkgltvsqbhtxfyywexlw.supabase.co",
         supabaseKey = "sb_publishable_G8rS-8Q792RWbbTQB3cMUQ_D7lUQHcY"
     ) {
-        install(Postgrest);
-        install(Auth);
+        install(Postgrest) {
+            propertyConversionMethod = PropertyConversionMethod.SERIAL_NAME
+        }
+        install(Auth)
     }
 
 

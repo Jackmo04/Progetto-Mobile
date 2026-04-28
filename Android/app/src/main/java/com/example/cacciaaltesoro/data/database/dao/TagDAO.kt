@@ -7,8 +7,7 @@ import io.github.jan.supabase.postgrest.query.Columns
 
 class TagDAO(private val supabase: SupabaseClient) {
 
-
-    suspend public fun getTagByPosMatch( pos: Int , partita: Int): Tag?{
+    suspend fun getTagByPosMatch( pos: Int , partita: Int): Tag?{
         return try {
             supabase.from(TableName.TAGS.tableName).select(columns = Columns.raw("*, partite(*)")) {
                 filter {
@@ -23,7 +22,7 @@ class TagDAO(private val supabase: SupabaseClient) {
 
     }
 
-    suspend public fun getTagByUUID( id: String): Tag?{
+    suspend fun getTagByUUID( id: String): Tag?{
         return try {
             supabase.from(TableName.TAGS.tableName).select(columns = Columns.raw("*, partite(*)")) {
                 filter {

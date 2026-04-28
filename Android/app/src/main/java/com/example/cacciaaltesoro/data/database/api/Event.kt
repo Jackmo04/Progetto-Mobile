@@ -4,7 +4,8 @@ import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class Partita(
+@SerialName("partita")
+data class Event(
     @SerialName("par_id") val id: Int,
     @SerialName("par_nome") val name: String,
     @SerialName("par_organizzatore") val organizerUUID: String?,
@@ -14,6 +15,6 @@ data class Partita(
     @SerialName("par_descrizione") val description: String,
     @SerialName("par_codice") val code: String,
 
-    @SerialName("utenti")  val user : Utente? = null
+    @SerialName("utenti")  val user : User? = null
 
 )

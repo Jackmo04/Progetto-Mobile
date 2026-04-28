@@ -8,12 +8,12 @@ import org.junit.Test
 /**
  * Test to connect supabase with application
  */
-class NotificheDAOTest {
+class NotificationDAOTest {
 
     val conn = Supabase()
 
-    val dao: NotificheDAO
-        get() = NotificheDAO(conn.supabase)
+    val dao: NotificationDAO
+        get() = NotificationDAO(conn.supabase)
 
 
 

@@ -14,5 +14,5 @@ data class Tag(
     @SerialName("tag_indizio") val textHint: String,
     @SerialName("tag_immagine") val imageHint: String,
 
-    @SerialName("partite")  val event : Partita? = null
+    @SerialName("partite")  val event : Event? = null
 )
