@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -38,18 +39,27 @@ import org.koin.androidx.compose.koinViewModel
 
 @Composable
 fun LoginScreen(
-    onSignUp: (String, String , String) -> Unit,
-    onLogIn: (String, String) -> Unit,
-    logOut: () -> Unit,
     navController: NavHostController,
     isSignUp: Boolean,
     viewModel: LoginScreenViewModel = koinViewModel()
 ) {
-    var username by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf(viewModel.getState().username) }
     var password by remember { mutableStateOf("") }
     var passwordConfirm by remember { mutableStateOf("") }
 
-    val title = if (isSignUp) "Accedi" else "Registrati"
+    LaunchedEffect(viewModel.getState().username) {
+        if (username.isEmpty()) {
+            username = viewModel.getState().username
+        }
+    }
+
+    val title = if(viewModel.getState().isLogin) {
+        "Profilo"
+    } else if (isSignUp) {
+        "Accedi"
+    } else {
+        "Registrati"
+    }
 
     Scaffold(
         topBar = {
@@ -63,13 +73,17 @@ fun LoginScreen(
                 .padding(12.dp)
                 .fillMaxSize()
         ) {
+
             OutlinedTextField(
                 value = username,
-                onValueChange = { username = it },
-                label = { Text("Email") },
+                onValueChange = { text -> username = text },
+                label = { Text("Username") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isLoading
+                enabled = !viewModel.isLoading,
+                readOnly = viewModel.getState().isLogin
             )
+
+            if(!viewModel.getState().isLogin){
             Spacer(modifier = Modifier.size(8.dp))
             OutlinedTextField(
                 value = password,
@@ -77,22 +91,23 @@ fun LoginScreen(
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isLoading
+                enabled = !viewModel.isLoading,
+
             )
+            }
 
             Spacer(modifier = Modifier.size(8.dp))
-            
+
             if (viewModel.isLoading) {
                 CircularProgressIndicator()
             } else {
-                if (isSignUp && !viewModel.isLogin) {
-                    MyButton("Accedi", onClick = {onLogIn(username, password)
- })
+                if (isSignUp && !viewModel.getState().isLogin) {
+                    MyButton("Accedi", onClick = { viewModel.action.onLogIn(username, password) })
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
                     LoginAnswer(navController, isSignUp)
-                } else if(!isSignUp){
+                } else if (!isSignUp) {
                     OutlinedTextField(
                         value = passwordConfirm,
                         onValueChange = { passwordConfirm = it },
@@ -104,16 +119,20 @@ fun LoginScreen(
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(8.dp))
-                    MyButton("Registrati", onClick = { onSignUp(username, password , passwordConfirm) })
-                }
-                else{
+                    MyButton("Registrati", onClick = {
+                        viewModel.action.onSignOn(username, password, passwordConfirm)
+
+                    })
+                    Spacer(modifier = Modifier.size(36.dp))
+                    LoginAnswer(navController, isSignUp)
+                } else {
                     ErrorText(viewModel)
                     SuccessText(viewModel)
-                    MyButton("Log Out", onClick = { logOut() })
+                    MyButton("Log Out", onClick = { viewModel.action.onLogOut()
+                        username=""
+                        password=""})
                 }
             }
-
-
         }
     }
 }
@@ -140,7 +159,7 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
             append("Non sei registrato? ")
             val clickableLink = LinkAnnotation.Clickable(
                 tag = "go_to_signup",
-                styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
             ) {
                 navController.navigate(CacciaAlTesoroRoute.SignUp)
             }
@@ -151,7 +170,7 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
             append("Hai già un account? ")
             val clickableLink = LinkAnnotation.Clickable(
                 tag = "go_to_login",
-                styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
             ) {
                 navController.navigate(CacciaAlTesoroRoute.Login)
             }
@@ -165,7 +184,7 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
 }
 
 @Composable
-fun ErrorText( viewModel: LoginScreenViewModel){
+fun ErrorText(viewModel: LoginScreenViewModel) {
     viewModel.errorMessage?.let {
         Text(
             text = it,
@@ -176,11 +195,11 @@ fun ErrorText( viewModel: LoginScreenViewModel){
 }
 
 @Composable
-fun SuccessText( viewModel: LoginScreenViewModel){
+fun SuccessText(viewModel: LoginScreenViewModel) {
     viewModel.successMessage?.let {
         Text(
             text = it,
-            color = MaterialTheme.colorScheme.inversePrimary,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.padding(top = 8.dp)
         )
     }
