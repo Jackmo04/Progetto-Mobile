@@ -6,7 +6,6 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 
 data class LoginState(
@@ -17,7 +16,7 @@ data class LoginState(
 
 data class LoginAction(
     val onLogIn: (String, String) -> Unit,
-    val onSignOn: (String, String) -> Unit,
+    val onSignOn: (String, String, String) -> Unit,
     val onLogOut: () -> Unit
 )
 
@@ -38,16 +37,19 @@ class LoginScreenViewModel(
         private set
 
     init {
-        viewModelScope.apply {  }
         viewModelScope.launch {
             repository.isLogin.collect { isLogin ->
-                repository.isLogin.collect { isLogin -> _state = _state.copy(isLogin = isLogin) }
+                _state = _state.copy(isLogin = isLogin)
             }
-            launch {
-                repository.username.collect { username -> _state = _state.copy(username = username) }
+        }
+        viewModelScope.launch {
+            repository.username.collect { username ->
+                _state = _state.copy(username = username)
             }
-            launch {
-                repository.userId.collect { userId -> _state = _state.copy(userId = userId) }
+        }
+        viewModelScope.launch {
+            repository.userId.collect { userId ->
+                _state = _state.copy(userId = userId)
             }
         }
     }
@@ -62,14 +64,18 @@ class LoginScreenViewModel(
                     repository.onLogIn(username, password)
                     successMessage = "Login eseguito con successo"
                 } catch (e: Exception) {
-                    errorMessage = "Errore durante il login: Email o PAssword non corrette"
+                    errorMessage = "Errore durante il login: Email o Password non corrette"
                 } finally {
                     isLoading = false
                 }
             }
         },
-        onSignOn = { username, password ->
+        onSignOn = { username, password, passwordConfirm ->
             viewModelScope.launch {
+                if (password != passwordConfirm) {
+                    errorMessage = "Le password non coincidono"
+                    return@launch
+                }
                 isLoading = true
                 errorMessage = null
                 successMessage = null

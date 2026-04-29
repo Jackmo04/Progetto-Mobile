@@ -16,6 +16,7 @@ import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -45,6 +46,12 @@ fun LoginScreen(
     var username by remember { mutableStateOf(viewModel.getState().username) }
     var password by remember { mutableStateOf("") }
     var passwordConfirm by remember { mutableStateOf("") }
+
+    LaunchedEffect(viewModel.getState().username) {
+        if (username.isEmpty()) {
+            username = viewModel.getState().username
+        }
+    }
 
     val title = if(viewModel.getState().isLogin) {
         "Profilo"
@@ -112,13 +119,18 @@ fun LoginScreen(
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(8.dp))
-                    MyButton("Registrati", onClick = { viewModel.action.onSignOn(username, password) })
+                    MyButton("Registrati", onClick = {
+                        viewModel.action.onSignOn(username, password, passwordConfirm)
+
+                    })
                     Spacer(modifier = Modifier.size(36.dp))
                     LoginAnswer(navController, isSignUp)
                 } else {
                     ErrorText(viewModel)
                     SuccessText(viewModel)
-                    MyButton("Log Out", onClick = { viewModel.action.onLogOut() })
+                    MyButton("Log Out", onClick = { viewModel.action.onLogOut()
+                        username=""
+                        password=""})
                 }
             }
         }

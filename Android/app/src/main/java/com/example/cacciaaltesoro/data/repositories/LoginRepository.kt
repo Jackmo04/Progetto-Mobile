@@ -37,6 +37,7 @@ class LoginRepository(
         it.remove(USERNAME_UUID)
         it.remove(PASSWORD)
         it.remove(IS_LOGIN)
+
     }
 
     suspend fun onLogIn(username: String, password: String) {
