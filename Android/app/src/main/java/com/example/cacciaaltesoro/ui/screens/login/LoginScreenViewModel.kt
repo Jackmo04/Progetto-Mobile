@@ -38,19 +38,16 @@ class LoginScreenViewModel(
         private set
 
     init {
+        viewModelScope.apply {  }
         viewModelScope.launch {
             repository.isLogin.collect { isLogin ->
-                _state = _state.copy(isLogin = isLogin)
+                repository.isLogin.collect { isLogin -> _state = _state.copy(isLogin = isLogin) }
             }
-        }
-        viewModelScope.launch {
-            repository.username.collect { username ->
-                _state = _state.copy(username = username)
+            launch {
+                repository.username.collect { username -> _state = _state.copy(username = username) }
             }
-        }
-        viewModelScope.launch {
-            repository.userId.collect { userId ->
-                _state = _state.copy(userId = userId)
+            launch {
+                repository.userId.collect { userId -> _state = _state.copy(userId = userId) }
             }
         }
     }

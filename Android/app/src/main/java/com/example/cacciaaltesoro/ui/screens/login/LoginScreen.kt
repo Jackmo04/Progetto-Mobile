@@ -42,11 +42,17 @@ fun LoginScreen(
     isSignUp: Boolean,
     viewModel: LoginScreenViewModel = koinViewModel()
 ) {
-    var username by remember { mutableStateOf("") }
+    var username by remember { mutableStateOf(viewModel.getState().username) }
     var password by remember { mutableStateOf("") }
     var passwordConfirm by remember { mutableStateOf("") }
 
-    val title = if (isSignUp) "Accedi" else "Registrati"
+    val title = if(viewModel.getState().isLogin) {
+        "Profilo"
+    } else if (isSignUp) {
+        "Accedi"
+    } else {
+        "Registrati"
+    }
 
     Scaffold(
         topBar = {
@@ -60,13 +66,17 @@ fun LoginScreen(
                 .padding(12.dp)
                 .fillMaxSize()
         ) {
+
             OutlinedTextField(
                 value = username,
-                onValueChange = { username = it },
-                label = { Text("Email") },
+                onValueChange = { text -> username = text },
+                label = { Text("Username") },
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isLoading
+                enabled = !viewModel.isLoading,
+                readOnly = viewModel.getState().isLogin
             )
+
+            if(!viewModel.getState().isLogin){
             Spacer(modifier = Modifier.size(8.dp))
             OutlinedTextField(
                 value = password,
@@ -74,8 +84,10 @@ fun LoginScreen(
                 label = { Text("Password") },
                 visualTransformation = PasswordVisualTransformation(),
                 modifier = Modifier.fillMaxWidth(),
-                enabled = !viewModel.isLoading
+                enabled = !viewModel.isLoading,
+
             )
+            }
 
             Spacer(modifier = Modifier.size(8.dp))
 
@@ -135,7 +147,7 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
             append("Non sei registrato? ")
             val clickableLink = LinkAnnotation.Clickable(
                 tag = "go_to_signup",
-                styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
             ) {
                 navController.navigate(CacciaAlTesoroRoute.SignUp)
             }
@@ -146,7 +158,7 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
             append("Hai già un account? ")
             val clickableLink = LinkAnnotation.Clickable(
                 tag = "go_to_login",
-                styles = TextLinkStyles(style = SpanStyle(color = Color.Blue))
+                styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
             ) {
                 navController.navigate(CacciaAlTesoroRoute.Login)
             }
