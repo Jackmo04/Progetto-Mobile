@@ -5,12 +5,15 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.outlined.CalendarMonth
+import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -101,7 +104,12 @@ fun NewEventScreen(
                 onClick = { showMapDialog = true },
                 enabled = !showMapDialog
             ) {
-                Text(stringResource(R.string.choose_meeting_point))
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Icon(Icons.Outlined.LocationOn, "Location")
+                    Text(stringResource(R.string.choose_meeting_point))
+                }
             }
 
             Spacer(modifier = Modifier.height(12.dp))
@@ -121,46 +129,54 @@ fun NewEventScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            OutlinedTextField(
-                value = state.startDateTime?.let {
-                    dateFormatter.format(
-                        it.toJavaInstant().atZone(ZoneId.systemDefault())
-                    )
-                } ?: "",
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.date_and_time)) },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = {
-                    IconButton(
-                        onClick = {
-                            val calendar = Calendar.getInstance()
-                            DatePickerDialog(
+            Button(
+                onClick = {
+                    val calendar = Calendar.getInstance()
+                    DatePickerDialog(
+                        context,
+                        { _, year, month, dayOfMonth ->
+                            calendar.set(year, month, dayOfMonth)
+                            TimePickerDialog(
                                 context,
-                                { _, year, month, dayOfMonth ->
-                                    calendar.set(year, month, dayOfMonth)
-                                    TimePickerDialog(
-                                        context,
-                                        { _, hourOfDay, minute ->
-                                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                                            calendar.set(Calendar.MINUTE, minute)
-                                            viewModel.actions.onStartDateTimeChange(calendar.toInstant().toKotlinInstant())
-                                        },
-                                        calendar.get(Calendar.HOUR_OF_DAY),
-                                        calendar.get(Calendar.MINUTE),
-                                        true
-                                    ).show()
+                                { _, hourOfDay, minute ->
+                                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                                    calendar.set(Calendar.MINUTE, minute)
+                                    viewModel.actions.onStartDateTimeChange(calendar.toInstant().toKotlinInstant())
                                 },
-                                calendar.get(Calendar.YEAR),
-                                calendar.get(Calendar.MONTH),
-                                calendar.get(Calendar.DAY_OF_MONTH)
+                                calendar.get(Calendar.HOUR_OF_DAY),
+                                calendar.get(Calendar.MINUTE),
+                                true
                             ).show()
-                        }
-                    ) {
-                        Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.select))
-                    }
+                        },
+                        calendar.get(Calendar.YEAR),
+                        calendar.get(Calendar.MONTH),
+                        calendar.get(Calendar.DAY_OF_MONTH)
+                    ).show()
                 }
-            )
+            ) {
+                Row(
+                    horizontalArrangement = Arrangement.SpaceEvenly
+                ) {
+                    Icon(Icons.Outlined.CalendarMonth, "Date and time")
+                    Text(stringResource(R.string.choose_date_and_time))
+                }
+            }
+
+            if (state.startDateTime != null) {
+                OutlinedTextField(
+                    value = state.startDateTime?.let {
+                        dateFormatter.format(
+                            it.toJavaInstant().atZone(ZoneId.systemDefault())
+                        )
+                    } ?: "",
+                    onValueChange = {},
+                    readOnly = true,
+                    label = { Text(stringResource(R.string.date_and_time)) },
+                    modifier = Modifier.fillMaxWidth()
+                )
+            }
+
+
 
             Spacer(modifier = Modifier.height(24.dp))
 

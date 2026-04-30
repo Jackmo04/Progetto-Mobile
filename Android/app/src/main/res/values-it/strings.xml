@@ -24,4 +24,5 @@
     <string name="name">Nome</string>
     <string name="date_and_time">Data e Ora</string>
     <string name="select">Seleziona</string>
+    <string name="choose_date_and_time">Scegli data e ora</string>
 </resources>
