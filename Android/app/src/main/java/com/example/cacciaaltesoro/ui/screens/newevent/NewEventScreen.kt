@@ -1,33 +1,23 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.example.cacciaaltesoro.ui.screens.newevent
 
-import android.graphics.fonts.FontStyle
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import android.app.DatePickerDialog
+import android.app.TimePickerDialog
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Button
-import androidx.compose.material3.Card
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material3.*
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.compose.ui.window.DialogProperties
@@ -37,14 +27,20 @@ import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.MapStyleOptions
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import com.google.maps.android.compose.rememberUpdatedMarkerState
+import java.time.ZoneId
+import java.time.format.DateTimeFormatter
+import java.time.format.FormatStyle
+import java.util.Calendar
+import java.util.Locale
+import kotlin.time.ExperimentalTime
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 @Composable
 fun NewEventScreen(
@@ -52,6 +48,14 @@ fun NewEventScreen(
     viewModel: NewEventViewModel
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val focusManager = LocalFocusManager.current
+    val context = LocalContext.current
+
+    val dateFormatter = remember {
+        DateTimeFormatter
+            .ofLocalizedDateTime(FormatStyle.SHORT)
+            .withLocale(Locale.getDefault())
+    }
 
     var showMapDialog by remember { mutableStateOf(false) }
 
@@ -69,9 +73,15 @@ fun NewEventScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.actions.onNameChange(it) },
-                label = { Text(stringResource(R.string.event_name)) },
+                label = {
+                    Text("${stringResource(R.string.name)} ${stringResource(R.string.optional_par)}")
+                },
                 modifier = Modifier.fillMaxWidth(),
-                singleLine = true
+                singleLine = true,
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
+                keyboardActions = KeyboardActions(
+                    onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down) }
+                )
             )
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -79,27 +89,13 @@ fun NewEventScreen(
             OutlinedTextField(
                 value = state.description,
                 onValueChange = { viewModel.actions.onDescriptionChange(it) },
-                label = { Text(stringResource(R.string.description)) },
+                label = {
+                    Text("${stringResource(R.string.description)} ${stringResource(R.string.optional_par)}")
+                        },
                 modifier = Modifier.fillMaxWidth()
             )
 
             Spacer(modifier = Modifier.height(16.dp))
-
-//            OutlinedTextField(
-//                value = state.location?.let { "${it.latitude}, ${it.longitude}" } ?: "",
-//                onValueChange = {},
-//                readOnly = true,
-//                label = { Text(stringResource(R.string.meeting_point)) },
-//                trailingIcon = {
-//                    IconButton(onClick = { showMapDialog = true }) {
-//                        Icon(
-//                            Icons.Default.LocationOn,
-//                            contentDescription = stringResource(R.string.open_map)
-//                        )
-//                    }
-//                },
-//                modifier = Modifier.clickable { showMapDialog = true }
-//            )
 
             Button(
                 onClick = { showMapDialog = true },
@@ -125,7 +121,46 @@ fun NewEventScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            // TODO add other fields
+            OutlinedTextField(
+                value = state.startDateTime?.let {
+                    dateFormatter.format(
+                        it.toJavaInstant().atZone(ZoneId.systemDefault())
+                    )
+                } ?: "",
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.date_and_time)) },
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = {
+                    IconButton(
+                        onClick = {
+                            val calendar = Calendar.getInstance()
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, dayOfMonth ->
+                                    calendar.set(year, month, dayOfMonth)
+                                    TimePickerDialog(
+                                        context,
+                                        { _, hourOfDay, minute ->
+                                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                                            calendar.set(Calendar.MINUTE, minute)
+                                            viewModel.actions.onStartDateTimeChange(calendar.toInstant().toKotlinInstant())
+                                        },
+                                        calendar.get(Calendar.HOUR_OF_DAY),
+                                        calendar.get(Calendar.MINUTE),
+                                        true
+                                    ).show()
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        }
+                    ) {
+                        Icon(Icons.Default.CalendarMonth, contentDescription = stringResource(R.string.select))
+                    }
+                }
+            )
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -134,7 +169,7 @@ fun NewEventScreen(
                 enabled = state.name.isNotBlank()
                         && state.description.isNotBlank()
                         && state.location != null
-                        && state.startDateTime.isNotBlank()
+                        && state.startDateTime != null
             ) {
                 Text(stringResource(R.string.create_event))
             }
@@ -150,57 +185,6 @@ fun NewEventScreen(
                 }
             )
         }
-    }
-}
-
-@Composable
-fun MapPickerBox(
-    startingMarkerPosition: LatLng? = null,
-    onLocationSelected: (LatLng) -> Unit
-) {
-    val cameraPositionState = rememberCameraPositionState {
-        position = CameraPosition.fromLatLngZoom(
-            startingMarkerPosition ?: LatLng(44.148, 12.236),
-            13f
-        )
-    }
-    var isMapLoaded by remember { mutableStateOf(false) }
-    val markerState = rememberUpdatedMarkerState(position = startingMarkerPosition ?: LatLng(44.148, 12.236))
-    var hasSelectedLocation by remember { mutableStateOf(startingMarkerPosition != null) }
-
-    Box(
-        modifier = Modifier
-            .padding(horizontal = 12.dp)
-            .fillMaxWidth()
-            .height(300.dp)
-    ) {
-        GoogleMap(
-            modifier = Modifier.fillMaxSize(),
-            cameraPositionState = cameraPositionState,
-            uiSettings = MapUiSettings(
-                zoomControlsEnabled = false,
-                mapToolbarEnabled = false
-            ),
-            onMapLoaded = { isMapLoaded = true },
-            onMapClick = { latLng ->
-                markerState.position = latLng
-                hasSelectedLocation = true
-            }
-        ) {
-            if (hasSelectedLocation) {
-                Marker(
-                    state = markerState,
-                    draggable = true
-                )
-            }
-        }
-
-        if (!isMapLoaded) {
-            CircularProgressIndicator(
-                modifier = Modifier.align(Alignment.Center)
-            )
-        }
-
     }
 }
 

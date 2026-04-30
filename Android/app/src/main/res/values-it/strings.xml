@@ -20,4 +20,8 @@
     <string name="confirm">Conferma</string>
     <string name="choose_meeting_point">Scegli punto di ritrovo</string>
     <string name="create_event">Crea evento</string>
+    <string name="optional_par">(Opzionale)</string>
+    <string name="name">Nome</string>
+    <string name="date_and_time">Data e Ora</string>
+    <string name="select">Seleziona</string>
 </resources>

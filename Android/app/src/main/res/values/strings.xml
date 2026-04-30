@@ -19,4 +19,8 @@
     <string name="confirm">Confirm</string>
     <string name="choose_meeting_point">Choose meeting point</string>
     <string name="create_event">Create event</string>
+    <string name="optional_par">(Optional)</string>
+    <string name="name">Name</string>
+    <string name="date_and_time">Date and Time</string>
+    <string name="select">Select</string>
 </resources>

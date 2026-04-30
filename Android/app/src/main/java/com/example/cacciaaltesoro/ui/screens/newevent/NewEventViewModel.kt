@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.example.cacciaaltesoro.ui.screens.newevent
 
 import androidx.lifecycle.ViewModel
@@ -9,19 +11,21 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
 
 
 data class NewEventState(
     val name: String = "",
     val location: LatLng? = null,
-    val startDateTime: String = "",
+    val startDateTime: Instant? = null,
     val description: String = "",
 )
 
 data class NewEventActions(
     val onNameChange: (String) -> Unit,
     val onLocationChange: (LatLng) -> Unit,
-    val onStartDateTimeChange: (String) -> Unit,
+    val onStartDateTimeChange: (Instant) -> Unit,
     val onDescriptionChange: (String) -> Unit,
     val onSaveEvent: () -> Unit,
     val onCancelCreation: () -> Unit
