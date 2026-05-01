@@ -25,4 +25,6 @@
     <string name="select">Select</string>
     <string name="choose_date_and_time">Choose date and time</string>
     <string name="choose">Choose</string>
+    <string name="date">Date</string>
+    <string name="time">Time</string>
 </resources>
