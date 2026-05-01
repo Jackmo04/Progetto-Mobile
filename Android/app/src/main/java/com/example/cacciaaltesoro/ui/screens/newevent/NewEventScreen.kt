@@ -4,27 +4,38 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import androidx.compose.foundation.background
-import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.fillMaxHeight
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
 import androidx.compose.material.icons.filled.Place
-import androidx.compose.material.icons.outlined.CalendarMonth
-import androidx.compose.material.icons.outlined.LocationOn
-import androidx.compose.runtime.*
+import androidx.compose.material3.Button
+import androidx.compose.material3.Card
+import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
+import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.Scaffold
+import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -40,19 +51,15 @@ import com.example.cacciaaltesoro.ui.composables.ClickableBox
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
-import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Calendar
 import java.util.Locale
 import kotlin.time.ExperimentalTime
-import kotlin.time.toJavaInstant
-import kotlin.time.toKotlinInstant
 
 @Composable
 fun NewEventScreen(
@@ -62,6 +69,8 @@ fun NewEventScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
+
+    val calendar = Calendar.getInstance()
 
     val dateFormatter = remember {
         DateTimeFormatter
@@ -136,15 +145,14 @@ fun NewEventScreen(
                 ClickableBox(
                     modifier = Modifier.weight(0.5f),
                     onClick = {
-                        val calendar = Calendar.getInstance()
                         DatePickerDialog(
                             context,
                             { _, year, month, dayOfMonth ->
                                 calendar.set(year, month, dayOfMonth)
-                                viewModel.actions.onStartDateChange(year, month, dayOfMonth)
+                                viewModel.actions.onStartDateChange(year, month + 1, dayOfMonth)
                             },
                             state.startDate?.year ?: calendar.get(Calendar.YEAR),
-                            state.startDate?.monthValue ?: calendar.get(Calendar.MONTH),
+                            state.startDate?.monthValue?.minus(1) ?: calendar.get(Calendar.MONTH),
                             state.startDate?.dayOfMonth ?: calendar.get(Calendar.DAY_OF_MONTH)
                         ).show()
                     }
@@ -166,7 +174,6 @@ fun NewEventScreen(
                 ClickableBox(
                     modifier = Modifier.weight(0.5f),
                     onClick = {
-                        val calendar = Calendar.getInstance()
                         TimePickerDialog(
                             context,
                             { _, hour, minute ->
