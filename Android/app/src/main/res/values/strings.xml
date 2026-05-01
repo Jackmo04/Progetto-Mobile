@@ -27,5 +27,5 @@
     <string name="choose">Choose</string>
     <string name="date">Date</string>
     <string name="time">Time</string>
-    <string name="timezone_abbr">TZ</string>
+    <string name="timezone_abbr">Zone</string>
 </resources>
