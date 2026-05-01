@@ -34,13 +34,16 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
+import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
 import com.example.cacciaaltesoro.ui.composables.AppBar
+import kotlin.compareTo
 
 
 var title = "Eventi disponibili"
 
 @Composable
-fun OnlineEventsScreen(navController: NavHostController) {
+fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel) {
     Scaffold(
         topBar = {
             AppBar(title, navController)
@@ -107,14 +110,25 @@ fun OnlineEventsScreen(navController: NavHostController) {
                         .background(Color(0x0DFFFFFF), RoundedCornerShape(8.dp)),
                     contentAlignment = Alignment.CenterStart
                 ) {
-                    Text(
-                        modifier = Modifier.padding(start = 16.dp),
-                        text = "Online events",
-                        color = Color.White,
-                        style = MaterialTheme.typography.titleLarge
-                    )
+
+
                 }
             }
         }
     }
+}
+
+@Composable
+fun ViewEvents(events: List<EventDTO>) {
+
+    for (event in events) {
+        Text(
+            modifier = Modifier.padding(start = 16.dp),
+            text = event.name.orEmpty(),
+            color = Color.White,
+            style = MaterialTheme.typography.titleLarge
+        )
+    }
+
+
 }
