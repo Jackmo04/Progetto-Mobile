@@ -39,7 +39,7 @@ class OnlineEventViewModel(
     init {
         viewModelScope.launch {
 
-                _state = _state.copy(ListEvent = repository.getAllEvents())
+                _state = _state.copy(ListEvent = repository.getAllEvents("%"))
 
         }
     }

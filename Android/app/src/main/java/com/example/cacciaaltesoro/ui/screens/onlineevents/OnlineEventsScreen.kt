@@ -102,32 +102,33 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     }
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
+                ViewEvents(viewModel.getState().ListEvent)
 
-                Box(
-                    modifier = Modifier
-                        .requiredSize(381.dp, 80.dp)
-                        .background(Color(0x0DFFFFFF), RoundedCornerShape(8.dp)),
-                    contentAlignment = Alignment.CenterStart
-                ) {
+                Spacer(modifier = Modifier.height(16.dp))
 
 
                 }
             }
         }
     }
-}
+
 
 @Composable
 fun ViewEvents(events: List<EventDTO>) {
-
     for (event in events) {
+        Box(
+            modifier = Modifier
+                .requiredSize(381.dp, 80.dp)
+                .background(Color(0x0DFFFFFF), RoundedCornerShape(8.dp)),
+            contentAlignment = Alignment.CenterStart
+        ) {
         Text(
             modifier = Modifier.padding(start = 16.dp),
             text = event.name.orEmpty(),
             color = Color.White,
             style = MaterialTheme.typography.titleLarge
         )
+    }
     }
 
 
