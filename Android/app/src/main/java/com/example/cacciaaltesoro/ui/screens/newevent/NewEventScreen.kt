@@ -36,6 +36,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
+import com.example.cacciaaltesoro.ui.composables.ClickableBox
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
 import com.google.maps.android.compose.GoogleMap
@@ -83,6 +84,8 @@ fun NewEventScreen(
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
+
+            // Event name
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.actions.onNameChange(it) },
@@ -97,17 +100,17 @@ fun NewEventScreen(
                 )
             )
 
+            // Event description
             OutlinedTextField(
                 value = state.description,
                 onValueChange = { viewModel.actions.onDescriptionChange(it) },
-                label = {
-                    Text("${stringResource(R.string.description)} ${stringResource(R.string.optional_par)}")
-                        },
+                label = { Text("${stringResource(R.string.description)} ${stringResource(R.string.optional_par)}") },
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Box(
-                modifier = Modifier.fillMaxWidth()
+            // Location
+            ClickableBox(
+                onClick = { showMapDialog = true }
             ) {
                 OutlinedTextField(
                     value = state.location?.let {
@@ -123,22 +126,28 @@ fun NewEventScreen(
                         stringResource(R.string.choose)
                     )}
                 )
-
-                Box(
-                    modifier = Modifier
-                        .matchParentSize()
-                        .background(Color.Transparent)
-                        .clickable {
-                            showMapDialog = true
-                        }
-                )
             }
 
+            // Date and Time
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
-                Box(
-                    modifier = Modifier.weight(0.5f)
+                // Date
+                ClickableBox(
+                    modifier = Modifier.weight(0.5f),
+                    onClick = {
+                        val calendar = Calendar.getInstance()
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, dayOfMonth ->
+                                calendar.set(year, month, dayOfMonth)
+                                viewModel.actions.onStartDateChange(year, month, dayOfMonth)
+                            },
+                            state.startDate?.year ?: calendar.get(Calendar.YEAR),
+                            state.startDate?.monthValue ?: calendar.get(Calendar.MONTH),
+                            state.startDate?.dayOfMonth ?: calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                    }
                 ) {
                     OutlinedTextField(
                         value = state.formattedDate,
@@ -151,29 +160,25 @@ fun NewEventScreen(
                             stringResource(R.string.choose)
                         )}
                     )
-
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(Color.Transparent)
-                            .clickable {
-                                val calendar = Calendar.getInstance()
-                                DatePickerDialog(
-                                    context,
-                                    { _, year, month, dayOfMonth ->
-                                        calendar.set(year, month, dayOfMonth)
-                                        viewModel.actions.onStartDateChange(year, month, dayOfMonth)
-                                    },
-                                    calendar.get(Calendar.YEAR),
-                                    calendar.get(Calendar.MONTH),
-                                    calendar.get(Calendar.DAY_OF_MONTH)
-                                ).show()
-                            }
-                    )
                 }
 
-                Box(
-                   modifier = Modifier.weight(0.5f)
+                // Time
+                ClickableBox(
+                    modifier = Modifier.weight(0.5f),
+                    onClick = {
+                        val calendar = Calendar.getInstance()
+                        TimePickerDialog(
+                            context,
+                            { _, hour, minute ->
+                                calendar.set(Calendar.HOUR_OF_DAY, hour)
+                                calendar.set(Calendar.MINUTE, minute)
+                                viewModel.actions.onStartTimeChange(hour, minute)
+                            },
+                            state.startTime?.hour ?: calendar.get(Calendar.HOUR_OF_DAY),
+                            state.startTime?.minute ?: calendar.get(Calendar.MINUTE),
+                            true
+                        ).show()
+                    }
                 ) {
                     OutlinedTextField(
                         value = state.formattedTime,
@@ -184,36 +189,18 @@ fun NewEventScreen(
                         trailingIcon = { Icon(
                             Icons.Default.AccessTime,
                             stringResource(R.string.choose)
-                        )}
-                    )
-
-                    Box(
-                        modifier = Modifier
-                            .matchParentSize()
-                            .background(Color.Transparent)
-                            .clickable {
-                                val calendar = Calendar.getInstance()
-                                TimePickerDialog(
-                                    context,
-                                    { _, hour, minute ->
-                                        calendar.set(Calendar.HOUR_OF_DAY, hour)
-                                        calendar.set(Calendar.MINUTE, minute)
-                                        viewModel.actions.onStartTimeChange(hour, minute)
-                                    },
-                                    calendar.get(Calendar.HOUR_OF_DAY),
-                                    calendar.get(Calendar.MINUTE),
-                                    true
-                                ).show()
-                            }
+                        )},
+                        supportingText = { Text("${stringResource(R.string.timezone_abbr)}: ${state.timeZone}") }
                     )
                 }
             }
 
+            // TODO add other fields
+
+            // Submit
             Button(
                 onClick = { viewModel.actions.onSaveEvent() },
-                enabled = state.name.isNotBlank()
-                        && state.description.isNotBlank()
-                        && state.location != null
+                enabled = state.location != null
                         && state.startDate != null
                         && state.startTime != null
             ) {

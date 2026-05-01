@@ -28,4 +28,5 @@
     <string name="choose">Scegli</string>
     <string name="date">Data</string>
     <string name="time">Ora</string>
+    <string name="timezone_abbr">Fuso</string>
 </resources>
