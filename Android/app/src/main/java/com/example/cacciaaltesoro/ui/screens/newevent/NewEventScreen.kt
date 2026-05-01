@@ -4,19 +4,26 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.outlined.CalendarMonth
 import androidx.compose.material.icons.outlined.LocationOn
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -69,9 +76,11 @@ fun NewEventScreen(
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
+                .fillMaxSize()
                 .padding(innerPadding)
                 .padding(horizontal = 12.dp)
-                .fillMaxSize()
+                .verticalScroll(rememberScrollState()),
+            verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
             OutlinedTextField(
                 value = state.name,
@@ -87,8 +96,6 @@ fun NewEventScreen(
                 )
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
             OutlinedTextField(
                 value = state.description,
                 onValueChange = { viewModel.actions.onDescriptionChange(it) },
@@ -98,71 +105,37 @@ fun NewEventScreen(
                 modifier = Modifier.fillMaxWidth()
             )
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = { showMapDialog = true },
-                enabled = !showMapDialog
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Icon(Icons.Outlined.LocationOn, "Location")
-                    Text(stringResource(R.string.choose_meeting_point))
-                }
-            }
-
-            Spacer(modifier = Modifier.height(12.dp))
-
-            if (state.location != null) {
                 OutlinedTextField(
                     value = state.location?.let {
                         """${it.latitude}
-                           |${it.longitude}""".trimMargin()
+                       |${it.longitude}""".trimMargin()
                     } ?: "",
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.meeting_point)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = { Icon(
+                        Icons.Default.Place,
+                        stringResource(R.string.choose)
+                    )}
                 )
+
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Transparent)
+                        .clickable {
+                            showMapDialog = true
+                        }
+                ) { }
             }
 
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                onClick = {
-                    val calendar = Calendar.getInstance()
-                    DatePickerDialog(
-                        context,
-                        { _, year, month, dayOfMonth ->
-                            calendar.set(year, month, dayOfMonth)
-                            TimePickerDialog(
-                                context,
-                                { _, hourOfDay, minute ->
-                                    calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
-                                    calendar.set(Calendar.MINUTE, minute)
-                                    viewModel.actions.onStartDateTimeChange(calendar.toInstant().toKotlinInstant())
-                                },
-                                calendar.get(Calendar.HOUR_OF_DAY),
-                                calendar.get(Calendar.MINUTE),
-                                true
-                            ).show()
-                        },
-                        calendar.get(Calendar.YEAR),
-                        calendar.get(Calendar.MONTH),
-                        calendar.get(Calendar.DAY_OF_MONTH)
-                    ).show()
-                }
+            Box(
+                modifier = Modifier.fillMaxWidth()
             ) {
-                Row(
-                    horizontalArrangement = Arrangement.SpaceEvenly
-                ) {
-                    Icon(Icons.Outlined.CalendarMonth, "Date and time")
-                    Text(stringResource(R.string.choose_date_and_time))
-                }
-            }
-
-            if (state.startDateTime != null) {
                 OutlinedTextField(
                     value = state.startDateTime?.let {
                         dateFormatter.format(
@@ -172,13 +145,44 @@ fun NewEventScreen(
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.date_and_time)) },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier.fillMaxWidth(),
+                    trailingIcon = { Icon(
+                        Icons.Default.DateRange,
+                        stringResource(R.string.choose)
+                    )}
                 )
+
+                Box(
+                    modifier = Modifier
+                        .matchParentSize()
+                        .background(Color.Transparent)
+                        .clickable {
+                            val calendar = Calendar.getInstance()
+                            DatePickerDialog(
+                                context,
+                                { _, year, month, dayOfMonth ->
+                                    calendar.set(year, month, dayOfMonth)
+                                    TimePickerDialog(
+                                        context,
+                                        { _, hourOfDay, minute ->
+                                            calendar.set(Calendar.HOUR_OF_DAY, hourOfDay)
+                                            calendar.set(Calendar.MINUTE, minute)
+                                            viewModel.actions.onStartDateTimeChange(calendar.toInstant().toKotlinInstant())
+                                        },
+                                        calendar.get(Calendar.HOUR_OF_DAY),
+                                        calendar.get(Calendar.MINUTE),
+                                        true
+                                    ).show()
+                                },
+                                calendar.get(Calendar.YEAR),
+                                calendar.get(Calendar.MONTH),
+                                calendar.get(Calendar.DAY_OF_MONTH)
+                            ).show()
+                        }
+                ) { }
             }
 
-
-
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Button(
                 onClick = { viewModel.actions.onSaveEvent() },
