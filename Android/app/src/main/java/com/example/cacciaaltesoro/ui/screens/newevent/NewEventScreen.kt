@@ -72,12 +72,6 @@ fun NewEventScreen(
 
     val calendar = Calendar.getInstance()
 
-    val dateFormatter = remember {
-        DateTimeFormatter
-            .ofLocalizedDateTime(FormatStyle.SHORT)
-            .withLocale(Locale.getDefault())
-    }
-
     var showMapDialog by remember { mutableStateOf(false) }
 
     Scaffold(
