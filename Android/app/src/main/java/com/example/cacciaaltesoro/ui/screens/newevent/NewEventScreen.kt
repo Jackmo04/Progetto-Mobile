@@ -47,6 +47,8 @@ import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
+import com.example.cacciaaltesoro.data.mappers.toCoordinates
+import com.example.cacciaaltesoro.data.mappers.toLatLng
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.ClickableBox
 import com.google.android.gms.maps.model.CameraPosition
@@ -272,8 +274,6 @@ fun NewEventScreen(
             Button(
                 onClick = { viewModel.actions.onSaveEvent() },
                 enabled = state.location != null
-                        && state.startDate != null
-                        && state.startTime != null
                         && !state.isImpossibleStartDateTime
                         && !state.isImpossibleEndDateTime
             ) {
@@ -283,10 +283,10 @@ fun NewEventScreen(
 
         if (showMapDialog) {
             MapPickerDialog (
-                startingMarkerPosition = state.location,
+                startingMarkerPosition = state.location?.toLatLng(),
                 onDismiss = { showMapDialog = false },
                 onLocationSelected = { latLng ->
-                    viewModel.actions.onLocationChange(latLng)
+                    viewModel.actions.onLocationChange(latLng.toCoordinates())
                     showMapDialog = false
                 }
             )

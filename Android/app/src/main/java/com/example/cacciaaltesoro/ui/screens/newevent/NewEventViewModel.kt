@@ -4,6 +4,7 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -16,61 +17,39 @@ import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
+import java.time.temporal.TemporalAccessor
 import java.util.Locale
 import kotlin.time.ExperimentalTime
 
 data class NewEventState(
     val name: String = "",
-    val location: LatLng? = null,
-    val startDate: LocalDate? = null,
-    val startTime: LocalTime? = null,
-    val endDate: LocalDate? = null,
-    val endTime: LocalTime? = null,
+    val location: Coordinates? = null,
+    val startDate: LocalDate = LocalDate.now(),
+    val startTime: LocalTime = LocalTime.now().plusHours(1),
+    val endDate: LocalDate = startDate,
+    val endTime: LocalTime = startTime.plusHours(1),
     val isImpossibleStartDateTime: Boolean = false,
     val isImpossibleEndDateTime: Boolean = false,
     val timeZone: ZoneId = ZoneId.systemDefault(),
     val description: String = "",
 ) {
-    val fStartDate: String
-        get() {
-            return startDate?.format(
-                DateTimeFormatter
-                    .ofLocalizedDate(FormatStyle.SHORT)
-                    .withLocale(Locale.getDefault())
-            ) ?: ""
-        }
+    val fStartDate: String get() = startDate.formatShortDate()
+    val fStartTime: String get() = startTime.formatShortTime()
+    val fEndDate: String get() = endDate.formatShortDate()
+    val fEndTime: String get() = endTime.formatShortTime()
 
-    val fStartTime: String
-        get() {
-            return startTime?.format(
-                DateTimeFormatter
-                    .ofLocalizedTime(FormatStyle.SHORT)
-                    .withLocale(Locale.getDefault())
-            ) ?: ""
-        }
+    private fun LocalDate.formatShortDate(): String = formatWithStyle(FormatStyle.SHORT, isDate = true)
+    private fun LocalTime.formatShortTime(): String = formatWithStyle(FormatStyle.SHORT, isDate = false)
 
-    val fEndDate: String
-        get() {
-            return endDate?.format(
-                DateTimeFormatter
-                    .ofLocalizedDate(FormatStyle.SHORT)
-                    .withLocale(Locale.getDefault())
-            ) ?: ""
-        }
-
-    val fEndTime: String
-        get() {
-            return endTime?.format(
-                DateTimeFormatter
-                    .ofLocalizedTime(FormatStyle.SHORT)
-                    .withLocale(Locale.getDefault())
-            ) ?: ""
-        }
+    private fun TemporalAccessor.formatWithStyle(style: FormatStyle, isDate: Boolean): String {
+        val formatter = if (isDate) DateTimeFormatter.ofLocalizedDate(style) else DateTimeFormatter.ofLocalizedTime(style)
+        return formatter.withLocale(Locale.getDefault()).format(this)
+    }
 }
 
 data class NewEventActions(
     val onNameChange: (String) -> Unit,
-    val onLocationChange: (LatLng) -> Unit,
+    val onLocationChange: (Coordinates) -> Unit,
     val onStartDateChange: (year: Int, month: Int, day: Int) -> Unit,
     val onStartTimeChange: (hour: Int, minute: Int) -> Unit,
     val onEndDateChange: (year: Int, month: Int, day: Int) -> Unit,
@@ -117,7 +96,7 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
         onSaveEvent = {
             viewModelScope.launch {
                 _state.value.let {
-                    if (it.location == null || it.startDate == null || it.startTime == null) {
+                    if (it.location == null) {
                         // TODO add ui change?
                         return@launch
                     }
@@ -135,24 +114,12 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
     // TODO improve this if I have time
     private fun checkTimestamps() {
         val now = LocalDateTime.now()
-        val startDateTime = state.value.let {
-            if (it.startDate != null && it.startTime != null) {
-                it.startDate.atTime(it.startTime)
-            } else null
-        }
-        val endDateTime = state.value.let {
-            if (it.endDate != null && it.endTime != null) {
-                it.endDate.atTime(it.endTime)
-            } else null
-        }
+        val startDateTime = state.value.let { it.startDate.atTime(it.startTime) }
+        val endDateTime = state.value.let { it.endDate.atTime(it.endTime) }
 
-        val isStartPast = startDateTime != null && startDateTime.isBefore(now)
-
-        val isEndBeforeStart = startDateTime != null &&
-                endDateTime != null &&
-                endDateTime.isBefore(startDateTime)
-
-        val isEndPast = endDateTime != null && endDateTime.isBefore(now)
+        val isStartPast = startDateTime.isBefore(now)
+        val isEndBeforeStart = endDateTime.isBefore(startDateTime)
+        val isEndPast = endDateTime.isBefore(now)
 
         _state.update {
             it.copy(
