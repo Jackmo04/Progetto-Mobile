@@ -8,13 +8,13 @@ import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 
 interface EventRepository {
-    suspend fun insertEvent(event: Event)
+    suspend fun upsertEvent(event: Event)
 }
 
 class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepository {
-    override suspend fun insertEvent(event: Event) {
+    override suspend fun upsertEvent(event: Event) {
         try {
-            supabase.from(SupabaseTables.EVENTS.tableName).insert(event.toDto())
+            supabase.from(SupabaseTables.EVENTS.tableName).upsert(event.toDto())
             Log.d("EventRepository", "Successfully saved new event: ${event.id}")
         } catch (e: Exception) {
             Log.e("EventRepository", "Error inserting event", e)

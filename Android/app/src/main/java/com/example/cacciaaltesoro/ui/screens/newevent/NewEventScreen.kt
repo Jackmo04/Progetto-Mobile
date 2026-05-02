@@ -19,7 +19,7 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
-import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
@@ -36,6 +36,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.focus.FocusDirection
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -55,10 +56,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import java.time.format.DateTimeFormatter
-import java.time.format.FormatStyle
 import java.util.Calendar
-import java.util.Locale
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -99,7 +97,7 @@ fun NewEventScreen(
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
                 keyboardActions = KeyboardActions(
-                    onNext = { focusManager.moveFocus(androidx.compose.ui.focus.FocusDirection.Down) }
+                    onNext = { focusManager.moveFocus(FocusDirection.Down) }
                 )
             )
 
@@ -108,7 +106,11 @@ fun NewEventScreen(
                 value = state.description,
                 onValueChange = { viewModel.actions.onDescriptionChange(it) },
                 label = { Text("${stringResource(R.string.description)} ${stringResource(R.string.optional_par)}") },
-                modifier = Modifier.fillMaxWidth()
+                modifier = Modifier.fillMaxWidth(),
+                keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
+                keyboardActions = KeyboardActions(
+                    onDone = { focusManager.clearFocus() }
+                )
             )
 
             // Location
@@ -131,7 +133,7 @@ fun NewEventScreen(
                 )
             }
 
-            // Date and Time
+            // Start Date and Time
             Row(
                 horizontalArrangement = Arrangement.spacedBy(16.dp)
             ) {
@@ -152,15 +154,16 @@ fun NewEventScreen(
                     }
                 ) {
                     OutlinedTextField(
-                        value = state.formattedDate,
+                        value = state.fStartDate,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text(stringResource(R.string.date)) },
+                        label = { Text(stringResource(R.string.start_date)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = { Icon(
-                            Icons.Default.DateRange,
+                            Icons.Default.CalendarMonth,
                             stringResource(R.string.choose)
-                        )}
+                        )},
+                        isError = state.isImpossibleStartDateTime
                     )
                 }
 
@@ -182,16 +185,83 @@ fun NewEventScreen(
                     }
                 ) {
                     OutlinedTextField(
-                        value = state.formattedTime,
+                        value = state.fStartTime,
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text(stringResource(R.string.time)) },
+                        label = { Text(stringResource(R.string.start_time)) },
                         modifier = Modifier.fillMaxWidth(),
                         trailingIcon = { Icon(
                             Icons.Default.AccessTime,
                             stringResource(R.string.choose)
                         )},
-                        supportingText = { Text("${stringResource(R.string.timezone_abbr)}: ${state.timeZone}") }
+                        isError = state.isImpossibleStartDateTime
+                    )
+                }
+            }
+
+            // End Date and Time
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(16.dp)
+            ) {
+                // Date
+                ClickableBox(
+                    modifier = Modifier.weight(0.5f),
+                    onClick = {
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, dayOfMonth ->
+                                calendar.set(year, month, dayOfMonth)
+                                viewModel.actions.onEndDateChange(year, month + 1, dayOfMonth)
+                            },
+                            state.endDate?.year ?: calendar.get(Calendar.YEAR),
+                            state.endDate?.monthValue?.minus(1) ?: calendar.get(Calendar.MONTH),
+                            state.endDate?.dayOfMonth ?: calendar.get(Calendar.DAY_OF_MONTH)
+                        ).show()
+                    }
+                ) {
+                    OutlinedTextField(
+                        value = state.fEndDate.ifBlank { state.fStartDate },
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.end_date)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = { Icon(
+                            Icons.Default.CalendarMonth,
+                            stringResource(R.string.choose)
+                        )},
+                        isError = state.isImpossibleEndDateTime
+                    )
+                }
+
+                // Time
+                ClickableBox(
+                    modifier = Modifier.weight(0.5f),
+                    onClick = {
+                        TimePickerDialog(
+                            context,
+                            { _, hour, minute ->
+                                calendar.set(Calendar.HOUR_OF_DAY, hour)
+                                calendar.set(Calendar.MINUTE, minute)
+                                viewModel.actions.onEndTimeChange(hour, minute)
+                            },
+                            state.endTime?.hour ?: calendar.get(Calendar.HOUR_OF_DAY),
+                            state.endTime?.minute ?: calendar.get(Calendar.MINUTE),
+                            true
+                        ).show()
+                    }
+                ) {
+                    OutlinedTextField(
+                        value = state.fEndTime,
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.end_time)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        trailingIcon = { Icon(
+                            Icons.Default.AccessTime,
+                            stringResource(R.string.choose)
+                        )},
+                        supportingText = { Text("${stringResource(R.string.timezone_abbr)}: ${state.timeZone}") },
+                        isError = state.isImpossibleEndDateTime
                     )
                 }
             }
@@ -204,6 +274,8 @@ fun NewEventScreen(
                 enabled = state.location != null
                         && state.startDate != null
                         && state.startTime != null
+                        && !state.isImpossibleStartDateTime
+                        && !state.isImpossibleEndDateTime
             ) {
                 Text(stringResource(R.string.create_event))
             }

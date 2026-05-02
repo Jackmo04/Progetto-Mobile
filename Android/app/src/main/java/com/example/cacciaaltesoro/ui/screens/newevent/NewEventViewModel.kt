@@ -4,33 +4,34 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
-import kotlinx.datetime.format
-import kotlinx.datetime.format.DateTimeFormat
 import java.time.LocalDate
+import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.util.Locale
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 
 data class NewEventState(
     val name: String = "",
     val location: LatLng? = null,
     val startDate: LocalDate? = null,
     val startTime: LocalTime? = null,
+    val endDate: LocalDate? = null,
+    val endTime: LocalTime? = null,
+    val isImpossibleStartDateTime: Boolean = false,
+    val isImpossibleEndDateTime: Boolean = false,
     val timeZone: ZoneId = ZoneId.systemDefault(),
     val description: String = "",
 ) {
-    val formattedDate: String
+    val fStartDate: String
         get() {
             return startDate?.format(
                 DateTimeFormatter
@@ -39,9 +40,27 @@ data class NewEventState(
             ) ?: ""
         }
 
-    val formattedTime: String
+    val fStartTime: String
         get() {
             return startTime?.format(
+                DateTimeFormatter
+                    .ofLocalizedTime(FormatStyle.SHORT)
+                    .withLocale(Locale.getDefault())
+            ) ?: ""
+        }
+
+    val fEndDate: String
+        get() {
+            return endDate?.format(
+                DateTimeFormatter
+                    .ofLocalizedDate(FormatStyle.SHORT)
+                    .withLocale(Locale.getDefault())
+            ) ?: ""
+        }
+
+    val fEndTime: String
+        get() {
+            return endTime?.format(
                 DateTimeFormatter
                     .ofLocalizedTime(FormatStyle.SHORT)
                     .withLocale(Locale.getDefault())
@@ -54,6 +73,8 @@ data class NewEventActions(
     val onLocationChange: (LatLng) -> Unit,
     val onStartDateChange: (year: Int, month: Int, day: Int) -> Unit,
     val onStartTimeChange: (hour: Int, minute: Int) -> Unit,
+    val onEndDateChange: (year: Int, month: Int, day: Int) -> Unit,
+    val onEndTimeChange: (hour: Int, minute: Int) -> Unit,
     val onDescriptionChange: (String) -> Unit,
     val onSaveEvent: () -> Unit,
     val onCancelCreation: () -> Unit
@@ -73,10 +94,22 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
         onStartDateChange = { year, month, day ->
             val localDate = LocalDate.of(year, month, day)
             _state.update { it.copy(startDate = localDate) }
+            checkTimestamps()
         },
         onStartTimeChange = { hour, minute ->
             val localTime = LocalTime.of(hour, minute)
             _state.update { it.copy(startTime = localTime) }
+            checkTimestamps()
+        },
+        onEndDateChange = { year, month, day ->
+            val localDate = LocalDate.of(year, month, day)
+            _state.update { it.copy(endDate = localDate) }
+            checkTimestamps()
+        },
+        onEndTimeChange = { hour, minute ->
+            val localTime = LocalTime.of(hour, minute)
+            _state.update { it.copy(endTime = localTime) }
+            checkTimestamps()
         },
         onDescriptionChange = { newDescription ->
             _state.update { it.copy(description = newDescription) }
@@ -98,4 +131,34 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
             _state.update { NewEventState() }
         }
     )
+
+    // TODO improve this if I have time
+    private fun checkTimestamps() {
+        val now = LocalDateTime.now()
+        val startDateTime = state.value.let {
+            if (it.startDate != null && it.startTime != null) {
+                it.startDate.atTime(it.startTime)
+            } else null
+        }
+        val endDateTime = state.value.let {
+            if (it.endDate != null && it.endTime != null) {
+                it.endDate.atTime(it.endTime)
+            } else null
+        }
+
+        val isStartPast = startDateTime != null && startDateTime.isBefore(now)
+
+        val isEndBeforeStart = startDateTime != null &&
+                endDateTime != null &&
+                endDateTime.isBefore(startDateTime)
+
+        val isEndPast = endDateTime != null && endDateTime.isBefore(now)
+
+        _state.update {
+            it.copy(
+                isImpossibleStartDateTime = isStartPast,
+                isImpossibleEndDateTime = isEndBeforeStart || isEndPast
+            )
+        }
+    }
 }

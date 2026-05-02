@@ -24,7 +24,8 @@ CREATE TABLE partite (
     par_organizzatore UUID NOT NULL,
     par_latitudine FLOAT NOT NULL,
     par_longitudine FLOAT NOT NULL,
-    par_data TIMESTAMPTZ NOT NULL,
+    par_timestamp_inizio TIMESTAMPTZ NOT NULL,
+    par_timestamp_fine TIMESTAMPTZ NOT NULL,
     par_descrizione text NULL,
     par_codice text NOT NULL,
     par_privato boolean NOT NULL DEFAULT (false),
@@ -103,12 +104,12 @@ INSERT INTO utenti (ute_id, ute_username, ute_immagine) VALUES
 ('7e29a1ec-ece2-4076-80b4-4284059e5a2e', 'annaneri@example.it', 'default.png');
 
 -- 2. Inserimento Partite
-INSERT INTO partite (par_nome, par_organizzatore, par_latitudine, par_longitudine, par_data , par_descrizione, par_codice) VALUES 
-('PARTITA1','115133f6-4760-4214-bcb2-51d33f281211', 45.4642, 9.1900,  NOW() - INTERVAL '2 days', 'Caccia al tesoro Milano' ,'HASH_1_XDFS'),
-('PARTITA2','115133f6-4760-4214-bcb2-51d33f281211', 41.9028, 12.4964, NOW() - INTERVAL '1 day', 'Caccia al tesoro Roma' ,'HASH_2_XDFS'),
-('PARTITA3','970be8b4-7771-4e8a-90af-d4336b9eecf0', 43.7696, 11.2558, NOW() - INTERVAL '3 days', 'Caccia al tesoro Firenze' ,'HASH_3_XDFS'),
-('PARTITA4','a6f03999-fcd7-4fa1-976c-6c1187a1c109', 45.4384, 10.9916, NOW() - INTERVAL '1 day', 'Caccia al tesoro Verona' ,'HASH_4_XDFS'),
-('PARTITA5','7e29a1ec-ece2-4076-80b4-4284059e5a2e', 40.8518, 14.2681, NOW(), 'Caccia al tesoro Napoli' ,'HASH_5_XDFS'); 
+INSERT INTO partite (par_nome, par_organizzatore, par_latitudine, par_longitudine, par_timestamp_inizio, par_timestamp_fine, par_descrizione, par_codice) VALUES 
+('PARTITA1','115133f6-4760-4214-bcb2-51d33f281211', 45.4642, 9.1900,  NOW() - INTERVAL '2 days', NOW() - INTERVAL '1 day', 'Caccia al tesoro Milano' ,'HASH_1_XDFS'),
+('PARTITA2','115133f6-4760-4214-bcb2-51d33f281211', 41.9028, 12.4964, NOW() - INTERVAL '1 day', NOW(), 'Caccia al tesoro Roma' ,'HASH_2_XDFS'),
+('PARTITA3','970be8b4-7771-4e8a-90af-d4336b9eecf0', 43.7696, 11.2558, NOW() - INTERVAL '3 days', NOW() - INTERVAL '2 days', 'Caccia al tesoro Firenze' ,'HASH_3_XDFS'),
+('PARTITA4','a6f03999-fcd7-4fa1-976c-6c1187a1c109', 45.4384, 10.9916, NOW() - INTERVAL '1 day', NOW(), 'Caccia al tesoro Verona' ,'HASH_4_XDFS'),
+('PARTITA5','7e29a1ec-ece2-4076-80b4-4284059e5a2e', 40.8518, 14.2681, NOW(), NOW() + INTERVAL '1 day', 'Caccia al tesoro Napoli' ,'HASH_5_XDFS'); 
 
 -- 3. Creare delle partecipazioni (Sostituiti i numeri utente con gli UUID)
 INSERT INTO partecipazioni (prt_partita, prt_utente) VALUES
