@@ -1,18 +1,15 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
@@ -21,8 +18,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
+import androidx.compose.material3.DropdownMenu
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -37,20 +36,24 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.TextStyle
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.wrapContentSize
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
-import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
-import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
 import com.example.cacciaaltesoro.ui.composables.AppBar
-import kotlin.compareTo
+import kotlin.String
 
 
 var title = "Eventi disponibili"
@@ -66,20 +69,18 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                //.background(Color(0xFF444444))
                 .border(2.dp, Color(0x1AFFFFFF), RoundedCornerShape(2.dp))
         ) {
             Column(
                 modifier = Modifier
                     .fillMaxSize()
                     .padding(16.dp)
-                    .align(Alignment.Center)
             ) {
                 var searchQuery by remember { mutableStateOf("") }
 
                 Row(
                     modifier = Modifier
-                        .requiredSize(381.dp, 80.dp)
+                        .fillMaxWidth()
                         .padding(bottom = 8.dp),
                     verticalAlignment = Alignment.CenterVertically,
                     horizontalArrangement = Arrangement.spacedBy(8.dp)
@@ -88,8 +89,8 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     OutlinedTextField(
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
-                        modifier = Modifier.requiredSize(250.dp, 56.dp),
-                        placeholder = { Text("Cerca...", color = Color.LightGray) },
+                        modifier = Modifier.weight(1f),
+                        placeholder = { Text("Codice Evento", color = Color.LightGray) },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.White) },
                         shape = RoundedCornerShape(12.dp),
                         maxLines = 1,
@@ -103,8 +104,8 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     )
 
                     Button(
-                        onClick = { /* Search action */ },
-                        modifier = Modifier.requiredSize(97.dp, 48.dp),
+                        onClick = { viewModel.action.onSearchEvent(searchQuery) },
+                        modifier = Modifier.height(56.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(
                             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -115,42 +116,49 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     }
                 }
 
-                for (event in viewModel.getState().ListEvent) {
-                    HorizontalCard(event)
+                Row(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 8.dp),
+                    verticalAlignment = Alignment.CenterVertically,
+                    horizontalArrangement = Arrangement.spacedBy(8.dp)
+
+                ) {
+                    Text(
+                        text ="Ordina per",
+                        style = TextStyle(
+                            fontSize = 16.sp,
+                            fontWeight = FontWeight.Medium,
+                            lineHeight = 24.sp,
+                            letterSpacing = 0.1.sp,
+                            color = Color.White,
+                            textAlign = TextAlign.Center
+                    ))
+
+                    OrderComboBox(listOf("Distanza" , "Nome" , "Durata")) { selected ->
+                        viewModel.onOrderChanged(selected)
+                    }
+
+
                 }
 
-                Spacer(modifier = Modifier.height(16.dp))
-
-
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(vertical = 8.dp)
+                ) {
+                    items(viewModel.getState().ListEvent) { event ->
+                        EventCard(event)
+                    }
                 }
+            }
             }
         }
     }
 
 
 @Composable
-fun ViewEvents(events: List<EventDTO>) {
-    for (event in events) {
-        Box(
-            modifier = Modifier
-                .requiredSize(381.dp, 80.dp)
-                .background(Color(0x0DFFFFFF), RoundedCornerShape(8.dp)),
-            contentAlignment = Alignment.CenterStart
-        ) {
-        Text(
-            modifier = Modifier.padding(start = 16.dp),
-            text = event.name.orEmpty(),
-            color = Color.White,
-            style = MaterialTheme.typography.titleLarge
-        )
-    }
-    }
-
-
-}
-
-@Composable
-fun HorizontalCard(
+fun EventCard(
     events: EventDTO
 ) {
     // Definizione colori dai tuoi hex
@@ -163,7 +171,7 @@ fun HorizontalCard(
     // Contenitore Principale (Card)
     Row(
         modifier = Modifier
-            .width(381.dp)
+            .fillMaxWidth()
             .height(80.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
@@ -190,7 +198,7 @@ fun HorizontalCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = events.name!!,
+                    text = events.name?.take(1)?.uppercase() ?: "?",
                     style = TextStyle(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
@@ -206,7 +214,9 @@ fun HorizontalCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = events.name!!,
+                    text = events.name ?: "Senza nome",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
@@ -216,7 +226,9 @@ fun HorizontalCard(
                     )
                 )
                 Text(
-                    text = events.description!!,
+                    text = events.description ?: "Nessuna descrizione",
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
                     style = TextStyle(
                         fontSize = 14.sp,
                         fontWeight = FontWeight.Normal,
@@ -228,25 +240,59 @@ fun HorizontalCard(
             }
         }
 
+    }
+}
+
+@Composable
+fun OrderComboBox(options: List<String>, onOptionSelected: (String) -> Unit) {
+    var expanded by remember { mutableStateOf(false) }
+    var selectedOption by remember { mutableStateOf(options[0]) }
+
+    Box(modifier = Modifier.wrapContentSize(Alignment.TopStart)) {
+        OutlinedTextField(
+            value = selectedOption,
+            onValueChange = {},
+            readOnly = true,
+            label = { Text("Seleziona", color = Color.LightGray) },
+            trailingIcon = {
+                IconButton(onClick = { expanded = !expanded }) {
+                    Icon(
+                        imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
+                        contentDescription = null,
+                        tint = Color.White
+                    )
+                }
+            },
+            modifier = Modifier.width(180.dp),
+            colors = OutlinedTextFieldDefaults.colors(
+                focusedTextColor = Color.White,
+                unfocusedTextColor = Color.White,
+                focusedBorderColor = Color.White,
+                unfocusedBorderColor = Color.LightGray,
+                focusedLabelColor = Color.White,
+                unfocusedLabelColor = Color.LightGray
+            )
+        )
         Box(
             modifier = Modifier
-                .size(80.dp)
-                .border(
-                    width = 1.dp,
-                    color = outlineVariant,
-                    // Il CSS specifica border-width: 1px 1px 1px 0px
-                    // In Compose è più semplice gestirlo con un layout pulito
+                .matchParentSize()
+                .clickable { expanded = !expanded }
+        )
+
+        DropdownMenu(
+            expanded = expanded,
+            onDismissRequest = { expanded = false }
+        ) {
+            options.forEach { selectionOption ->
+                DropdownMenuItem(
+                    text = { Text(selectionOption) },
+                    onClick = {
+                        selectedOption = selectionOption
+                        onOptionSelected(selectionOption)
+                        expanded = false
+                    }
                 )
-                .background(Color(0xFFECE6F0)) // Background placeholder
-        ) {/*
-            if (mediaResId != null) {
-                Image(
-                    painter = painterResource(id = mediaResId),
-                    contentDescription = null,
-                    modifier = Modifier.fillMaxSize(),
-                    contentScale = ContentScale.Crop
-                )
-            }*/
+            }
         }
     }
 }

@@ -26,6 +26,7 @@ class OnlineEventViewModel(
 
     private var _state by mutableStateOf(OnlineEventState())
     fun getState() = _state
+    fun onOrderChanged(selected: String) {}
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
@@ -45,7 +46,17 @@ class OnlineEventViewModel(
     }
 
     val action = OnlineEventAction(
-        onSearchEvent = {
+        onSearchEvent = { query ->
+            viewModelScope.launch {
+                isLoading = true
+                try {
+                    _state = _state.copy(ListEvent = repository.getAllEvents(query))
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante la ricerca"
+                } finally {
+                    isLoading = false
+                }
+            }
         },
         onViewEvent = {
 
