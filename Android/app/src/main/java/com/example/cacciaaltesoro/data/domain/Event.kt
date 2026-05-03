@@ -10,9 +10,10 @@ data class Event (
     val organizerUUID: String,
     val lat: Double,
     val lon: Double,
-    val dateTime: Instant,
+    val startTime: Instant,
     val description: String?,
     val code: String,
     val isPrivate: Boolean,
+    val endTime: Instant,
     val organizer: User? = null
 )

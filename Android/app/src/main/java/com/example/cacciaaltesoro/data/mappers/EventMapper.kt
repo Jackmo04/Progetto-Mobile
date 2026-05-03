@@ -13,10 +13,11 @@ fun Event.toDto(): EventDTO {
         organizerUUID = organizerUUID,
         lat = lat,
         lon = lon,
-        dateTime = dateTime,
+        startTime = startTime,
         description = description,
         code = code,
-        isPrivate = isPrivate
+        isPrivate = isPrivate,
+        endTime = endTime
     )
 }
 fun EventDTO.toDomain(): Event = Event(
@@ -25,9 +26,10 @@ fun EventDTO.toDomain(): Event = Event(
     organizerUUID = organizerUUID,
     lat = lat,
     lon = lon,
-    dateTime = dateTime,
+    startTime = startTime,
     description = description,
     code = code,
     isPrivate = isPrivate,
+    endTime = endTime,
     organizer = userDTO?.toDomain()
 )
