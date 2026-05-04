@@ -25,8 +25,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material.icons.filled.Place
+import androidx.compose.material.icons.filled.Public
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -34,6 +36,7 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedButton
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.FilledTonalIconButton
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedButton
@@ -144,11 +147,13 @@ fun NewEventScreen(
                 )
             }
 
-            // Start DateTime
-            //DateTimeInputs1(state, viewModel)
+            HorizontalDivider()
 
-            // TODO ALTERNATIVA PER LA SCELTA DATA/ORA
+            // Start DateTime
+            //DateTimeInputs1(state, viewModel) // old design
             DateTimeInputs2(state, viewModel)
+
+            HorizontalDivider()
 
             // Visibility
             Row(
@@ -156,13 +161,26 @@ fun NewEventScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text(stringResource(R.string.visibility), style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "${stringResource(R.string.visibility)}:",
+                    style = MaterialTheme.typography.titleMedium
+                )
                 SingleChoiceSegmentedButtonRow {
                     Visibility.entries.forEachIndexed { index, visibility ->
                         SegmentedButton(
-                            shape = SegmentedButtonDefaults.itemShape(index = index, count = Visibility.entries.size),
+                            shape = SegmentedButtonDefaults
+                                .itemShape(index = index, count = Visibility.entries.size),
                             onClick = { viewModel.actions.onVisibilityChange(visibility) },
-                            selected = visibility == state.visibility
+                            selected = visibility == state.visibility,
+                            icon = {
+                                Icon(
+                                    when (visibility) {
+                                        Visibility.PUBLIC -> Icons.Default.Public
+                                        Visibility.PRIVATE -> Icons.Default.Lock
+                                    },
+                                    contentDescription = null
+                                )
+                            }
                         ) {
                             Text(stringResource(visibility.labelRes))
                         }
@@ -170,6 +188,7 @@ fun NewEventScreen(
                 }
             }
 
+            HorizontalDivider()
 
             // Manage tags
             Row(
@@ -186,11 +205,6 @@ fun NewEventScreen(
                     Text(stringResource(R.string.manage_tags))
                 }
             }
-
-
-
-            // TODO add other fields
-
 
             // Submit
             Spacer(modifier = Modifier.weight(1f))
@@ -351,7 +365,6 @@ fun DateTimeInputs1(
     }
 }
 
-// TODO se preferito, cambiare in optional e mettere "Seleziona data" e "Seleziona ora"
 @Composable
 fun DateTimeInputs2(
     state: NewEventState,
@@ -369,7 +382,7 @@ fun DateTimeInputs2(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically,
         ) {
-            Text(stringResource(R.string.start), style = MaterialTheme.typography.titleMedium)
+            Text("${stringResource(R.string.start)}:", style = MaterialTheme.typography.titleMedium)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -393,7 +406,10 @@ fun DateTimeInputs2(
                         if (state.isImpossibleStartDateTime) errorColor else okBorderColor
                     )
                 ) {
-                    Icon(Icons.Default.DateRange, contentDescription = null)
+                    Icon(
+                        Icons.Default.DateRange,
+                        contentDescription = stringResource(R.string.date)
+                    )
                     Spacer(Modifier.width(8.dp))
                     Text(state.fStartDate)
                 }
@@ -418,7 +434,10 @@ fun DateTimeInputs2(
                         if (state.isImpossibleStartDateTime) errorColor else okBorderColor
                     )
                 ) {
-                    Icon(Icons.Default.AccessTime, contentDescription = null)
+                    Icon(
+                        Icons.Default.AccessTime,
+                        contentDescription = stringResource(R.string.time)
+                    )
                     Spacer(Modifier.width(8.dp))
                     Text(state.fStartTime)
                 }
@@ -430,7 +449,7 @@ fun DateTimeInputs2(
             horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Text(stringResource(R.string.end), style = MaterialTheme.typography.titleMedium)
+            Text("${stringResource(R.string.end)}:", style = MaterialTheme.typography.titleMedium)
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
@@ -454,7 +473,10 @@ fun DateTimeInputs2(
                         if (state.isImpossibleEndDateTime) errorColor else okBorderColor
                     )
                 ) {
-                    Icon(Icons.Default.DateRange, contentDescription = null)
+                    Icon(
+                        Icons.Default.DateRange,
+                        contentDescription = stringResource(R.string.date)
+                    )
                     Spacer(Modifier.width(8.dp))
                     Text(state.fEndDate)
                 }
@@ -479,11 +501,25 @@ fun DateTimeInputs2(
                         if (state.isImpossibleEndDateTime) errorColor else okBorderColor
                     )
                 ) {
-                    Icon(Icons.Default.AccessTime, contentDescription = null)
+                    Icon(
+                        Icons.Default.AccessTime,
+                        contentDescription = stringResource(R.string.time)
+                    )
                     Spacer(Modifier.width(8.dp))
                     Text(state.fEndTime)
                 }
             }
+        }
+
+        Spacer(modifier = Modifier.padding(vertical = 2.dp))
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.Center
+        ) {
+            Text(
+                "${stringResource(R.string.timezone)}: ${state.timeZone}",
+                style = MaterialTheme.typography.labelMedium
+            )
         }
     }
 }

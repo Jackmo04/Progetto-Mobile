@@ -39,4 +39,5 @@
     <string name="visibility">Visibilità</string>
     <string name="start">Inizio</string>
     <string name="end">Fine</string>
+    <string name="timezone">Fuso orario</string>
 </resources>
