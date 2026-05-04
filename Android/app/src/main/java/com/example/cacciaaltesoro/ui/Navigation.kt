@@ -19,6 +19,7 @@ import com.example.cacciaaltesoro.ui.screens.newevent.NewEventViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
+import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
 import com.example.cacciaaltesoro.ui.screens.tageditor.TagEditorScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
@@ -75,7 +76,8 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             GameScreen(navController, route.eventId)
         }
         composable<CacciaAlTesoroRoute.SavedEvents> {
-            SavedEventsScreen(navController)
+            val savedEventViewModel = koinViewModel<SavedEventsViewModel>()
+            SavedEventsScreen(navController, savedEventViewModel)
         }
         composable<CacciaAlTesoroRoute.NewEvent> {
             val newEventVM = koinViewModel<NewEventViewModel>()
