@@ -27,6 +27,9 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Icon
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SegmentedButton
+import androidx.compose.material3.SegmentedButtonDefaults
+import androidx.compose.material3.SingleChoiceSegmentedButtonRow
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
@@ -58,7 +61,6 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
-import java.util.Calendar
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -257,6 +259,18 @@ fun NewEventScreen(
                         supportingText = { Text("${stringResource(R.string.timezone_abbr)}: ${state.timeZone}") },
                         isError = state.isImpossibleEndDateTime
                     )
+                }
+            }
+
+            SingleChoiceSegmentedButtonRow {
+                Visibility.entries.forEachIndexed { index, visibility ->
+                    SegmentedButton(
+                        shape = SegmentedButtonDefaults.itemShape(index = index, count = Visibility.entries.size),
+                        onClick = { viewModel.actions.onVisibilityChange(visibility) },
+                        selected = visibility == state.visibility
+                    ) {
+                        Text(stringResource(visibility.labelRes))
+                    }
                 }
             }
 

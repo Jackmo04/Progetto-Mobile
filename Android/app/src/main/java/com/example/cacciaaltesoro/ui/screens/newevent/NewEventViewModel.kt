@@ -4,9 +4,9 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
-import com.google.android.gms.maps.model.LatLng
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -21,6 +21,11 @@ import java.time.temporal.TemporalAccessor
 import java.util.Locale
 import kotlin.time.ExperimentalTime
 
+enum class Visibility(val labelRes: Int) {
+    PUBLIC(R.string.public_k),
+    PRIVATE(R.string.private_k)
+}
+
 data class NewEventState(
     val name: String = "",
     val location: Coordinates? = null,
@@ -32,6 +37,7 @@ data class NewEventState(
     val isImpossibleEndDateTime: Boolean = false,
     val timeZone: ZoneId = ZoneId.systemDefault(),
     val description: String = "",
+    val visibility: Visibility = Visibility.PUBLIC
 ) {
     val fStartDate: String get() = startDate.formatShortDate()
     val fStartTime: String get() = startTime.formatShortTime()
@@ -55,6 +61,7 @@ data class NewEventActions(
     val onEndDateChange: (year: Int, month: Int, day: Int) -> Unit,
     val onEndTimeChange: (hour: Int, minute: Int) -> Unit,
     val onDescriptionChange: (String) -> Unit,
+    val onVisibilityChange: (Visibility) -> Unit,
     val onSaveEvent: () -> Unit,
     val onCancelCreation: () -> Unit
 )
@@ -98,6 +105,9 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
         },
         onDescriptionChange = { newDescription ->
             _state.update { it.copy(description = newDescription) }
+        },
+        onVisibilityChange = { visibility ->
+            _state.update { it.copy(visibility = visibility) }
         },
         onSaveEvent = {
             viewModelScope.launch {
