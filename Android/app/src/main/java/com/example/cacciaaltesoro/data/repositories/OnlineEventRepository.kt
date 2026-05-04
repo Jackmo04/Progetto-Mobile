@@ -40,8 +40,9 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
             _listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     ilike("par_nome", "%$query%")
+                    EventDTO::isPrivate eq false
                 }
-            }.decodeList<EventDTO>()
+            }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", _listEvent.toString())
 
         } catch (e: Exception) {
