@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
+import android.location.Location
 import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -17,6 +18,7 @@ data class OnlineEventState(
 )
 
 data class OnlineEventAction(
+    val saveCurrentLocation: (Location) -> Unit,
     val onSearchEvent: (String) -> Unit,
     val onViewEvent: (String) -> Unit,
     val onOrderChanged: (String) -> Unit
@@ -28,7 +30,9 @@ class OnlineEventViewModel(
 
     private var _state by mutableStateOf(OnlineEventState())
     fun getState() = _state
-    fun onOrderChanged(selected: String) {}
+
+    var currentLocation by mutableStateOf<Location?>(null)
+        private set
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
@@ -55,6 +59,7 @@ class OnlineEventViewModel(
 
     @OptIn(ExperimentalTime::class)
     val action = OnlineEventAction(
+        saveCurrentLocation = {location -> currentLocation = location},
         onSearchEvent = { query ->
             viewModelScope.launch {
                 isLoading = true

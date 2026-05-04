@@ -1,9 +1,12 @@
 package com.example.cacciaaltesoro.data.repositories
 
+import android.health.connect.datatypes.ExerciseRoute
+import android.location.Location
 import android.util.Log
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.utils.EventOrderType
+import com.google.android.gms.location.LocationServices
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
 import kotlin.time.ExperimentalTime
@@ -59,7 +62,6 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
 
                 EventOrderType.START_DATE.type -> {
                     result = listEvent.sortedBy { it.startTime.epochSeconds }
-                    // Log.i("Orderd" ,"" )
                 }
 
                 EventOrderType.EVENT_DURATION.type -> {
@@ -67,7 +69,7 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
                 }
 
                 EventOrderType.DISTANCE.type -> {
-                    result = getAllEvents("%") // Distance sorting usually requires user location context
+                    result = orderLocationByDistance(listEvent) // Distance sorting usually requires user location context
                 }
             }
         } catch (e: Exception) {
@@ -75,4 +77,24 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
         }
         return result
     }
+
+    private  fun orderLocationByDistance(
+        eventList: List<EventDTO>
+    ): List<EventDTO> {
+
+        return eventList.sortedBy { place ->
+            val myLocation = Location("custom_provider").apply {
+                latitude = 44.138889
+                longitude = 12.244444
+                        }
+            val eventPosition = Location("provider_temporaneo").apply {
+                latitude = place.lat
+                longitude = place.lon
+            }
+
+            myLocation.distanceTo(eventPosition)
+        }
+    }
 }
+
+

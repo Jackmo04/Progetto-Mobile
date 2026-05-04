@@ -1,5 +1,8 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
+import android.location.Location
+import android.util.Log
+import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -46,12 +49,15 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.navigation.NavHostController
+import com.example.cacciaaltesoro.data.LocationService
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.EventOrderType
@@ -62,6 +68,17 @@ var title = "Eventi disponibili"
 
 @Composable
 fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel) {
+
+    val ctx = LocalContext.current
+    val locationService = remember { LocationService(ctx) }
+/*
+    LaunchedEffect (Unit) {
+        viewModel.action.saveCurrentLocation(Location("custom_provider").apply {
+            latitude = locationService.getCurrentLocation(true)!!.latitude
+            longitude = locationService.getCurrentLocation(true)!!.longitude
+        })
+        Log.i("Location" , )
+    }*/
     Scaffold(
         topBar = {
             AppBar(title, navController)
