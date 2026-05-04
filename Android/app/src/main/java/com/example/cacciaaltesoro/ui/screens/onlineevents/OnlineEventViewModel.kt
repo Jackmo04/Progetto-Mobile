@@ -79,7 +79,7 @@ class OnlineEventViewModel(
             viewModelScope.launch {
             isLoading = true
             try {
-                _state = _state.copy(ListEvent = repository.getOrderedEvent(selected))
+                _state = _state.copy(ListEvent = repository.getOrderedEvent(selected , currentLocation))
             } catch (e: Exception) {
                 errorMessage = "Errore durante la ricerca"
             } finally {

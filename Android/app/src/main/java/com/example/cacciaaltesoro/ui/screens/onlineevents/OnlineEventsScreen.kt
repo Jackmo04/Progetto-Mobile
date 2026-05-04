@@ -50,12 +50,14 @@ import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.data.LocationService
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
@@ -71,14 +73,17 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
 
     val ctx = LocalContext.current
     val locationService = remember { LocationService(ctx) }
-/*
-    LaunchedEffect (Unit) {
-        viewModel.action.saveCurrentLocation(Location("custom_provider").apply {
-            latitude = locationService.getCurrentLocation(true)!!.latitude
-            longitude = locationService.getCurrentLocation(true)!!.longitude
-        })
-        Log.i("Location" , )
-    }*/
+    val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
+
+    LaunchedEffect(coordinates) {
+        coordinates?.let {
+            viewModel.action.saveCurrentLocation(Location("custom_provider").apply {
+                latitude = coordinates!!.latitude
+                longitude = coordinates!!.longitude
+            })
+        }
+    }
+
     Scaffold(
         topBar = {
             AppBar(title, navController)

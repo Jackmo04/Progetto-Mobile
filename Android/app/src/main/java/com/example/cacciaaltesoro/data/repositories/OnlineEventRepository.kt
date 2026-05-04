@@ -15,7 +15,7 @@ interface OnlineEventRepository {
     suspend fun getAllEvents(query: String): List<EventDTO>
    // suspend fun searchEvents(query: String): Unit
 
-    suspend fun getOrderedEvent (type : String) : List<EventDTO>
+    suspend fun getOrderedEvent (type : String , location: Location?) : List<EventDTO>
 }
 
 
@@ -52,7 +52,7 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
     }
 
     @OptIn(ExperimentalTime::class)
-    override suspend fun getOrderedEvent(type: String): List<EventDTO> {
+    override suspend fun getOrderedEvent(type: String , location: Location?): List<EventDTO> {
         var result = emptyList<EventDTO>()
         try {
             when (type) {
@@ -69,7 +69,7 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
                 }
 
                 EventOrderType.DISTANCE.type -> {
-                    result = orderLocationByDistance(listEvent) // Distance sorting usually requires user location context
+                    result = orderLocationByDistance(listEvent , location) // Distance sorting usually requires user location context
                 }
             }
         } catch (e: Exception) {
@@ -79,20 +79,18 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
     }
 
     private  fun orderLocationByDistance(
-        eventList: List<EventDTO>
+        eventList: List<EventDTO>,
+        location: Location?
     ): List<EventDTO> {
 
         return eventList.sortedBy { place ->
-            val myLocation = Location("custom_provider").apply {
-                latitude = 44.138889
-                longitude = 12.244444
-                        }
             val eventPosition = Location("provider_temporaneo").apply {
                 latitude = place.lat
                 longitude = place.lon
             }
+            Log.i("Location" , location.toString())
 
-            myLocation.distanceTo(eventPosition)
+            location?.distanceTo(eventPosition)
         }
     }
 }
