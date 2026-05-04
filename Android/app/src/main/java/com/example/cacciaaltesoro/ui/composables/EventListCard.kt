@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.composables
 
+import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
@@ -29,10 +30,11 @@ import com.example.cacciaaltesoro.data.database.dto.EventDTO
 
 @Composable
 fun EventListCard(
-    events: EventDTO
+    events: EventDTO,
+    isMyEvent: Boolean
 ) {
     // Definizione colori dai tuoi hex
-    val surfaceColor = Color(0xFFFEF7FF)
+    val surfaceColor = if (isMyEvent) Color(0xFFEADDFF) else Color(0xFFFEF7FF)
     val outlineVariant = Color(0xFFCAC4D0)
     val primaryContainer = Color(0xFFEADDFF)
     val onPrimaryContainer = Color(0xFF4F378A)

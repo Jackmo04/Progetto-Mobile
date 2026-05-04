@@ -223,7 +223,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(viewModel.getState().ListEvent) { event ->
-                        EventListCard(event)
+                        EventListCard(event , event.organizerUUID.equals(viewModel.getState().uuid))
                     }
                 }
             }

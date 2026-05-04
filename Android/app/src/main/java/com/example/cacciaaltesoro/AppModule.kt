@@ -33,7 +33,7 @@ val appModule = module {
     single<SupabaseClient> { Supabase().supabase }
 
     viewModel { LoginScreenViewModel(get() ) }
-    viewModel { OnlineEventViewModel(get()) }
+    viewModel { OnlineEventViewModel(get(), get ()) }
     viewModel { NewEventViewModel(get()) }
     viewModel { EventMapEditorViewModel(get()) }
 }
