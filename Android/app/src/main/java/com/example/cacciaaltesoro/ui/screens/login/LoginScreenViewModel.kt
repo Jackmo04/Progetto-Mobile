@@ -11,13 +11,15 @@ import kotlinx.coroutines.launch
 data class LoginState(
     val username: String = "",
     val userId: String = "",
-    val isLogin: Boolean = false
+    val isLogin: Boolean = false,
+    val isSignUp: Boolean = false
 )
 
 data class LoginAction(
     val onLogIn: (String, String) -> Unit,
     val onSignOn: (String, String, String) -> Unit,
-    val onLogOut: () -> Unit
+    val onLogOut: () -> Unit,
+    val changeSignScreen: () -> Unit
 )
 
 class LoginScreenViewModel(
@@ -52,6 +54,13 @@ class LoginScreenViewModel(
                 _state = _state.copy(userId = userId)
             }
         }
+
+        viewModelScope.launch {
+            repository.isSignUp.collect { isSignUp ->
+                _state = _state.copy(isSignUp = isSignUp)
+            }
+        }
+
     }
 
     val action = LoginAction(
@@ -103,6 +112,10 @@ class LoginScreenViewModel(
                     isLoading = false
                 }
             }
-        }
-    )
+        },
+        changeSignScreen = {
+            viewModelScope.launch {
+                repository.setIsSignUp(!_state.isSignUp)
+            }
+        })
 }

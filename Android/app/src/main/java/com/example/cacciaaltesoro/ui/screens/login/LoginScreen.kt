@@ -40,12 +40,12 @@ import org.koin.androidx.compose.koinViewModel
 @Composable
 fun LoginScreen(
     navController: NavHostController,
-    isSignUp: Boolean,
     viewModel: LoginScreenViewModel = koinViewModel()
 ) {
     var username by remember { mutableStateOf(viewModel.getState().username) }
     var password by remember { mutableStateOf("") }
     var passwordConfirm by remember { mutableStateOf("") }
+    var isSignUp by remember { mutableStateOf(false) }
 
     LaunchedEffect(viewModel.getState().username) {
         if (username.isEmpty()) {
@@ -55,7 +55,7 @@ fun LoginScreen(
 
     val title = if(viewModel.getState().isLogin) {
         "Profilo"
-    } else if (isSignUp) {
+    } else if (!isSignUp) {
         "Accedi"
     } else {
         "Registrati"
@@ -101,13 +101,13 @@ fun LoginScreen(
             if (viewModel.isLoading) {
                 CircularProgressIndicator()
             } else {
-                if (isSignUp && !viewModel.getState().isLogin) {
+                if (!isSignUp && !viewModel.getState().isLogin) {
                     MyButton("Accedi", onClick = { viewModel.action.onLogIn(username, password) })
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
-                    LoginAnswer(navController, isSignUp)
-                } else if (!isSignUp) {
+                    LoginAnswer(isSignUp = isSignUp, onToggle = { isSignUp = true })
+                } else if (isSignUp && !viewModel.getState().isLogin ) {
                     OutlinedTextField(
                         value = passwordConfirm,
                         onValueChange = { passwordConfirm = it },
@@ -124,7 +124,7 @@ fun LoginScreen(
 
                     })
                     Spacer(modifier = Modifier.size(36.dp))
-                    LoginAnswer(navController, isSignUp)
+                    LoginAnswer(isSignUp = isSignUp, onToggle = { isSignUp = false })
                 } else {
                     ErrorText(viewModel)
                     SuccessText(viewModel)
@@ -153,15 +153,15 @@ fun MyButton(label: String, onClick: () -> Unit) {
 }
 
 @Composable
-fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
+fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
     val annotatedText = buildAnnotatedString {
-        if (isSignUp) {
+        if (!isSignUp) {
             append("Non sei registrato? ")
             val clickableLink = LinkAnnotation.Clickable(
                 tag = "go_to_signup",
                 styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
             ) {
-                navController.navigate(CacciaAlTesoroRoute.SignUp)
+                onToggle()
             }
             withLink(clickableLink) {
                 append("Registrati")
@@ -172,7 +172,7 @@ fun LoginAnswer(navController: NavController, isSignUp: Boolean) {
                 tag = "go_to_login",
                 styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
             ) {
-                navController.navigate(CacciaAlTesoroRoute.Login)
+                onToggle()
             }
             withLink(clickableLink) {
                 append("Accedi")

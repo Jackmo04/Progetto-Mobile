@@ -31,8 +31,6 @@ sealed interface CacciaAlTesoroRoute {
     @Serializable data class Game(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data object SavedEvents : CacciaAlTesoroRoute
     @Serializable data object Login : CacciaAlTesoroRoute
-
-    @Serializable data object SignUp : CacciaAlTesoroRoute
     @Serializable data object NewEvent : CacciaAlTesoroRoute
     @Serializable data class EventMapEditor(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data class TagEditor(val tagId: String) : CacciaAlTesoroRoute
@@ -51,15 +49,6 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             val loginVm = koinViewModel<LoginScreenViewModel>()
             LoginScreen(
                 navController = navController,
-                isSignUp = true,
-                viewModel= loginVm
-            )
-        }
-        composable<CacciaAlTesoroRoute.SignUp> {
-            val loginVm = koinViewModel<LoginScreenViewModel>()
-            LoginScreen(
-                navController = navController,
-                isSignUp = false,
                 viewModel= loginVm
             )
         }

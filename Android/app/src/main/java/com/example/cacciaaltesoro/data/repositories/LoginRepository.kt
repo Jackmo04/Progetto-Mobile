@@ -20,23 +20,29 @@ class LoginRepository(
         private val USERNAME_UUID = stringPreferencesKey("idUser")
         private val PASSWORD = stringPreferencesKey("password")
         private val IS_LOGIN = booleanPreferencesKey("isLogin")
+
+        private val IS_SIGN_UP = booleanPreferencesKey("isSignUp")
     }
 
     val username = dataStore.data.map { it[USERNAME_KEY] ?: "" }
     val password = dataStore.data.map { it[PASSWORD] ?: "" }
     val userId = dataStore.data.map { it[USERNAME_UUID] ?: "" }
     val isLogin = dataStore.data.map { it[IS_LOGIN] ?: false }
+    val isSignUp = dataStore.data.map { it[IS_SIGN_UP] ?: false }
+
 
     suspend fun setUsername(username: String) = dataStore.edit { it[USERNAME_KEY] = username }
     suspend fun setUserId(userId: String) = dataStore.edit { it[USERNAME_UUID] = userId }
     suspend fun setPassword(password: String) = dataStore.edit { it[PASSWORD] = password }
     suspend fun setIsLogin(isLogin: Boolean) = dataStore.edit { it[IS_LOGIN] = isLogin }
+    suspend fun setIsSignUp(isSignUp: Boolean) = dataStore.edit { it[IS_SIGN_UP] = isSignUp }
 
     suspend fun clearSession() = dataStore.edit {
         it.remove(USERNAME_KEY)
         it.remove(USERNAME_UUID)
         it.remove(PASSWORD)
         it.remove(IS_LOGIN)
+        it.remove(IS_SIGN_UP)
 
     }
 
@@ -51,6 +57,7 @@ class LoginRepository(
                 setUserId(userId)
                 setUsername(username)
                 setIsLogin(true)
+                setIsSignUp(false)
             }
         } catch (e: Exception) {
             Log.e("LoginDebug", "Errore durante il login!", e)
@@ -69,6 +76,7 @@ class LoginRepository(
                 setUserId(userId)
                 setUsername(username)
                 setIsLogin(true)
+                setIsSignUp(false)
             }
             Log.i("LoginDebug", "Registrazione eseguita con successo")
         } catch (e: Exception) {
@@ -82,6 +90,7 @@ class LoginRepository(
             supabase.auth.signOut()
             clearSession()
             setIsLogin(false)
+            setIsSignUp(false)
         } catch (e: Exception) {
             Log.e("LoginDebug", "Errore nel Log Out", e)
             throw e
