@@ -57,7 +57,7 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
         try {
             when (type) {
                 EventOrderType.NAME.type -> {
-                    result = listEvent.sortedByDescending{ it.name }
+                    result = listEvent.sortedBy{ it.name }
                 }
 
                 EventOrderType.START_DATE.type -> {

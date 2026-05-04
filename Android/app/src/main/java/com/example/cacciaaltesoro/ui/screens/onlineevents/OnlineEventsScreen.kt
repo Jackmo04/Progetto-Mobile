@@ -67,6 +67,8 @@ import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.data.LocationService
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.ui.composables.AppBar
+import com.example.cacciaaltesoro.ui.composables.EventListCard
+import com.example.cacciaaltesoro.ui.composables.OrderComboBox
 import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.PermissionStatus
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
@@ -221,7 +223,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(viewModel.getState().ListEvent) { event ->
-                        EventCard(event)
+                        EventListCard(event)
                     }
                 }
             }
@@ -233,142 +235,6 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
 }
 
 
-@Composable
-fun EventCard(
-    events: EventDTO
-) {
-    // Definizione colori dai tuoi hex
-    val surfaceColor = Color(0xFFFEF7FF)
-    val outlineVariant = Color(0xFFCAC4D0)
-    val primaryContainer = Color(0xFFEADDFF)
-    val onPrimaryContainer = Color(0xFF4F378A)
-    val onSurface = Color(0xFF1D1B20)
 
-    // Contenitore Principale (Card)
-    Row(
-        modifier = Modifier
-            .fillMaxWidth()
-            .height(80.dp)
-            .clip(RoundedCornerShape(12.dp))
-            .background(surfaceColor)
-            .border(1.dp, outlineVariant, RoundedCornerShape(12.dp)),
-        verticalAlignment = Alignment.CenterVertically
-    ) {
 
-        // Sezione Content (Avatar + Text)
-        Row(
-            modifier = Modifier
-                .weight(1f) // flex-grow: 1
-                .fillMaxHeight()
-                .padding(16.dp),
-            verticalAlignment = Alignment.CenterVertically,
-            horizontalArrangement = Arrangement.spacedBy(16.dp)
-        ) {
 
-            // Avatar
-            Box(
-                modifier = Modifier
-                    .size(40.dp)
-                    .clip(CircleShape)
-                    .background(primaryContainer),
-                contentAlignment = Alignment.Center
-            ) {
-                Text(
-                    text = events.name?.take(1)?.uppercase() ?: "?",
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        lineHeight = 24.sp,
-                        letterSpacing = 0.1.sp,
-                        color = onPrimaryContainer,
-                        textAlign = TextAlign.Center
-                    )
-                )
-            }
-            Column(
-                modifier = Modifier.weight(1f),
-                verticalArrangement = Arrangement.spacedBy(4.dp)
-            ) {
-                Text(
-                    text = events.name ?: "Senza nome",
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(
-                        fontSize = 16.sp,
-                        fontWeight = FontWeight.Medium,
-                        lineHeight = 24.sp,
-                        letterSpacing = 0.15.sp,
-                        color = onSurface
-                    )
-                )
-                Text(
-                    text = events.description ?: "Nessuna descrizione",
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = TextStyle(
-                        fontSize = 14.sp,
-                        fontWeight = FontWeight.Normal,
-                        lineHeight = 20.sp,
-                        letterSpacing = 0.25.sp,
-                        color = onSurface
-                    )
-                )
-            }
-        }
-
-    }
-}
-
-@Composable
-fun OrderComboBox(options: List<String>, onOptionSelected: (String) -> Unit) {
-    var expanded by remember { mutableStateOf(false) }
-    var selectedOption by remember { mutableStateOf(options[0]) }
-
-    Box(modifier = Modifier.wrapContentSize(Alignment.TopCenter)) {
-        OutlinedTextField(
-            value = selectedOption,
-            onValueChange = {},
-            readOnly = true,
-            label = { Text("Ordina per:", color = Color.LightGray) },
-            trailingIcon = {
-                IconButton(onClick = { expanded = !expanded }) {
-                    Icon(
-                        imageVector = if (expanded) Icons.Default.ArrowDropUp else Icons.Default.ArrowDropDown,
-                        contentDescription = null,
-                        tint = Color.White
-                    )
-                }
-            },
-            modifier = Modifier.fillMaxWidth(),
-            colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.LightGray,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.LightGray
-            )
-        )
-        Box(
-            modifier = Modifier
-                .matchParentSize()
-                .clickable { expanded = !expanded }
-        )
-
-        DropdownMenu(
-            expanded = expanded,
-            onDismissRequest = { expanded = false }
-        ) {
-            options.forEach { selectionOption ->
-                DropdownMenuItem(
-                    text = { Text(selectionOption) },
-                    onClick = {
-                        selectedOption = selectionOption
-                        onOptionSelected(selectionOption)
-                        expanded = false
-                    }
-                )
-            }
-        }
-    }
-}
