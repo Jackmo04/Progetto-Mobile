@@ -3,8 +3,10 @@ package com.example.cacciaaltesoro.data.repositories
 import android.util.Log
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.utils.EventOrderType
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import kotlin.time.ExperimentalTime
 
 interface OnlineEventRepository {
     suspend fun getAllEvents(query: String): List<EventDTO>
@@ -15,6 +17,10 @@ interface OnlineEventRepository {
 
 
 class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEventRepository {
+
+    private var _listEvent = listOf<EventDTO>()
+    val listEvent: List<EventDTO>
+        get() = _listEvent
 
   /*  override suspend fun searchEvents(): List<EventDTO> {
         var result = emptyList<EventDTO>()
@@ -27,26 +33,46 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
     }*/
 
     override suspend fun getAllEvents(query: String): List<EventDTO> {
-        return try {
-            val result = supabase.from(SupabaseTables.EVENTS.tableName).select {
+        try {
+            _listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     ilike("par_nome", "%$query%")
                 }
             }.decodeList<EventDTO>()
-            Log.i("Event", result.toString())
-            result
+            Log.i("Event", _listEvent.toString())
+
         } catch (e: Exception) {
             Log.e("EventRepository", "Error searching events", e)
-            emptyList()
+
         }
+        return _listEvent
     }
 
+    @OptIn(ExperimentalTime::class)
     override suspend fun getOrderedEvent(type: String): List<EventDTO> {
-        return try {
-            supabase.from(SupabaseTables.EVENTS.tableName).select().decodeList<EventDTO>()
+        var result = emptyList<EventDTO>()
+        try {
+            when (type) {
+                EventOrderType.NAME.type -> {
+                    result = listEvent.sortedByDescending{ it.name }
+                }
+
+                EventOrderType.START_DATE.type -> {
+                    result = listEvent.sortedBy { it.startTime.epochSeconds }
+                    // Log.i("Orderd" ,"" )
+                }
+
+                EventOrderType.EVENT_DURATION.type -> {
+                    result =  listEvent.sortedBy { it.endTime.nanosecondsOfSecond - it.startTime.nanosecondsOfSecond }
+                }
+
+                EventOrderType.DISTANCE.type -> {
+                    result = getAllEvents("%") // Distance sorting usually requires user location context
+                }
+            }
         } catch (e: Exception) {
             Log.e("EventRepository", "Error fetching ordered events", e)
-            emptyList()
         }
+        return result
     }
 }

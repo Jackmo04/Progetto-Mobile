@@ -72,24 +72,15 @@ class OnlineEventViewModel(
         },
         onOrderChanged = { selected ->
             viewModelScope.launch {
-                //Log.i("Orderd" , _state.ListEvent.toString())
-                when (selected) {
-                    EventOrderType.NAME.type -> {
-                        _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.name })
-                    }
-                    EventOrderType.START_DATE.type -> {
-                        _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.startTime.epochSeconds })
-                    Log.i("Orderd" , _state.ListEvent.toString())
-                    }
-                    EventOrderType.EVENT_DURATION.type -> {
-                        _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.endTime.nanosecondsOfSecond - it.startTime.nanosecondsOfSecond })
-                    }
-
-                    EventOrderType.DISTANCE.type -> {
-                       // _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.distance })
-                    }
-                }
+            isLoading = true
+            try {
+                _state = _state.copy(ListEvent = repository.getOrderedEvent(selected))
+            } catch (e: Exception) {
+                errorMessage = "Errore durante la ricerca"
+            } finally {
+                isLoading = false
             }
+        }
         }
     )
 }
