@@ -9,7 +9,10 @@ import io.github.jan.supabase.postgrest.from
 interface OnlineEventRepository {
     suspend fun getAllEvents(query: String): List<EventDTO>
    // suspend fun searchEvents(query: String): Unit
+
+    suspend fun getOrderedEvent (type : String) : List<EventDTO>
 }
+
 
 class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEventRepository {
 
@@ -34,6 +37,15 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
             result
         } catch (e: Exception) {
             Log.e("EventRepository", "Error searching events", e)
+            emptyList()
+        }
+    }
+
+    override suspend fun getOrderedEvent(type: String): List<EventDTO> {
+        return try {
+            supabase.from(SupabaseTables.EVENTS.tableName).select().decodeList<EventDTO>()
+        } catch (e: Exception) {
+            Log.e("EventRepository", "Error fetching ordered events", e)
             emptyList()
         }
     }

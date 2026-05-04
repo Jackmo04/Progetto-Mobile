@@ -1,15 +1,16 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
-import com.example.cacciaaltesoro.data.domain.Event
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
+import com.example.cacciaaltesoro.utils.EventOrderType
 import kotlinx.coroutines.launch
+import kotlin.time.ExperimentalTime
 
 data class OnlineEventState(
     val ListEvent: List<EventDTO> = emptyList()
@@ -52,6 +53,7 @@ class OnlineEventViewModel(
         }
     }
 
+    @OptIn(ExperimentalTime::class)
     val action = OnlineEventAction(
         onSearchEvent = { query ->
             viewModelScope.launch {
@@ -69,7 +71,25 @@ class OnlineEventViewModel(
 
         },
         onOrderChanged = { selected ->
-            onOrderChanged(selected)
+            viewModelScope.launch {
+                //Log.i("Orderd" , _state.ListEvent.toString())
+                when (selected) {
+                    EventOrderType.NAME.type -> {
+                        _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.name })
+                    }
+                    EventOrderType.START_DATE.type -> {
+                        _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.startTime.epochSeconds })
+                    Log.i("Orderd" , _state.ListEvent.toString())
+                    }
+                    EventOrderType.EVENT_DURATION.type -> {
+                        _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.endTime.nanosecondsOfSecond - it.startTime.nanosecondsOfSecond })
+                    }
+
+                    EventOrderType.DISTANCE.type -> {
+                       // _state = _state.copy(ListEvent = _state.ListEvent.sortedBy { it.distance })
+                    }
+                }
+            }
         }
     )
 }
