@@ -1,6 +1,9 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
+import android.Manifest
+import android.content.Intent
 import android.location.Location
+import android.provider.Settings
 import android.util.Log
 import androidx.activity.compose.LocalActivity
 import androidx.compose.foundation.background
@@ -49,8 +52,10 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material.icons.filled.ArrowDropUp
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
@@ -63,6 +68,9 @@ import com.example.cacciaaltesoro.data.LocationService
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.EventOrderType
+import com.example.cacciaaltesoro.utils.PermissionStatus
+import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
+import kotlinx.coroutines.launch
 import kotlin.String
 
 
@@ -72,9 +80,57 @@ var title = "Eventi disponibili"
 fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel) {
 
     val ctx = LocalContext.current
+
+    var showLocationDisabledAlert by remember { mutableStateOf(false) }
+    var showPermissionDeniedAlert by remember { mutableStateOf(false) }
+    var showPermissionPermanentlyDeniedSnackbar by remember { mutableStateOf(false) }
+
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
 
+    val scope = rememberCoroutineScope()
+    fun getCurrentLocation() = scope.launch {
+        try {
+            locationService.getCurrentLocation()
+        } catch (_: IllegalStateException) {
+            showLocationDisabledAlert = true
+        }
+    }
+
+    val locationPermissions = rememberMultiplePermissions(
+        listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
+    ) { statuses ->
+        when {
+            statuses.any { it.value == PermissionStatus.Granted } ->
+                getCurrentLocation()
+            statuses.all { it.value == PermissionStatus.PermanentlyDenied } ->
+                showPermissionPermanentlyDeniedSnackbar = true
+            else ->
+                showPermissionDeniedAlert = true
+        }
+    }
+
+    fun getLocationOrRequestPermission() {
+        if (locationPermissions.statuses.any { it.value.isGranted }) {
+            getCurrentLocation()
+        } else {
+            locationPermissions.launchPermissionRequest()
+        }
+    }
+
+    fun openLocationSettings() {
+        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
+            flags = Intent.FLAG_ACTIVITY_NEW_TASK
+        }
+        if (intent.resolveActivity(ctx.packageManager) != null) {
+            ctx.startActivity(intent)
+        }
+    }
+
+
+    LaunchedEffect(Unit) {
+        getLocationOrRequestPermission()
+    }
     LaunchedEffect(coordinates) {
         coordinates?.let {
             viewModel.action.saveCurrentLocation(Location("custom_provider").apply {
@@ -172,6 +228,8 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
             }
             }
         }
+
+
 }
 
 
