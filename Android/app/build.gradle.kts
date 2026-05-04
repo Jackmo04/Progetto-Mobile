@@ -81,4 +81,8 @@ dependencies {
 
     //Test
     testImplementation(libs.kotlinx.coroutines.test)
+
+    //permessi posizione
+    implementation(libs.play.services.location)
+    implementation(libs.kotlinx.coroutines.play.services)
 }

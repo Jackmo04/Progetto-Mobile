@@ -6,12 +6,15 @@ import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.EventRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
+import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
+import com.example.cacciaaltesoro.data.repositories.OnlineEventRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.TagRepository
 import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
 import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
 import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.ui.screens.newevent.NewEventViewModel
+import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import io.github.jan.supabase.SupabaseClient
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -25,10 +28,12 @@ val appModule = module {
     single { LoginRepository(get() , get()) }
     single<TagRepository> { TagRepositoryImpl() }
     single<EventRepository> { EventRepositoryImpl(get()) }
+    single<OnlineEventRepository> { OnlineEventRepositoryImpl(get()) }
 
     single<SupabaseClient> { Supabase().supabase }
 
     viewModel { LoginScreenViewModel(get() ) }
+    viewModel { OnlineEventViewModel(get()) }
     viewModel { NewEventViewModel(get()) }
     viewModel { EventMapEditorViewModel(get()) }
 }
