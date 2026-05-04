@@ -8,7 +8,6 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
-import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
 import com.example.cacciaaltesoro.data.repositories.SavedEventRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -61,7 +60,7 @@ class SavedEventsViewModel(
     @OptIn(ExperimentalTime::class)
     val action = SavedEventAction(
         saveCurrentLocation = {location -> currentLocation = location},
-        onSearchEvent = { query ->
+        onSearchEvent = {
             viewModelScope.launch {
                 isLoading = true
                 try {

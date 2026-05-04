@@ -1,7 +1,6 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import android.location.Location
-import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -10,15 +9,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
-import com.example.cacciaaltesoro.utils.EventOrderType
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.flow.first
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
 data class OnlineEventState(
-    val ListEvent: List<EventDTO> = emptyList(),
+    val listEvent: List<EventDTO> = emptyList(),
     val uuid: String = ""
 )
 
@@ -54,7 +50,7 @@ class OnlineEventViewModel(
 
             try {
                 isLoading = true
-                _state = _state.copy(ListEvent = repository.getAllEvents("%"))
+                _state = _state.copy(listEvent = repository.getAllEvents("%"))
                 _state = _state.copy(uuid = loginRepository.userId.first())
             }finally {
                 isLoading = false
@@ -71,7 +67,7 @@ class OnlineEventViewModel(
             viewModelScope.launch {
                 isLoading = true
                 try {
-                    _state = _state.copy(ListEvent = repository.getAllEvents(query))
+                    _state = _state.copy(listEvent = repository.getAllEvents(query))
                 } catch (e: Exception) {
                     errorMessage = "Errore durante la ricerca"
                 } finally {
@@ -86,7 +82,7 @@ class OnlineEventViewModel(
             viewModelScope.launch {
             isLoading = true
             try {
-                _state = _state.copy(ListEvent = repository.getOrderedEvent(selected , currentLocation))
+                _state = _state.copy(listEvent = repository.getOrderedEvent(selected , currentLocation))
             } catch (e: Exception) {
                 errorMessage = "Errore durante la ricerca"
             } finally {

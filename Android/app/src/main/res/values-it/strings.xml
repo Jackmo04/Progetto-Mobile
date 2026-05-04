@@ -40,4 +40,15 @@
     <string name="start">Inizio</string>
     <string name="end">Fine</string>
     <string name="timezone">Fuso orario</string>
+    <string name="profile_title">Profilo</string>
+    <string name="login_title">Accedi</string>
+    <string name="signup_title">Registrati</string>
+    <string name="logout_buttom">Log Out</string>
+    <string name="login_answer">"Non sei ancora registrato? "</string>
+    <string name="signup_answer">Sei già registrato?</string>
+    <string name="password_confirm">Conferma password</string>
+    <string name="online_event_title">Eventi disponibili</string>
+    <string name="event_code">Codice evento</string>
+    <string name="find">Cerca</string>
+    <string name="saved_event_title">Eventi salvati</string>
 </resources>

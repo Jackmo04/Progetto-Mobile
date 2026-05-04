@@ -39,4 +39,15 @@
     <string name="start">Start</string>
     <string name="end">End</string>
     <string name="timezone">Time zone</string>
+    <string name="profile_title">Profile</string>
+    <string name="login_title">Log In</string>
+    <string name="signup_title">Sign Up</string>
+    <string name="logout_buttom">Log Out</string>
+    <string name="login_answer">Non sei ancora registrato?</string>
+    <string name="signup_answer">Are you already registered?</string>
+    <string name="password_confirm">Confirm password</string>
+    <string name="online_event_title">Online Event</string>
+    <string name="event_code">Event code</string>
+    <string name="find">Find</string>
+    <string name="saved_event_title">Saved event</string>
 </resources>

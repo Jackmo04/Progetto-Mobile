@@ -24,6 +24,7 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.LinkAnnotation
 import androidx.compose.ui.text.SpanStyle
 import androidx.compose.ui.text.TextLinkStyles
@@ -31,9 +32,8 @@ import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.withLink
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
-import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
+import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import org.koin.androidx.compose.koinViewModel
 
@@ -54,11 +54,11 @@ fun LoginScreen(
     }
 
     val title = if(viewModel.getState().isLogin) {
-        "Profilo"
+        stringResource(R.string.profile_title)
     } else if (!isSignUp) {
-        "Accedi"
+        stringResource(R.string.login_title)
     } else {
-        "Registrati"
+        stringResource(R.string.signup_title)
     }
 
     Scaffold(
@@ -102,7 +102,7 @@ fun LoginScreen(
                 CircularProgressIndicator()
             } else {
                 if (!isSignUp && !viewModel.getState().isLogin) {
-                    MyButton("Accedi", onClick = { viewModel.action.onLogIn(username, password) })
+                    MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
@@ -111,7 +111,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = passwordConfirm,
                         onValueChange = { passwordConfirm = it },
-                        label = { Text("Conferma Password") },
+                        label = { Text(stringResource(R.string.password_confirm)) },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !viewModel.isLoading
@@ -119,7 +119,7 @@ fun LoginScreen(
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(8.dp))
-                    MyButton("Registrati", onClick = {
+                    MyButton(stringResource(R.string.signup_title), onClick = {
                         viewModel.action.onSignOn(username, password, passwordConfirm)
 
                     })
@@ -156,7 +156,7 @@ fun MyButton(label: String, onClick: () -> Unit) {
 fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
     val annotatedText = buildAnnotatedString {
         if (!isSignUp) {
-            append("Non sei registrato? ")
+            append(stringResource(R.string.login_answer))
             val clickableLink = LinkAnnotation.Clickable(
                 tag = "go_to_signup",
                 styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
@@ -164,10 +164,10 @@ fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
                 onToggle()
             }
             withLink(clickableLink) {
-                append("Registrati")
+                append(stringResource(R.string.signup_title))
             }
         } else {
-            append("Hai già un account? ")
+            append(stringResource(R.string.signup_answer))
             val clickableLink = LinkAnnotation.Clickable(
                 tag = "go_to_login",
                 styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
@@ -175,7 +175,7 @@ fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
                 onToggle()
             }
             withLink(clickableLink) {
-                append("Accedi")
+                append(stringResource(R.string.login_title))
             }
         }
         append(".")
