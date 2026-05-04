@@ -4,14 +4,18 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardActions
@@ -20,11 +24,19 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.CalendarMonth
+import androidx.compose.material.icons.filled.DateRange
+import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.ElevatedButton
+import androidx.compose.material3.FilledTonalButton
+import androidx.compose.material3.FilledTonalIconButton
 import androidx.compose.material3.Icon
+import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
@@ -70,7 +82,6 @@ fun NewEventScreen(
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
     val focusManager = LocalFocusManager.current
-    val context = LocalContext.current
 
     var showMapDialog by remember { mutableStateOf(false) }
 
@@ -83,7 +94,7 @@ fun NewEventScreen(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(innerPadding)
-                .padding(horizontal = 12.dp)
+                .padding(12.dp)
                 .verticalScroll(rememberScrollState()),
             verticalArrangement = Arrangement.spacedBy(16.dp)
         ) {
@@ -92,9 +103,7 @@ fun NewEventScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.actions.onNameChange(it) },
-                label = {
-                    Text("${stringResource(R.string.name)} ${stringResource(R.string.optional_par)}")
-                },
+                label = { Text("${stringResource(R.string.name)} ${stringResource(R.string.optional_par)}") },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -135,149 +144,58 @@ fun NewEventScreen(
                 )
             }
 
-            // Start Date and Time
+            // Start DateTime
+            //DateTimeInputs1(state, viewModel)
+
+            // TODO ALTERNATIVA PER LA SCELTA DATA/ORA
+            DateTimeInputs2(state, viewModel)
+
+            // Visibility
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Date
-                ClickableBox(
-                    modifier = Modifier.weight(0.5f),
-                    onClick = {
-                        DatePickerDialog(
-                            context,
-                            { _, year, month, dayOfMonth ->
-                                viewModel.actions.onStartDateChange(year, month + 1, dayOfMonth)
-                            },
-                            state.startDate.year,
-                            state.startDate.monthValue - 1,
-                            state.startDate.dayOfMonth
-                        ).show()
+                Text(stringResource(R.string.visibility), style = MaterialTheme.typography.titleMedium)
+                SingleChoiceSegmentedButtonRow {
+                    Visibility.entries.forEachIndexed { index, visibility ->
+                        SegmentedButton(
+                            shape = SegmentedButtonDefaults.itemShape(index = index, count = Visibility.entries.size),
+                            onClick = { viewModel.actions.onVisibilityChange(visibility) },
+                            selected = visibility == state.visibility
+                        ) {
+                            Text(stringResource(visibility.labelRes))
+                        }
                     }
-                ) {
-                    OutlinedTextField(
-                        value = state.fStartDate,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.start_date)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { Icon(
-                            Icons.Default.CalendarMonth,
-                            stringResource(R.string.choose)
-                        )},
-                        isError = state.isImpossibleStartDateTime
-                    )
-                }
-
-                // Time
-                ClickableBox(
-                    modifier = Modifier.weight(0.5f),
-                    onClick = {
-                        TimePickerDialog(
-                            context,
-                            { _, hour, minute ->
-                                viewModel.actions.onStartTimeChange(hour, minute)
-                            },
-                            state.startTime.hour,
-                            state.startTime.minute,
-                            true
-                        ).show()
-                    }
-                ) {
-                    OutlinedTextField(
-                        value = state.fStartTime,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.start_time)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { Icon(
-                            Icons.Default.AccessTime,
-                            stringResource(R.string.choose)
-                        )},
-                        isError = state.isImpossibleStartDateTime
-                    )
                 }
             }
 
-            // End Date and Time
+
+            // Manage tags
             Row(
-                horizontalArrangement = Arrangement.spacedBy(16.dp)
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically,
+                modifier = Modifier.fillMaxWidth()
             ) {
-                // Date
-                ClickableBox(
-                    modifier = Modifier.weight(0.5f),
-                    onClick = {
-                        DatePickerDialog(
-                            context,
-                            { _, year, month, dayOfMonth ->
-                                viewModel.actions.onEndDateChange(year, month + 1, dayOfMonth)
-                            },
-                            state.endDate.year,
-                            state.endDate.monthValue - 1,
-                            state.endDate.dayOfMonth
-                        ).show()
-                    }
-                ) {
-                    OutlinedTextField(
-                        value = state.fEndDate.ifBlank { state.fStartDate },
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.end_date)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { Icon(
-                            Icons.Default.CalendarMonth,
-                            stringResource(R.string.choose)
-                        )},
-                        isError = state.isImpossibleEndDateTime
-                    )
-                }
+                Text("Numero tag: 0", style = MaterialTheme.typography.titleMedium)
 
-                // Time
-                ClickableBox(
-                    modifier = Modifier.weight(0.5f),
-                    onClick = {
-                        TimePickerDialog(
-                            context,
-                            { _, hour, minute ->
-                                viewModel.actions.onEndTimeChange(hour, minute)
-                            },
-                            state.endTime.hour,
-                            state.endTime.minute,
-                            true
-                        ).show()
-                    }
+                FilledTonalButton(
+                    onClick = {/* TODO */}
                 ) {
-                    OutlinedTextField(
-                        value = state.fEndTime,
-                        onValueChange = {},
-                        readOnly = true,
-                        label = { Text(stringResource(R.string.end_time)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        trailingIcon = { Icon(
-                            Icons.Default.AccessTime,
-                            stringResource(R.string.choose)
-                        )},
-                        supportingText = { Text("${stringResource(R.string.timezone_abbr)}: ${state.timeZone}") },
-                        isError = state.isImpossibleEndDateTime
-                    )
+                    Icon(Icons.Default.PinDrop, contentDescription = null)
+                    Text(stringResource(R.string.manage_tags))
                 }
             }
 
-            SingleChoiceSegmentedButtonRow {
-                Visibility.entries.forEachIndexed { index, visibility ->
-                    SegmentedButton(
-                        shape = SegmentedButtonDefaults.itemShape(index = index, count = Visibility.entries.size),
-                        onClick = { viewModel.actions.onVisibilityChange(visibility) },
-                        selected = visibility == state.visibility
-                    ) {
-                        Text(stringResource(visibility.labelRes))
-                    }
-                }
-            }
+
 
             // TODO add other fields
 
+
             // Submit
+            Spacer(modifier = Modifier.weight(1f))
             Button(
+                modifier = Modifier.fillMaxWidth(),
                 onClick = { viewModel.actions.onSaveEvent() },
                 enabled = state.location != null
                         && !state.isImpossibleStartDateTime
@@ -296,6 +214,276 @@ fun NewEventScreen(
                     showMapDialog = false
                 }
             )
+        }
+    }
+}
+
+@Composable
+fun DateTimeInputs1(
+    state: NewEventState,
+    viewModel: NewEventViewModel,
+) {
+    val context = LocalContext.current
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Date
+        ClickableBox(
+            modifier = Modifier.weight(0.5f),
+            onClick = {
+                DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+                        viewModel.actions.onStartDateChange(year, month + 1, dayOfMonth)
+                    },
+                    state.startDate.year,
+                    state.startDate.monthValue - 1,
+                    state.startDate.dayOfMonth
+                ).show()
+            }
+        ) {
+            OutlinedTextField(
+                value = state.fStartDate,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.start_date)) },
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = { Icon(
+                    Icons.Default.CalendarMonth,
+                    stringResource(R.string.choose)
+                )},
+                isError = state.isImpossibleStartDateTime
+            )
+        }
+
+        // Time
+        ClickableBox(
+            modifier = Modifier.weight(0.5f),
+            onClick = {
+                TimePickerDialog(
+                    context,
+                    { _, hour, minute ->
+                        viewModel.actions.onStartTimeChange(hour, minute)
+                    },
+                    state.startTime.hour,
+                    state.startTime.minute,
+                    true
+                ).show()
+            }
+        ) {
+            OutlinedTextField(
+                value = state.fStartTime,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.start_time)) },
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = { Icon(
+                    Icons.Default.AccessTime,
+                    stringResource(R.string.choose)
+                )},
+                isError = state.isImpossibleStartDateTime
+            )
+        }
+    }
+
+    // End Date and Time
+    Row(
+        horizontalArrangement = Arrangement.spacedBy(16.dp)
+    ) {
+        // Date
+        ClickableBox(
+            modifier = Modifier.weight(0.5f),
+            onClick = {
+                DatePickerDialog(
+                    context,
+                    { _, year, month, dayOfMonth ->
+                        viewModel.actions.onEndDateChange(year, month + 1, dayOfMonth)
+                    },
+                    state.endDate.year,
+                    state.endDate.monthValue - 1,
+                    state.endDate.dayOfMonth
+                ).show()
+            }
+        ) {
+            OutlinedTextField(
+                value = state.fEndDate.ifBlank { state.fStartDate },
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.end_date)) },
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = { Icon(
+                    Icons.Default.CalendarMonth,
+                    stringResource(R.string.choose)
+                )},
+                isError = state.isImpossibleEndDateTime
+            )
+        }
+
+        // Time
+        ClickableBox(
+            modifier = Modifier.weight(0.5f),
+            onClick = {
+                TimePickerDialog(
+                    context,
+                    { _, hour, minute ->
+                        viewModel.actions.onEndTimeChange(hour, minute)
+                    },
+                    state.endTime.hour,
+                    state.endTime.minute,
+                    true
+                ).show()
+            }
+        ) {
+            OutlinedTextField(
+                value = state.fEndTime,
+                onValueChange = {},
+                readOnly = true,
+                label = { Text(stringResource(R.string.end_time)) },
+                modifier = Modifier.fillMaxWidth(),
+                trailingIcon = { Icon(
+                    Icons.Default.AccessTime,
+                    stringResource(R.string.choose)
+                )},
+                supportingText = { Text("${stringResource(R.string.timezone_abbr)}: ${state.timeZone}") },
+                isError = state.isImpossibleEndDateTime
+            )
+        }
+    }
+}
+
+// TODO se preferito, cambiare in optional e mettere "Seleziona data" e "Seleziona ora"
+@Composable
+fun DateTimeInputs2(
+    state: NewEventState,
+    viewModel: NewEventViewModel
+) {
+    val context = LocalContext.current
+
+    val errorColor = MaterialTheme.colorScheme.error
+    val okContentColor = MaterialTheme.colorScheme.secondary
+    val okBorderColor = MaterialTheme.colorScheme.outline
+
+    Column {
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically,
+        ) {
+            Text(stringResource(R.string.start), style = MaterialTheme.typography.titleMedium)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, dayOfMonth ->
+                                viewModel.actions.onStartDateChange(year, month + 1, dayOfMonth)
+                            },
+                            state.startDate.year,
+                            state.startDate.monthValue - 1,
+                            state.startDate.dayOfMonth
+                        ).show()
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = if (state.isImpossibleStartDateTime) errorColor else okContentColor
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (state.isImpossibleStartDateTime) errorColor else okBorderColor
+                    )
+                ) {
+                    Icon(Icons.Default.DateRange, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(state.fStartDate)
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        TimePickerDialog(
+                            context,
+                            { _, hour, minute ->
+                                viewModel.actions.onStartTimeChange(hour, minute)
+                            },
+                            state.startTime.hour,
+                            state.startTime.minute,
+                            true
+                        ).show()
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = if (state.isImpossibleStartDateTime) errorColor else okContentColor
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (state.isImpossibleStartDateTime) errorColor else okBorderColor
+                    )
+                ) {
+                    Icon(Icons.Default.AccessTime, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(state.fStartTime)
+                }
+            }
+        }
+
+        Row(
+            modifier = Modifier.fillMaxWidth(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            Text(stringResource(R.string.end), style = MaterialTheme.typography.titleMedium)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
+            ) {
+                OutlinedButton(
+                    onClick = {
+                        DatePickerDialog(
+                            context,
+                            { _, year, month, dayOfMonth ->
+                                viewModel.actions.onEndDateChange(year, month + 1, dayOfMonth)
+                            },
+                            state.endDate.year,
+                            state.endDate.monthValue - 1,
+                            state.endDate.dayOfMonth
+                        ).show()
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = if (state.isImpossibleEndDateTime) errorColor else okContentColor
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (state.isImpossibleEndDateTime) errorColor else okBorderColor
+                    )
+                ) {
+                    Icon(Icons.Default.DateRange, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(state.fEndDate)
+                }
+
+                OutlinedButton(
+                    onClick = {
+                        TimePickerDialog(
+                            context,
+                            { _, hour, minute ->
+                                viewModel.actions.onEndTimeChange(hour, minute)
+                            },
+                            state.endTime.hour,
+                            state.endTime.minute,
+                            true
+                        ).show()
+                    },
+                    colors = ButtonDefaults.outlinedButtonColors(
+                        contentColor = if (state.isImpossibleEndDateTime) errorColor else okContentColor
+                    ),
+                    border = BorderStroke(
+                        1.dp,
+                        if (state.isImpossibleEndDateTime) errorColor else okBorderColor
+                    )
+                ) {
+                    Icon(Icons.Default.AccessTime, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text(state.fEndTime)
+                }
+            }
         }
     }
 }

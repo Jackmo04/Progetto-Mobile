@@ -117,7 +117,7 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
                         return@launch
                     }
                 }
-//                repository.insertEvent(Event()) TODO
+//                repository.upsertEvent(Event()) TODO
                 _state.update { NewEventState() }
             }
         },

@@ -34,4 +34,8 @@
     <string name="end_time">End time</string>
     <string name="public_k">Public</string>
     <string name="private_k">Private</string>
+    <string name="manage_tags">Manage tags</string>
+    <string name="visibility">Visibility</string>
+    <string name="start">Start</string>
+    <string name="end">End</string>
 </resources>

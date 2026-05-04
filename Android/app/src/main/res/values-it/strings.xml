@@ -35,4 +35,8 @@
     <string name="end_time">Ora fine</string>
     <string name="public_k">Pubblico</string>
     <string name="private_k">Privato</string>
+    <string name="manage_tags">Gestisci tag</string>
+    <string name="visibility">Visibilità</string>
+    <string name="start">Inizio</string>
+    <string name="end">Fine</string>
 </resources>
