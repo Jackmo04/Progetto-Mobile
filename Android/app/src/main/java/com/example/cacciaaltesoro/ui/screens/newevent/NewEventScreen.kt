@@ -70,8 +70,6 @@ fun NewEventScreen(
     val focusManager = LocalFocusManager.current
     val context = LocalContext.current
 
-    val calendar = Calendar.getInstance()
-
     var showMapDialog by remember { mutableStateOf(false) }
 
     Scaffold(
@@ -146,12 +144,11 @@ fun NewEventScreen(
                         DatePickerDialog(
                             context,
                             { _, year, month, dayOfMonth ->
-                                calendar.set(year, month, dayOfMonth)
                                 viewModel.actions.onStartDateChange(year, month + 1, dayOfMonth)
                             },
-                            state.startDate?.year ?: calendar.get(Calendar.YEAR),
-                            state.startDate?.monthValue?.minus(1) ?: calendar.get(Calendar.MONTH),
-                            state.startDate?.dayOfMonth ?: calendar.get(Calendar.DAY_OF_MONTH)
+                            state.startDate.year,
+                            state.startDate.monthValue - 1,
+                            state.startDate.dayOfMonth
                         ).show()
                     }
                 ) {
@@ -176,12 +173,10 @@ fun NewEventScreen(
                         TimePickerDialog(
                             context,
                             { _, hour, minute ->
-                                calendar.set(Calendar.HOUR_OF_DAY, hour)
-                                calendar.set(Calendar.MINUTE, minute)
                                 viewModel.actions.onStartTimeChange(hour, minute)
                             },
-                            state.startTime?.hour ?: calendar.get(Calendar.HOUR_OF_DAY),
-                            state.startTime?.minute ?: calendar.get(Calendar.MINUTE),
+                            state.startTime.hour,
+                            state.startTime.minute,
                             true
                         ).show()
                     }
@@ -212,12 +207,11 @@ fun NewEventScreen(
                         DatePickerDialog(
                             context,
                             { _, year, month, dayOfMonth ->
-                                calendar.set(year, month, dayOfMonth)
                                 viewModel.actions.onEndDateChange(year, month + 1, dayOfMonth)
                             },
-                            state.endDate?.year ?: calendar.get(Calendar.YEAR),
-                            state.endDate?.monthValue?.minus(1) ?: calendar.get(Calendar.MONTH),
-                            state.endDate?.dayOfMonth ?: calendar.get(Calendar.DAY_OF_MONTH)
+                            state.endDate.year,
+                            state.endDate.monthValue - 1,
+                            state.endDate.dayOfMonth
                         ).show()
                     }
                 ) {
@@ -242,12 +236,10 @@ fun NewEventScreen(
                         TimePickerDialog(
                             context,
                             { _, hour, minute ->
-                                calendar.set(Calendar.HOUR_OF_DAY, hour)
-                                calendar.set(Calendar.MINUTE, minute)
                                 viewModel.actions.onEndTimeChange(hour, minute)
                             },
-                            state.endTime?.hour ?: calendar.get(Calendar.HOUR_OF_DAY),
-                            state.endTime?.minute ?: calendar.get(Calendar.MINUTE),
+                            state.endTime.hour,
+                            state.endTime.minute,
                             true
                         ).show()
                     }

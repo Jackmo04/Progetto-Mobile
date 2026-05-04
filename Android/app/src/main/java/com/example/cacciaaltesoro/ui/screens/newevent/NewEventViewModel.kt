@@ -72,11 +72,17 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
         },
         onStartDateChange = { year, month, day ->
             val localDate = LocalDate.of(year, month, day)
+            if (localDate.isAfter(state.value.endDate)) {
+                _state.update { it.copy(endDate = localDate) }
+            }
             _state.update { it.copy(startDate = localDate) }
             checkTimestamps()
         },
         onStartTimeChange = { hour, minute ->
             val localTime = LocalTime.of(hour, minute)
+            if (localTime.isAfter(state.value.endTime)) {
+                _state.update { it.copy(endTime = localTime.plusHours(1)) }
+            }
             _state.update { it.copy(startTime = localTime) }
             checkTimestamps()
         },
