@@ -17,7 +17,8 @@ data class OnlineEventState(
 
 data class OnlineEventAction(
     val onSearchEvent: (String) -> Unit,
-    val onViewEvent: (String) -> Unit
+    val onViewEvent: (String) -> Unit,
+    val onOrderChanged: (String) -> Unit
 )
 
 class OnlineEventViewModel(
@@ -40,7 +41,13 @@ class OnlineEventViewModel(
     init {
         viewModelScope.launch {
 
+            try {
+                isLoading = true
                 _state = _state.copy(ListEvent = repository.getAllEvents("%"))
+            }finally {
+                isLoading = false
+            }
+
 
         }
     }
@@ -60,6 +67,9 @@ class OnlineEventViewModel(
         },
         onViewEvent = {
 
+        },
+        onOrderChanged = { selected ->
+            onOrderChanged(selected)
         }
     )
 }
