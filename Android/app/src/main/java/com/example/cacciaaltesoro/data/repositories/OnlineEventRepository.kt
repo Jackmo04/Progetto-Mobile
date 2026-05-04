@@ -1,13 +1,12 @@
 package com.example.cacciaaltesoro.data.repositories
 
-import android.health.connect.datatypes.ExerciseRoute
 import android.location.Location
 import android.util.Log
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.utils.EventOrderType
-import com.google.android.gms.location.LocationServices
 import io.github.jan.supabase.SupabaseClient
+import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
 import kotlin.time.ExperimentalTime
 
@@ -41,6 +40,7 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
                 filter {
                     ilike("par_nome", "%$query%")
                     EventDTO::isPrivate eq false
+                    EventDTO::organizerUUID neq supabase.auth.currentUserOrNull()?.id
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", _listEvent.toString())
