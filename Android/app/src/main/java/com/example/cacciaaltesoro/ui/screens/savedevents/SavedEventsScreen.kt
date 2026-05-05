@@ -35,6 +35,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.LocationService
+import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.EventListCard
 import com.example.cacciaaltesoro.ui.composables.OrderComboBox
@@ -147,8 +148,11 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(viewModel.getState().listEvent) { event ->
-                            EventListCard(event , event.organizerUUID == viewModel.getState().uuid)
-                        }
+                            EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
+                                event.id?.let { id ->
+                                    navController.navigate(CacciaAlTesoroRoute.EventDetails(id))
+                                }
+                            }
                     }
                 }
             }
@@ -156,7 +160,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
     }
 
 
-}
+}}
 fun toastDistancePermission(ctx: Context) {
     Toast.makeText(
         ctx,

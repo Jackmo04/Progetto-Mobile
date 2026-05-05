@@ -198,8 +198,11 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
                     items(viewModel.getState().listEvent) { event ->
-                        EventListCard(event , event.organizerUUID == viewModel.getState().uuid , {() -> {navController.navigate(CacciaAlTesoroRoute.EventDetails)})
-                    }
+                        EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
+                            event.id?.let { id ->
+                                navController.navigate(CacciaAlTesoroRoute.EventDetails(id))
+                            }
+                        }
                 }
             }
             }
@@ -207,7 +210,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
         }
 
 
-}
+}}
 
 fun toastDistancePermission(ctx: Context){
     Toast.makeText(
