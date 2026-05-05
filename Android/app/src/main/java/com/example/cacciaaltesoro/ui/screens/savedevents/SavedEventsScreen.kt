@@ -51,7 +51,6 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
 
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
-    var isAnyGranted by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     fun getCurrentLocation() = scope.launch {
         try {
@@ -68,8 +67,8 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
     val locationPermissions = rememberMultiplePermissions(
         listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
     ) { permissionResults ->
-        isAnyGranted = permissionResults.values.any { it.isGranted }
-        if (isAnyGranted) {
+        val isGrantedNow = permissionResults.values.any { it.isGranted }
+        if (isGrantedNow) {
             getCurrentLocation()
         }
     }
@@ -129,7 +128,9 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
 
                     OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
                         viewModel.action.onOrderChanged(selected)
-                        if(selected == EventOrderType.DISTANCE.type && !isAnyGranted){
+                        val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
+
+                        if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
                             toastDistancePermission(ctx)
                         }
                     }
