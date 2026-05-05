@@ -29,7 +29,8 @@ class EventDetailsRepositoryImpl(private val supabase: SupabaseClient) : EventDe
                 }
             }.decodeSingle<EventDTO>()
             Log.i("CardLog", fetchedEvent.toString())
-           fetchedEvent
+            _event = fetchedEvent
+            fetchedEvent
         } catch (e: Exception) {
             Log.e("CardLog", "Error fetching event details for id: $id", e)
             null

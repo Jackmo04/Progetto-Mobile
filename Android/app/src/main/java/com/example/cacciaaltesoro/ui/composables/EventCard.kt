@@ -7,6 +7,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.MoreVert
+import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -88,13 +89,7 @@ fun EventCard(
                     )
                 }
 
-                IconButton(onClick = { /* Handle more action */ }) {
-                    Icon(
-                        imageVector = Icons.Default.MoreVert,
-                        contentDescription = "More options",
-                        tint = Color(0xFF49454F)
-                    )
-                }
+
             }
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
@@ -141,17 +136,25 @@ fun EventCard(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                OutlinedButton(
+                IconButton(onClick = { /* Handle more action */ }) {
+                    Icon(
+                        imageVector = Icons.Default.Share,
+                        contentDescription = "More options",
+                        tint = Color(0xFF49454F)
+                    )
+                }
+
+                Button(
                     onClick = {  },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
-                    Text("Details")
+                    Text("Iscriviti")
                 }
 
                 Button(
                     onClick = {  }
                 ) {
-                    Text("Join")
+                    Text("Avvia gioco")
                 }
             }
         }
