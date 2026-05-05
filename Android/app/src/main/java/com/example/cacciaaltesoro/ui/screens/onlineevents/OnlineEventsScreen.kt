@@ -5,6 +5,7 @@ import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.provider.Settings
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -199,7 +200,8 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                 ) {
                     items(viewModel.getState().listEvent) { event ->
                         EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
-                            event.id?.let { id ->
+                            Log.i("CardLog" , event.id.toString())
+                            event.id.let { id ->
                                 navController.navigate(CacciaAlTesoroRoute.EventDetails(id))
                             }
                         }

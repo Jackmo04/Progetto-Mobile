@@ -1,6 +1,5 @@
 package com.example.cacciaaltesoro.ui.screens.eventdetails
 
-import android.location.Location
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -9,15 +8,12 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.repositories.EventDetailsRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
-import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
-import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventState
-import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
 data class EventDetailsEventState(
-    val idEvent: Int,
-    val  event: EventDTO?
+    val idEvent: Int = 0,
+    val  event: EventDTO? = null
 )
 
 data class EventDetailsEventAction(
@@ -30,8 +26,6 @@ class EventDetailsViewModel(
 ) : ViewModel() {
 
     private var _state by mutableStateOf(EventDetailsEventState(
-        idEvent = TODO(),
-        event = TODO()
     ))
     fun getState() = _state
 
@@ -48,7 +42,7 @@ class EventDetailsViewModel(
         findEventByID = { id ->
             viewModelScope.launch {
                 try {
-                    _state = _state.copy(event = repository.getEvents(id))
+                    _state = _state.copy(event = repository.getEvent(id))
                 }catch (e: Exception){
 
                 }

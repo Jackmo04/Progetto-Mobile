@@ -49,14 +49,12 @@ fun EventCard(
         Column(
             modifier = Modifier.fillMaxWidth()
         ) {
-            // 1. Header (Avatar, Titles, Icon)
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
                     .padding(start = 16.dp, top = 12.dp, end = 4.dp, bottom = 12.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-                // Avatar
                 Box(
                     modifier = Modifier
                         .size(40.dp)
@@ -73,7 +71,6 @@ fun EventCard(
 
                 Spacer(modifier = Modifier.width(16.dp))
 
-                // Text
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
                         text = event.name ?: "Unknown Event",
@@ -91,7 +88,6 @@ fun EventCard(
                     )
                 }
 
-                // Standard Icon Button
                 IconButton(onClick = { /* Handle more action */ }) {
                     Icon(
                         imageVector = Icons.Default.MoreVert,
@@ -100,8 +96,6 @@ fun EventCard(
                     )
                 }
             }
-
-            // 2. Media (Google Maps Static Image)
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(mapImageUrl)
@@ -114,8 +108,6 @@ fun EventCard(
                     .background(Color(0xFFECE6F0)), // Placeholder background color
                 contentScale = ContentScale.Crop
             )
-
-            // 3. Text Content
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -142,7 +134,6 @@ fun EventCard(
                 )
             }
 
-            // 4. Actions
             Row(
                 modifier = Modifier
                     .fillMaxWidth()

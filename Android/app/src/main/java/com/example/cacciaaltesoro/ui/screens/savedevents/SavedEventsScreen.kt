@@ -3,6 +3,7 @@ package com.example.cacciaaltesoro.ui.screens.savedevents
 import android.Manifest
 import android.content.Context
 import android.location.Location
+import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -149,14 +150,13 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                     ) {
                         items(viewModel.getState().listEvent) { event ->
                             EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
-                                event.id?.let { id ->
-                                    navController.navigate(CacciaAlTesoroRoute.EventDetails(id))
-                                }
+                                navController.navigate(CacciaAlTesoroRoute.EventDetails(event.id))
                             }
                     }
                 }
             }
         }
+
     }
 
 

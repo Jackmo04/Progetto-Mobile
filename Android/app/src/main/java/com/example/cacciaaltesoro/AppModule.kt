@@ -46,5 +46,5 @@ val appModule = module {
     viewModel { SavedEventsViewModel(get(), get ()) }
     viewModel { NewEventViewModel(get()) }
     viewModel { EventMapEditorViewModel(get()) }
-    viewModel { EventDetailsViewModel(get(), get ()) }
+    viewModel { EventDetailsViewModel(get(), get()) }
 }

@@ -1,17 +1,13 @@
 package com.example.cacciaaltesoro.data.repositories
 
-import android.location.Location
 import android.util.Log
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
-import com.example.cacciaaltesoro.utils.EventOrderType
 import io.github.jan.supabase.SupabaseClient
-import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.postgrest.from
-import kotlin.time.ExperimentalTime
 
 interface EventDetailsRepository {
-    suspend fun getEvents(id: Int): EventDTO?
+    suspend fun getEvent(id: Int): EventDTO?
 }
 
 
@@ -22,20 +18,20 @@ class EventDetailsRepositoryImpl(private val supabase: SupabaseClient) : EventDe
         get() = _event
 
 
-    override suspend fun getEvents(id: Int): EventDTO? {
-        try {
-            _event = supabase.from(SupabaseTables.EVENTS.tableName).select {
+    override suspend fun getEvent(id: Int): EventDTO? {
+       return try {
+           Log.i("CardLog", id.toString() + "repo")
+           val fetchedEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::id eq id
                 }
             }.decodeSingle<EventDTO>()
-            Log.i("Event", _event.toString())
-
+            Log.i("CardLog", fetchedEvent.toString())
+           fetchedEvent
         } catch (e: Exception) {
-            Log.e("EventRepository", "Error searching events", e)
-
+            Log.e("CardLog", "Error searching events", e)
+null
         }
-        return _event
     }
 
 

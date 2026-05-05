@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui
 
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -58,9 +59,12 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             OnlineEventsScreen(navController, newOnlineEvent)
         }
         composable<CacciaAlTesoroRoute.EventDetails> { backStackEntry ->
+
             val eventDetailsViewModel = koinViewModel<EventDetailsViewModel>()
+            Log.i("CardLog" , eventDetailsViewModel.toString())
             val route = backStackEntry.toRoute<CacciaAlTesoroRoute.EventDetails>()
-            EventDetailsScreen(navController, route.eventId,eventDetailsViewModel)
+            Log.i("CardLog" , route.toString())
+            EventDetailsScreen(navController, route.eventId ,eventDetailsViewModel)
         }
         composable<CacciaAlTesoroRoute.Game> { backStackEntry ->
             val route = backStackEntry.toRoute<CacciaAlTesoroRoute.Game>()
