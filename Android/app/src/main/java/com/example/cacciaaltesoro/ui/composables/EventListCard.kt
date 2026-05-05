@@ -3,6 +3,7 @@ package com.example.cacciaaltesoro.ui.composables
 import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -31,27 +32,25 @@ import com.example.cacciaaltesoro.data.database.dto.EventDTO
 @Composable
 fun EventListCard(
     events: EventDTO,
-    isMyEvent: Boolean
+    isMyEvent: Boolean,
+    onClick: () -> Unit
 ) {
-    // Definizione colori dai tuoi hex
     val surfaceColor = if (isMyEvent) Color(0xFFEADDFF) else Color(0xFFFEF7FF)
     val outlineVariant = Color(0xFFCAC4D0)
     val primaryContainer = Color(0xFFEADDFF)
     val onPrimaryContainer = Color(0xFF4F378A)
     val onSurface = Color(0xFF1D1B20)
-
-    // Contenitore Principale (Card)
     Row(
         modifier = Modifier
             .fillMaxWidth()
             .height(80.dp)
             .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
-            .border(1.dp, outlineVariant, RoundedCornerShape(12.dp)),
+            .border(1.dp, outlineVariant, RoundedCornerShape(12.dp))
+            .clickable() { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
 
-        // Sezione Content (Avatar + Text)
         Row(
             modifier = Modifier
                 .weight(1f) // flex-grow: 1
@@ -61,7 +60,6 @@ fun EventListCard(
             horizontalArrangement = Arrangement.spacedBy(16.dp)
         ) {
 
-            // Avatar
             Box(
                 modifier = Modifier
                     .size(40.dp)

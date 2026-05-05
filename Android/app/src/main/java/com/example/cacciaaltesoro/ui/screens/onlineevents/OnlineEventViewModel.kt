@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
+import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
