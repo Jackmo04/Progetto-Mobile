@@ -5,7 +5,10 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.background
 import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
+import androidx.compose.foundation.interaction.MutableInteractionSource
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -15,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -45,16 +49,22 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SegmentedButton
 import androidx.compose.material3.SegmentedButtonDefaults
 import androidx.compose.material3.SingleChoiceSegmentedButtonRow
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.focus.FocusDirection
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -76,6 +86,9 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
+import java.time.format.TextStyle
+import java.util.Locale
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -88,10 +101,23 @@ fun NewEventScreen(
 
     var showMapDialog by remember { mutableStateOf(false) }
 
+    val snackbarHostState = remember { SnackbarHostState() }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(stringResource(R.string.new_event), navController) }
+        topBar = { AppBar(stringResource(R.string.new_event), navController) },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
+
+        LaunchedEffect(Unit) {
+            viewModel.uiEvent.collect { message ->
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -214,6 +240,7 @@ fun NewEventScreen(
                 enabled = state.location != null
                         && !state.isImpossibleStartDateTime
                         && !state.isImpossibleEndDateTime
+                        && !state.isLoading
             ) {
                 Text(stringResource(R.string.create_event))
             }
@@ -229,138 +256,23 @@ fun NewEventScreen(
                 }
             )
         }
-    }
-}
 
-@Composable
-fun DateTimeInputs1(
-    state: NewEventState,
-    viewModel: NewEventViewModel,
-) {
-    val context = LocalContext.current
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Date
-        ClickableBox(
-            modifier = Modifier.weight(0.5f),
-            onClick = {
-                DatePickerDialog(
-                    context,
-                    { _, year, month, dayOfMonth ->
-                        viewModel.actions.onStartDateChange(year, month + 1, dayOfMonth)
-                    },
-                    state.startDate.year,
-                    state.startDate.monthValue - 1,
-                    state.startDate.dayOfMonth
-                ).show()
+        if (state.isLoading) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .background(Color.Black.copy(alpha = 0.5f))
+                    .clickable(
+                        interactionSource = remember { MutableInteractionSource() },
+                        indication = null
+                    ) {},
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator(
+                    modifier = Modifier.size(48.dp),
+                    strokeWidth = 4.dp
+                )
             }
-        ) {
-            OutlinedTextField(
-                value = state.fStartDate,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.start_date)) },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = { Icon(
-                    Icons.Default.CalendarMonth,
-                    stringResource(R.string.choose)
-                )},
-                isError = state.isImpossibleStartDateTime
-            )
-        }
-
-        // Time
-        ClickableBox(
-            modifier = Modifier.weight(0.5f),
-            onClick = {
-                TimePickerDialog(
-                    context,
-                    { _, hour, minute ->
-                        viewModel.actions.onStartTimeChange(hour, minute)
-                    },
-                    state.startTime.hour,
-                    state.startTime.minute,
-                    true
-                ).show()
-            }
-        ) {
-            OutlinedTextField(
-                value = state.fStartTime,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.start_time)) },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = { Icon(
-                    Icons.Default.AccessTime,
-                    stringResource(R.string.choose)
-                )},
-                isError = state.isImpossibleStartDateTime
-            )
-        }
-    }
-
-    // End Date and Time
-    Row(
-        horizontalArrangement = Arrangement.spacedBy(16.dp)
-    ) {
-        // Date
-        ClickableBox(
-            modifier = Modifier.weight(0.5f),
-            onClick = {
-                DatePickerDialog(
-                    context,
-                    { _, year, month, dayOfMonth ->
-                        viewModel.actions.onEndDateChange(year, month + 1, dayOfMonth)
-                    },
-                    state.endDate.year,
-                    state.endDate.monthValue - 1,
-                    state.endDate.dayOfMonth
-                ).show()
-            }
-        ) {
-            OutlinedTextField(
-                value = state.fEndDate.ifBlank { state.fStartDate },
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.end_date)) },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = { Icon(
-                    Icons.Default.CalendarMonth,
-                    stringResource(R.string.choose)
-                )},
-                isError = state.isImpossibleEndDateTime
-            )
-        }
-
-        // Time
-        ClickableBox(
-            modifier = Modifier.weight(0.5f),
-            onClick = {
-                TimePickerDialog(
-                    context,
-                    { _, hour, minute ->
-                        viewModel.actions.onEndTimeChange(hour, minute)
-                    },
-                    state.endTime.hour,
-                    state.endTime.minute,
-                    true
-                ).show()
-            }
-        ) {
-            OutlinedTextField(
-                value = state.fEndTime,
-                onValueChange = {},
-                readOnly = true,
-                label = { Text(stringResource(R.string.end_time)) },
-                modifier = Modifier.fillMaxWidth(),
-                trailingIcon = { Icon(
-                    Icons.Default.AccessTime,
-                    stringResource(R.string.choose)
-                )},
-                supportingText = { Text("${stringResource(R.string.timezone_abbr)}: ${state.timeZone}") },
-                isError = state.isImpossibleEndDateTime
-            )
         }
     }
 }

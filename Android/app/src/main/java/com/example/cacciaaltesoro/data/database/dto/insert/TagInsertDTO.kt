@@ -1,12 +1,11 @@
-package com.example.cacciaaltesoro.data.database.dto
+package com.example.cacciaaltesoro.data.database.dto.insert
 
-import kotlinx.serialization.EncodeDefault
+import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
 @Serializable
-data class TagDTO(
-    @SerialName("tag_id")  val id: String,
+data class TagInsertDTO(
     @SerialName("tag_posizione")  val number: Int,
     @SerialName("tag_partita") val eventId: Int,
     @SerialName("tag_latitudine") val lat: Double,

@@ -5,21 +5,28 @@ package com.example.cacciaaltesoro.ui.screens.newevent
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.R
+import com.example.cacciaaltesoro.data.domain.Event
+import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
+import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
 import kotlin.time.ExperimentalTime
+import kotlin.time.toKotlinInstant
 
 enum class Visibility(val labelRes: Int) {
     PUBLIC(R.string.public_k),
@@ -37,7 +44,8 @@ data class NewEventState(
     val isImpossibleEndDateTime: Boolean = false,
     val timeZone: ZoneId = ZoneId.systemDefault(),
     val description: String = "",
-    val visibility: Visibility = Visibility.PUBLIC
+    val visibility: Visibility = Visibility.PUBLIC,
+    val isLoading: Boolean = false
 ) {
     val fStartDate: String get() = startDate.formatShortDate()
     val fStartTime: String get() = startTime.formatShortTime()
@@ -69,6 +77,9 @@ data class NewEventActions(
 class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
     private val _state = MutableStateFlow(NewEventState())
     val state = _state.asStateFlow()
+
+    private val _uiEvent = Channel<String>()
+    val uiEvent = _uiEvent.receiveAsFlow()
 
     val actions = NewEventActions(
         onNameChange = { newName ->
@@ -110,14 +121,59 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
             _state.update { it.copy(visibility = visibility) }
         },
         onSaveEvent = {
-            viewModelScope.launch {
-                _state.value.let {
-                    if (it.location == null) {
-                        // TODO add ui change?
-                        return@launch
-                    }
+            viewModelScope.launch(Dispatchers.IO) {
+                _state.update { it.copy(isLoading = true) }
+                val event = state.value.let {
+                    // TODO CHANGE TO ACTUAL DATA
+                    Event(
+                        id = null,
+                        name = it.name,
+                        organizerUUID = "5bbddf24-0be5-4348-bb0f-665c510307bf",
+                        lat = it.location!!.latitude,
+                        lon = it.location.longitude,
+                        startTime = it.startDate
+                            .atTime(it.startTime)
+                            .atZone(it.timeZone)
+                            .toInstant()
+                            .toKotlinInstant(),
+                        endTime = it.endDate
+                            .atTime(it.endTime)
+                            .atZone(it.timeZone)
+                            .toInstant()
+                            .toKotlinInstant(),
+                        description = it.description,
+                        code = "PIPPO",
+                        isPrivate = it.visibility == Visibility.PRIVATE,
+                        tags = setOf(
+                            Tag(
+                                number = 1,
+                                coordinates = Coordinates(15.0, 20.0),
+                                textHint = null,
+                                imageHint = null
+                            ),
+                            Tag(
+                                number = 2,
+                                coordinates = Coordinates(6.0, 7.0),
+                                textHint = null,
+                                imageHint = null
+                            ),
+                            Tag(
+                                number = 3,
+                                coordinates = Coordinates(40.0, 75.0),
+                                textHint = null,
+                                imageHint = null
+                            )
+                        )
+                    )
                 }
-//                repository.upsertEvent(Event()) TODO
+
+                try {
+                    repository.upsertEvent(event)
+                    _uiEvent.send("Evento creato con successo!") // TODO
+                } catch (e: Exception) {
+                    _uiEvent.send("Errore durante la creazione evento!")
+                }
+
                 _state.update { NewEventState() }
             }
         },

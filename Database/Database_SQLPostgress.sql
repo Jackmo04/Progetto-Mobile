@@ -45,7 +45,6 @@ CREATE TABLE tags (
     tag_id UUID PRIMARY KEY DEFAULT gen_random_uuid(),
     tag_posizione INT NOT NULL,
     tag_partita INT NOT NULL,
-    tag_hash text NOT NULL,
     tag_latitudine FLOAT NOT NULL,
     tag_longitudine FLOAT NOT NULL,
     tag_indizio text NULL,

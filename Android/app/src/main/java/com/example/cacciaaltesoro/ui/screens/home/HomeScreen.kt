@@ -43,7 +43,6 @@ fun HomeScreen(navController: NavHostController) {
                 MyButton("Online Events") { navController.navigate(CacciaAlTesoroRoute.OnlineEvents) }
                 MyButton("Saved Events") { navController.navigate(CacciaAlTesoroRoute.SavedEvents) }
                 MyButton("New Event") { navController.navigate(CacciaAlTesoroRoute.NewEvent) }
-                MyButton("Map Editor Test") { navController.navigate(CacciaAlTesoroRoute.EventMapEditor("testEvent")) }
             }
         }
     }

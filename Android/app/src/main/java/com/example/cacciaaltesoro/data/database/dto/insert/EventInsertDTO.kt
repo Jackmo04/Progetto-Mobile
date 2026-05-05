@@ -1,6 +1,5 @@
-package com.example.cacciaaltesoro.data.database.dto
+package com.example.cacciaaltesoro.data.database.dto.insert
 
-import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.ExperimentalTime
@@ -9,8 +8,7 @@ import kotlin.time.Instant
 @OptIn(ExperimentalTime::class)
 @Serializable
 @SerialName("partita")
-data class EventDTO(
-    @SerialName("par_id") val id: Int,
+data class EventInsertDTO(
     @SerialName("par_nome") val name: String?,
     @SerialName("par_organizzatore") val organizerUUID: String,
     @SerialName("par_latitudine") val lat: Double,
@@ -19,7 +17,5 @@ data class EventDTO(
     @SerialName("par_timestamp_fine") val endTime: Instant,
     @SerialName("par_descrizione") val description: String?,
     @SerialName("par_codice") val code: String,
-    @SerialName("par_privato") val isPrivate: Boolean,
-
-    @SerialName("utenti")  val userDTO : UserDTO? = null
+    @SerialName("par_privato") val isPrivate: Boolean
 )

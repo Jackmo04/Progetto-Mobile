@@ -2,10 +2,14 @@ package com.example.cacciaaltesoro.data.repositories
 
 import android.util.Log
 import com.example.cacciaaltesoro.data.database.SupabaseTables
+import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.mappers.toDto
+import com.example.cacciaaltesoro.data.mappers.toInsertDto
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.postgrest.from
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.withContext
 
 interface EventRepository {
     suspend fun upsertEvent(event: Event)
@@ -13,11 +17,18 @@ interface EventRepository {
 
 class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepository {
     override suspend fun upsertEvent(event: Event) {
-        try {
-            supabase.from(SupabaseTables.EVENTS.tableName).upsert(event.toDto())
-            Log.d("EventRepository", "Successfully saved new event: ${event.id}")
-        } catch (e: Exception) {
-            Log.e("EventRepository", "Error inserting event", e)
+        withContext(Dispatchers.IO) {
+            val insertedEventId = supabase.from(SupabaseTables.EVENTS.tableName).upsert(event.toInsertDto()) {
+                select()
+            }.decodeSingle<EventDTO>().id
+
+            val tagDTOs = event.tags.map { tag ->
+                tag.copy(eventId = insertedEventId).toInsertDto()
+            }
+
+            if (tagDTOs.isNotEmpty()) {
+                supabase.from(SupabaseTables.TAGS.tableName).upsert(tagDTOs)
+            }
         }
     }
 }
