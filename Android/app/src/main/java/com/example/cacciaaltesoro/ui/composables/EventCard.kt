@@ -120,7 +120,7 @@ fun EventCard(
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
-                    text = "Organizer: ${event.organizerUUID.take(8)}...",
+                    text = "Organizer: ${event.userDTO?.username ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = Color(0xFF49454F),
                     modifier = Modifier.padding(bottom = 16.dp)
