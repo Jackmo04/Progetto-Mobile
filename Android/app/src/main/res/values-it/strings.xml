@@ -51,4 +51,5 @@
     <string name="event_code">Codice evento</string>
     <string name="find">Cerca</string>
     <string name="saved_event_title">Eventi salvati</string>
+    <string name="error_no_position_permission">Necessario permesso posizione per trovare i posti vicini!</string>
 </resources>

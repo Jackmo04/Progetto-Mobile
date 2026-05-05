@@ -24,7 +24,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 
 @Composable
-fun OrderComboBox(options: List<String>, onOptionSelected: (String) -> Unit) {
+fun OrderComboBox(options: List<String>, onOptionSelected: (String) -> Unit ) {
     var expanded by remember { mutableStateOf(false) }
     var selectedOption by remember { mutableStateOf(options[0]) }
 

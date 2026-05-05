@@ -1,9 +1,11 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import android.Manifest
+import android.content.Context
 import android.content.Intent
 import android.location.Location
 import android.provider.Settings
+import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -54,24 +56,33 @@ import kotlinx.coroutines.launch
 
 
 @Composable
-fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel) {
+fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel ) {
 
     val ctx = LocalContext.current
 
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
-
+    var isAnyGranted by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     fun getCurrentLocation() = scope.launch {
         try {
             locationService.getCurrentLocation()
-        } catch (_: IllegalStateException) {
+        } catch (e: SecurityException) {
+            e.printStackTrace()
+        } catch (e: IllegalStateException) {
+            e.printStackTrace()
+        } catch (e: Exception) {
+            e.printStackTrace()
         }
     }
 
     val locationPermissions = rememberMultiplePermissions(
         listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
-    ) {  getCurrentLocation()
+    ) { permissionResults ->
+        isAnyGranted = permissionResults.values.any { it.isGranted }
+        if (isAnyGranted) {
+            getCurrentLocation()
+        }
     }
 
     fun getLocationOrRequestPermission() {
@@ -82,18 +93,14 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
         }
     }
 
-    fun openLocationSettings() {
-        val intent = Intent(Settings.ACTION_LOCATION_SOURCE_SETTINGS).apply {
-            flags = Intent.FLAG_ACTIVITY_NEW_TASK
-        }
-        if (intent.resolveActivity(ctx.packageManager) != null) {
-            ctx.startActivity(intent)
-        }
-    }
-
 
     LaunchedEffect(Unit) {
-        getLocationOrRequestPermission()
+        try {
+            getLocationOrRequestPermission()
+        }catch (e: Exception){
+
+        }
+
     }
     LaunchedEffect(coordinates) {
         coordinates?.let {
@@ -171,6 +178,9 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
 
                     OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
                         viewModel.action.onOrderChanged(selected)
+                        if(selected == EventOrderType.DISTANCE.type && !isAnyGranted){
+                            toastDistancePermission(ctx)
+                        }
                     }
 
 
@@ -194,6 +204,14 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
         }
 
 
+}
+
+fun toastDistancePermission(ctx: Context){
+    Toast.makeText(
+        ctx,
+        "Location permission is needed to find nearby events.",
+        Toast.LENGTH_LONG
+    ).show()
 }
 
 

@@ -57,6 +57,9 @@ class SavedEventRepositoryImpl(private val supabase: SupabaseClient) : SavedEven
                 EventOrderType.NAME.type -> {
                     result = listEvent.sortedBy{ it.name }
                 }
+                EventOrderType.NAME_DESC.type -> {
+                    result = listEvent.sortedByDescending{ it.name }
+                }
 
                 EventOrderType.START_DATE.type -> {
                     result = listEvent.sortedBy { it.startTime.epochSeconds }
@@ -66,8 +69,12 @@ class SavedEventRepositoryImpl(private val supabase: SupabaseClient) : SavedEven
                     result =  listEvent.sortedBy { it.endTime.nanosecondsOfSecond - it.startTime.nanosecondsOfSecond }
                 }
 
-                EventOrderType.DISTANCE.type -> {
-                    result = orderLocationByDistance(listEvent , location) // Distance sorting usually requires user location context
+                EventOrderType.DISTANCE.type ->{
+                    result = try {
+                        orderLocationByDistance(listEvent , location)
+                    } catch (e: Exception){
+                        listEvent
+                    }
                 }
             }
         } catch (e: Exception) {
