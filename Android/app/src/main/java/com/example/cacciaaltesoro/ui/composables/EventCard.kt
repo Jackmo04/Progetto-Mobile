@@ -41,7 +41,7 @@ fun EventCard(
             .wrapContentHeight(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.outlinedCardColors(
-            containerColor = Color(0xFFFEF7FF) // M3/sys/light/surface
+            containerColor = Color(0xFFFEF7FF)
         ),
         border = CardDefaults.outlinedCardBorder().copy(
             brush = androidx.compose.ui.graphics.SolidColor(Color(0xFFCAC4D0)) // M3/sys/light/outline-variant
@@ -66,7 +66,7 @@ fun EventCard(
                     Text(
                         text = event.name?.take(1)?.uppercase() ?: "?",
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF4F378A) // M3/sys/light/on-primary-container
+                        color = Color(0xFF4F378A)
                     )
                 }
 

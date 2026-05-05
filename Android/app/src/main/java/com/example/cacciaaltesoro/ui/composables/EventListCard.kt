@@ -1,6 +1,5 @@
 package com.example.cacciaaltesoro.ui.composables
 
-import android.R
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -53,7 +52,7 @@ fun EventListCard(
 
         Row(
             modifier = Modifier
-                .weight(1f) // flex-grow: 1
+                .weight(1f)
                 .fillMaxHeight()
                 .padding(16.dp),
             verticalAlignment = Alignment.CenterVertically,
