@@ -57,6 +57,9 @@ class SavedEventRepositoryImpl(private val supabase: SupabaseClient) : SavedEven
                 EventOrderType.NAME.type -> {
                     result = listEvent.sortedBy{ it.name }
                 }
+                EventOrderType.NAME_DESC.type -> {
+                    result = listEvent.sortedByDescending{ it.name }
+                }
 
                 EventOrderType.START_DATE.type -> {
                     result = listEvent.sortedBy { it.startTime.epochSeconds }
