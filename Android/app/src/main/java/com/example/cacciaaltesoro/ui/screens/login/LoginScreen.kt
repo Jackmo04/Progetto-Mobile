@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
@@ -107,6 +108,7 @@ fun LoginScreen(
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
                     LoginAnswer(isSignUp = isSignUp, onToggle = { isSignUp = true })
+                    SendEmail(username, viewModel.action.callResetPasswordEmail)
                 } else if (isSignUp && !viewModel.getState().isLogin ) {
                     OutlinedTextField(
                         value = passwordConfirm,
@@ -178,6 +180,24 @@ fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
                 append(stringResource(R.string.login_title))
             }
         }
+        append(".")
+    }
+    Text(text = annotatedText)
+}
+
+@Composable
+fun SendEmail(email: String, onToggle: (String) -> Unit ) {
+    val annotatedText = buildAnnotatedString {
+                    append("Vuoi cambiare password?")
+                    val clickableLink = LinkAnnotation.Clickable(
+                        tag = "go_to_update",
+                        styles = TextLinkStyles(style = SpanStyle(color = Color.Green))
+                    ) {
+                       onToggle(email)
+                    }
+                    withLink(clickableLink) {
+                        append("E-mail")
+                    }
         append(".")
     }
     Text(text = annotatedText)

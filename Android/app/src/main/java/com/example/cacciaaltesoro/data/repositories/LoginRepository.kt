@@ -96,4 +96,22 @@ class LoginRepository(
             throw e
         }
     }
+
+    suspend fun sendResetPasswordEmail(email: String) {
+        supabase.auth.resetPasswordForEmail(
+            email = email,
+            redirectUrl = "caccia-al-tesoro://reset-password"
+        )
+    }
+
+    suspend fun updatePassword(newPassword: String){
+        try {
+            supabase.auth.updateUser {
+                password = newPassword
+            }
+        } catch (e: Exception) {
+            Log.e("ChangePassword", "Errore aggiornamento password", e)
+            throw e
+        }
+    }
 }

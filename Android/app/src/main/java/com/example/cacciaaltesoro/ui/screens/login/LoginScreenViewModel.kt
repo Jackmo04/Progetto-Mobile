@@ -19,7 +19,9 @@ data class LoginAction(
     val onLogIn: (String, String) -> Unit,
     val onSignOn: (String, String, String) -> Unit,
     val onLogOut: () -> Unit,
-    val changeSignScreen: () -> Unit
+    val changeSignScreen: () -> Unit,
+    val callResetPasswordEmail:(String) -> Unit,
+    val changePassword: (String, String, String) -> Unit,
 )
 
 class LoginScreenViewModel(
@@ -116,6 +118,30 @@ class LoginScreenViewModel(
         changeSignScreen = {
             viewModelScope.launch {
                 repository.setIsSignUp(!_state.isSignUp)
+            }
+        },
+        callResetPasswordEmail={email->
+            viewModelScope.launch {
+            repository.sendResetPasswordEmail(email)
+            }
+        },
+        changePassword = { username, password, passwordConfirm ->
+            viewModelScope.launch {
+                if (password != passwordConfirm) {
+                    errorMessage = "Le password non coincidono"
+                    return@launch
+                }
+                isLoading = true
+                errorMessage = null
+                successMessage = null
+                try {
+                    repository.updatePassword(password)
+                    successMessage = "Password aggiornata"
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante il cambio password"
+                } finally {
+                    isLoading = false
+                }
             }
         })
 }
