@@ -15,6 +15,6 @@ data class Event (
     val description: String?,
     val code: String,
     val isPrivate: Boolean,
-    val tags: Set<Tag>,
+    val tags: List<Tag>,
     val organizer: User? = null
 )

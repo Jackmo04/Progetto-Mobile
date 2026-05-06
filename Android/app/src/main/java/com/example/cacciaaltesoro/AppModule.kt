@@ -3,6 +3,7 @@ package com.example.cacciaaltesoro
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.cacciaaltesoro.data.database.Supabase
+import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.repositories.EventDetailsRepository
 import com.example.cacciaaltesoro.data.repositories.EventDetailsRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.EventRepository
@@ -14,11 +15,10 @@ import com.example.cacciaaltesoro.data.repositories.SavedEventRepository
 import com.example.cacciaaltesoro.data.repositories.SavedEventRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.TagRepository
 import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
-import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
-import com.example.cacciaaltesoro.ui.screens.newevent.NewEventViewModel
+import com.example.cacciaaltesoro.ui.screens.newevent.EventEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
 import io.github.jan.supabase.SupabaseClient
@@ -44,7 +44,9 @@ val appModule = module {
     viewModel { LoginScreenViewModel(get() ) }
     viewModel { OnlineEventViewModel(get(), get ()) }
     viewModel { SavedEventsViewModel(get(), get ()) }
-    viewModel { NewEventViewModel(get()) }
+    viewModel { (eventId: Int?) ->
+        EventEditorViewModel(eventId = eventId, repository = get())
+    }
     viewModel { EventMapEditorViewModel(get()) }
     viewModel { EventDetailsViewModel(get(), get()) }
 }

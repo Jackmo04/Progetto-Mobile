@@ -5,6 +5,7 @@ package com.example.cacciaaltesoro.data.mappers
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.database.dto.insert.EventInsertDTO
 import com.example.cacciaaltesoro.data.domain.Event
+import com.example.cacciaaltesoro.data.domain.Tag
 import kotlin.time.ExperimentalTime
 
 fun Event.toDto(): EventDTO {
@@ -36,7 +37,7 @@ fun Event.toInsertDto(): EventInsertDTO {
     )
 }
 
-fun EventDTO.toDomain(): Event = Event(
+fun EventDTO.toDomain(tags: List<Tag>? = null): Event = Event(
     id = id,
     name = name,
     organizerUUID = organizerUUID,
@@ -47,6 +48,6 @@ fun EventDTO.toDomain(): Event = Event(
     description = description,
     code = code,
     isPrivate = isPrivate,
-    tags = emptySet(),
+    tags = tags ?: emptyList(),
     organizer = userDTO?.toDomain()
 )

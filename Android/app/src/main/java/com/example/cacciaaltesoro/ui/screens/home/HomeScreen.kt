@@ -42,7 +42,7 @@ fun HomeScreen(navController: NavHostController) {
                 MyButton("Login") { navController.navigate(CacciaAlTesoroRoute.Login) }
                 MyButton("Online Events") { navController.navigate(CacciaAlTesoroRoute.OnlineEvents) }
                 MyButton("Saved Events") { navController.navigate(CacciaAlTesoroRoute.SavedEvents) }
-                MyButton("New Event") { navController.navigate(CacciaAlTesoroRoute.NewEvent) }
+                MyButton("New Event") { navController.navigate(CacciaAlTesoroRoute.EventEditor) }
             }
         }
     }

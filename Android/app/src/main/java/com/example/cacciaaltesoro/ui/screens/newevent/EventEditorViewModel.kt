@@ -20,12 +20,12 @@ import java.time.LocalDate
 import java.time.LocalDateTime
 import java.time.LocalTime
 import java.time.ZoneId
-import java.time.ZoneOffset
 import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
 import kotlin.time.ExperimentalTime
+import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
 
 enum class Visibility(val labelRes: Int) {
@@ -74,9 +74,34 @@ data class NewEventActions(
     val onCancelCreation: () -> Unit
 )
 
-class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
+class EventEditorViewModel(
+    private val repository: EventRepository,
+    private val eventId: Int?
+) : ViewModel() {
     private val _state = MutableStateFlow(NewEventState())
     val state = _state.asStateFlow()
+
+    init {
+        eventId?.let { id ->
+            viewModelScope.launch {
+                repository.getEventById(id)?.let { event ->
+                    _state.update {
+                        it.copy(
+                            name = event.name,
+                            location = Coordinates(event.lat, event.lon),
+                            startDate = event.startTime.toJavaInstant().atZone(it.timeZone).toLocalDate(),
+                            startTime = event.startTime.toJavaInstant().atZone(it.timeZone).toLocalTime(),
+                            endDate = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalDate(),
+                            endTime = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalTime(),
+                            description = event.description ?: "",
+                            visibility = if (event.isPrivate) Visibility.PRIVATE else Visibility.PUBLIC
+                        )
+                    }
+                    checkTimestamps()
+                }
+            }
+        }
+    }
 
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
@@ -154,7 +179,7 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
                         description = it.description,
                         code = "PIPPO",
                         isPrivate = it.visibility == Visibility.PRIVATE,
-                        tags = setOf(
+                        tags = listOf(
                             Tag(
                                 number = 1,
                                 coordinates = Coordinates(15.0, 20.0),

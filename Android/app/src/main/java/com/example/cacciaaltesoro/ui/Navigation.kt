@@ -2,12 +2,10 @@ package com.example.cacciaaltesoro.ui
 
 import android.util.Log
 import androidx.compose.runtime.Composable
-import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.toRoute
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsScreen
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorScreen
@@ -16,15 +14,17 @@ import com.example.cacciaaltesoro.ui.screens.game.GameScreen
 import com.example.cacciaaltesoro.ui.screens.home.HomeScreen
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreen
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
-import com.example.cacciaaltesoro.ui.screens.newevent.NewEventScreen
-import com.example.cacciaaltesoro.ui.screens.newevent.NewEventViewModel
+import com.example.cacciaaltesoro.ui.screens.newevent.EventEditorScreen
+import com.example.cacciaaltesoro.ui.screens.newevent.EventEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
 import com.example.cacciaaltesoro.ui.screens.tageditor.TagEditorScreen
+import io.ktor.http.parametersOf
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
+import org.koin.core.parameter.parametersOf
 
 sealed interface CacciaAlTesoroRoute {
     @Serializable data object Home : CacciaAlTesoroRoute
@@ -33,7 +33,7 @@ sealed interface CacciaAlTesoroRoute {
     @Serializable data class Game(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data object SavedEvents : CacciaAlTesoroRoute
     @Serializable data object Login : CacciaAlTesoroRoute
-    @Serializable data object NewEvent : CacciaAlTesoroRoute
+    @Serializable data class EventEditor(val eventId: Int?) : CacciaAlTesoroRoute
     @Serializable data class EventMapEditor(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data class TagEditor(val tagId: String) : CacciaAlTesoroRoute
 }
@@ -74,9 +74,12 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             val savedEventViewModel = koinViewModel<SavedEventsViewModel>()
             SavedEventsScreen(navController, savedEventViewModel)
         }
-        composable<CacciaAlTesoroRoute.NewEvent> {
-            val newEventVM = koinViewModel<NewEventViewModel>()
-            NewEventScreen(navController, newEventVM)
+        composable<CacciaAlTesoroRoute.EventEditor> { backStackEntry ->
+            val route = backStackEntry.toRoute<CacciaAlTesoroRoute.EventEditor>()
+            val newEventVM = koinViewModel<EventEditorViewModel>(
+                parameters = { parametersOf(route.eventId) }
+            )
+            EventEditorScreen(navController, newEventVM)
         }
         composable<CacciaAlTesoroRoute.EventMapEditor> { backStackEntry ->
             val route = backStackEntry.toRoute<CacciaAlTesoroRoute.EventMapEditor>()
