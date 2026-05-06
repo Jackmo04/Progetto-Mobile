@@ -132,7 +132,7 @@ fun NewEventScreen(
             OutlinedTextField(
                 value = state.name,
                 onValueChange = { viewModel.actions.onNameChange(it) },
-                label = { Text("${stringResource(R.string.name)} ${stringResource(R.string.optional_par)}") },
+                label = { Text(stringResource(R.string.name)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Next),
@@ -238,6 +238,7 @@ fun NewEventScreen(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = { viewModel.actions.onSaveEvent() },
                 enabled = state.location != null
+                        && state.name.isNotBlank()
                         && !state.isImpossibleStartDateTime
                         && !state.isImpossibleEndDateTime
                         && !state.isLoading

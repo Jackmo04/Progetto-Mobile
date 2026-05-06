@@ -9,7 +9,7 @@ import kotlin.time.Instant
 @Serializable
 @SerialName("partita")
 data class EventInsertDTO(
-    @SerialName("par_nome") val name: String?,
+    @SerialName("par_nome") val name: String,
     @SerialName("par_organizzatore") val organizerUUID: String,
     @SerialName("par_latitudine") val lat: Double,
     @SerialName("par_longitudine") val lon: Double,

@@ -121,6 +121,16 @@ class NewEventViewModel(private val repository: EventRepository) : ViewModel() {
             _state.update { it.copy(visibility = visibility) }
         },
         onSaveEvent = {
+            _state.value.let {
+                if (
+                    it.name.isBlank() ||
+                    it.location == null ||
+                    it.isImpossibleEndDateTime ||
+                    it.isImpossibleStartDateTime
+                ) {
+                    return@NewEventActions
+                }
+            }
             viewModelScope.launch(Dispatchers.IO) {
                 _state.update { it.copy(isLoading = true) }
                 val event = state.value.let {
