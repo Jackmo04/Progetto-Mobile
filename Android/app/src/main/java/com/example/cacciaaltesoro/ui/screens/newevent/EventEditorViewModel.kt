@@ -188,29 +188,7 @@ class EventEditorViewModel(
                         description = it.description,
                         code = "PIPPO",
                         isPrivate = it.visibility == Visibility.PRIVATE,
-                        tags = listOf(
-                            Tag(
-                                id = "f20a3897-2b05-498f-9a62-64e0198dc943",
-                                number = 1,
-                                coordinates = Coordinates(15.0, 20.0),
-                                textHint = null,
-                                imageHint = null
-                            ),
-                            Tag(
-                                id = "f972aa98-479b-4453-bdee-f25b63d477c4",
-                                number = 2,
-                                coordinates = Coordinates(6.0, 7.0),
-                                textHint = null,
-                                imageHint = null
-                            ),
-                            Tag(
-                                id = "8cccd449-8320-44d2-aed7-0d7ea0fa59ff",
-                                number = 3,
-                                coordinates = Coordinates(40.0, 75.0),
-                                textHint = null,
-                                imageHint = null
-                            )
-                        )
+                        tags = emptyList()
                     )
                 }
 
