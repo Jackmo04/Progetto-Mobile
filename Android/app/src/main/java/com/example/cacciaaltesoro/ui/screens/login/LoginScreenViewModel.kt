@@ -12,7 +12,8 @@ data class LoginState(
     val username: String = "",
     val userId: String = "",
     val isLogin: Boolean = false,
-    val isSignUp: Boolean = false
+    val isSignUp: Boolean = false,
+    val isUpdatePassword: Boolean = false
 )
 
 data class LoginAction(
@@ -22,6 +23,7 @@ data class LoginAction(
     val changeSignScreen: () -> Unit,
     val callResetPasswordEmail:(String) -> Unit,
     val changePassword: (String, String, String) -> Unit,
+    val toggleUpdatePassword: (Boolean) -> Unit
 )
 
 class LoginScreenViewModel(
@@ -60,6 +62,13 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             repository.isSignUp.collect { isSignUp ->
                 _state = _state.copy(isSignUp = isSignUp)
+            }
+        }
+        viewModelScope.launch {
+            repository.isPasswordUpdateRequested.collect { isRequested ->
+                if (isRequested) {
+                    _state = _state.copy(isUpdatePassword = true)
+                }
             }
         }
 
@@ -122,7 +131,17 @@ class LoginScreenViewModel(
         },
         callResetPasswordEmail={email->
             viewModelScope.launch {
-            repository.sendResetPasswordEmail(email)
+                isLoading = true
+                errorMessage = null
+                successMessage = null
+                try {
+                    repository.sendResetPasswordEmail(email)
+                    successMessage = "Email di reset inviata"
+                } catch (e: Exception) {
+                    errorMessage = "Errore nell'invio dell'email"
+                } finally {
+                    isLoading = false
+                }
             }
         },
         changePassword = { username, password, passwordConfirm ->
@@ -137,11 +156,19 @@ class LoginScreenViewModel(
                 try {
                     repository.updatePassword(password)
                     successMessage = "Password aggiornata"
+
+                    repository.setPasswordUpdateRequested(false)
+                    _state = _state.copy(isUpdatePassword = false)
                 } catch (e: Exception) {
                     errorMessage = "Errore durante il cambio password"
                 } finally {
                     isLoading = false
                 }
             }
+        },
+
+        toggleUpdatePassword = { isVisible ->
+            repository.setPasswordUpdateRequested(isVisible)
+            _state = _state.copy(isUpdatePassword = isVisible)
         })
 }

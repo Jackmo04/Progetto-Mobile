@@ -9,6 +9,8 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 
 class LoginRepository(
@@ -29,6 +31,7 @@ class LoginRepository(
     val userId = dataStore.data.map { it[USERNAME_UUID] ?: "" }
     val isLogin = dataStore.data.map { it[IS_LOGIN] ?: false }
     val isSignUp = dataStore.data.map { it[IS_SIGN_UP] ?: false }
+    private val _isPasswordUpdateRequested = MutableStateFlow(false)
 
 
     suspend fun setUsername(username: String) = dataStore.edit { it[USERNAME_KEY] = username }
@@ -113,5 +116,12 @@ class LoginRepository(
             Log.e("ChangePassword", "Errore aggiornamento password", e)
             throw e
         }
+    }
+
+
+    val isPasswordUpdateRequested = _isPasswordUpdateRequested.asStateFlow()
+
+    fun setPasswordUpdateRequested(value: Boolean) {
+        _isPasswordUpdateRequested.value = value
     }
 }
