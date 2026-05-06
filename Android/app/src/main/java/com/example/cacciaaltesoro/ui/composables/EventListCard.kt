@@ -46,7 +46,7 @@ fun EventListCard(
             .clip(RoundedCornerShape(12.dp))
             .background(surfaceColor)
             .border(1.dp, outlineVariant, RoundedCornerShape(12.dp))
-            .clickable() { onClick() },
+            .clickable { onClick() },
         verticalAlignment = Alignment.CenterVertically
     ) {
 
@@ -67,7 +67,7 @@ fun EventListCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = events.name?.take(1)?.uppercase() ?: "?",
+                    text = events.name.take(1).uppercase(),
                     style = TextStyle(
                         fontSize = 16.sp,
                         fontWeight = FontWeight.Medium,
@@ -83,7 +83,7 @@ fun EventListCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = events.name ?: "Senza nome",
+                    text = events.name,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = TextStyle(

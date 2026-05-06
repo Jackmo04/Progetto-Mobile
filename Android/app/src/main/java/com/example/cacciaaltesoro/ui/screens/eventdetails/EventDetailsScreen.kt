@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.ui.Alignment
@@ -21,7 +20,6 @@ import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.EventCard
-import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import org.koin.androidx.compose.koinViewModel
 
 @Composable

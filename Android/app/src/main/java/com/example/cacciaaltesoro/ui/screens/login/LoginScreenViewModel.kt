@@ -5,7 +5,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.launch
 
 data class LoginState(
@@ -27,7 +27,7 @@ data class LoginAction(
 )
 
 class LoginScreenViewModel(
-    private val repository: LoginRepository
+    private val repository: LoginRepositoryImpl
 ) : ViewModel() {
 
     private var _state by mutableStateOf(LoginState())

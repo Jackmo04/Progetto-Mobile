@@ -7,7 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
@@ -29,7 +29,7 @@ data class OnlineEventAction(
 
 class OnlineEventViewModel(
     private val repository: OnlineEventRepository,
-    private val loginRepository: LoginRepository
+    private val loginRepositoryImpl: LoginRepositoryImpl
 ) : ViewModel() {
 
     private var _state by mutableStateOf(OnlineEventState())
@@ -53,7 +53,7 @@ class OnlineEventViewModel(
             try {
                 isLoading = true
                 _state = _state.copy(listEvent = repository.getAllEvents("%"))
-                _state = _state.copy(uuid = loginRepository.userId.first())
+                _state = _state.copy(uuid = loginRepositoryImpl.userId.first())
             }finally {
                 isLoading = false
             }

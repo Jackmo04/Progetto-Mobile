@@ -6,19 +6,17 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.runtime.Composable
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import com.example.cacciaaltesoro.ui.CacciaAlTesoroNavGraph
 import com.example.cacciaaltesoro.ui.theme.CacciaAlTesoroTheme
 import io.github.jan.supabase.auth.auth
-import io.github.jan.supabase.auth.handleDeeplinks
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
 class MainActivity : ComponentActivity() {
-    private val loginRepository: LoginRepository by inject ()
+    private val loginRepositoryImpl: LoginRepositoryImpl by inject ()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -55,29 +53,29 @@ class MainActivity : ComponentActivity() {
                 if (accessToken != null && refreshToken != null) {
                     lifecycleScope.launch {
                         try {
-                            loginRepository.supabase.auth.importAuthToken(accessToken, refreshToken)
+                            loginRepositoryImpl.supabase.auth.importAuthToken(accessToken, refreshToken)
                             Log.i("MainActivity", "Token importato con successo!")
-                            loginRepository.setPasswordUpdateRequested(true)
+                            loginRepositoryImpl.setPasswordUpdateRequested(true)
                         } catch (e: Exception) {
                             Log.e("MainActivity", "Errore durante l'importazione del token", e)
                         }
                     }
-                    return // Esce dalla funzione
+                    return
                 }
             }
             val code = uri.getQueryParameter("code")
             if (code != null) {
                 lifecycleScope.launch {
                     try {
-                        loginRepository.supabase.auth.exchangeCodeForSession(code)
+                        loginRepositoryImpl.supabase.auth.exchangeCodeForSession(code)
                         Log.i("MainActivity", "Codice PKCE scambiato con successo!")
-                        loginRepository.setPasswordUpdateRequested(true)
+                        loginRepositoryImpl.setPasswordUpdateRequested(true)
                     } catch (e: Exception) {
                         Log.e("MainActivity", "Errore nello scambio del codice PKCE", e)
                     }
                 }
                 return
             }
-            loginRepository.setPasswordUpdateRequested(true)
+            loginRepositoryImpl.setPasswordUpdateRequested(true)
         }
     }}
