@@ -11,7 +11,7 @@ import kotlin.time.Instant
 @SerialName("partita")
 data class EventDTO(
     @SerialName("par_id") val id: Int,
-    @SerialName("par_nome") val name: String?,
+    @SerialName("par_nome") val name: String,
     @SerialName("par_organizzatore") val organizerUUID: String,
     @SerialName("par_latitudine") val lat: Double,
     @SerialName("par_longitudine") val lon: Double,
