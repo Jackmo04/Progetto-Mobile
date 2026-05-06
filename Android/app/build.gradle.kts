@@ -74,8 +74,9 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
 
     //Supbase dependence
-    implementation(libs.supabase.postgrest.kt)
-    implementation(libs.gotrue.kt)
+    implementation(platform(libs.bom.v300))
+    implementation(libs.auth.kt)
+    implementation(libs.postgrest.kt)
     implementation(libs.ktor.client.android)
     implementation(libs.slf4j.simple)
 

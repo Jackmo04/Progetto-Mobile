@@ -15,7 +15,7 @@ import kotlinx.coroutines.flow.map
 
 class LoginRepository(
     private val dataStore: DataStore<Preferences>,
-    private val supabase: SupabaseClient
+    val supabase: SupabaseClient
 ) {
     companion object {
         private val USERNAME_KEY = stringPreferencesKey("username")
