@@ -51,4 +51,6 @@
     <string name="find">Find</string>
     <string name="saved_event_title">Saved event</string>
     <string name="error_no_position_permission">Location permission is needed to find nearby events.</string>
+    <string name="edit_event">Edit event</string>
+    <string name="save_changes">Save changes</string>
 </resources>

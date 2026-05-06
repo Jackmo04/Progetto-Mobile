@@ -52,4 +52,6 @@
     <string name="find">Cerca</string>
     <string name="saved_event_title">Eventi salvati</string>
     <string name="error_no_position_permission">Necessario permesso posizione per trovare i posti vicini!</string>
+    <string name="edit_event">Modifica evento</string>
+    <string name="save_changes">Salva modifiche</string>
 </resources>

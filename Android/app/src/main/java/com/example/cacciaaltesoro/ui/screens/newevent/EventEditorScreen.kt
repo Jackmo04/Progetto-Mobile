@@ -89,6 +89,9 @@ fun EventEditorScreen(
     viewModel: EventEditorViewModel
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
+    val isEditMode by viewModel.isEditMode.collectAsStateWithLifecycle()
+
     val focusManager = LocalFocusManager.current
 
     var showMapDialog by remember { mutableStateOf(false) }
@@ -97,7 +100,13 @@ fun EventEditorScreen(
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(stringResource(R.string.new_event), navController) },
+        topBar = {
+            AppBar(
+                title = if (isEditMode) stringResource(R.string.edit_event)
+                        else stringResource(R.string.new_event),
+                navController = navController
+            )
+        },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
 
@@ -233,9 +242,12 @@ fun EventEditorScreen(
                         && state.name.isNotBlank()
                         && !state.isImpossibleStartDateTime
                         && !state.isImpossibleEndDateTime
-                        && !state.isLoading
+                        && !isLoading
             ) {
-                Text(stringResource(R.string.create_event))
+                Text(
+                    if (isEditMode) stringResource(R.string.save_changes)
+                    else stringResource(R.string.create_event)
+                )
             }
         }
 
@@ -250,7 +262,7 @@ fun EventEditorScreen(
             )
         }
 
-        if (state.isLoading) {
+        if (isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()

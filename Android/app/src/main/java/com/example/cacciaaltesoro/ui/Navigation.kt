@@ -33,7 +33,7 @@ sealed interface CacciaAlTesoroRoute {
     @Serializable data class Game(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data object SavedEvents : CacciaAlTesoroRoute
     @Serializable data object Login : CacciaAlTesoroRoute
-    @Serializable data class EventEditor(val eventId: Int?) : CacciaAlTesoroRoute
+    @Serializable data class EventEditor(val eventId: Int? = null) : CacciaAlTesoroRoute
     @Serializable data class EventMapEditor(val eventId: String) : CacciaAlTesoroRoute
     @Serializable data class TagEditor(val tagId: String) : CacciaAlTesoroRoute
 }

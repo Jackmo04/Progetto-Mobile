@@ -1,6 +1,5 @@
 package com.example.cacciaaltesoro.data.database.dto
 
-import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 import kotlin.time.ExperimentalTime
@@ -20,6 +19,5 @@ data class EventDTO(
     @SerialName("par_descrizione") val description: String?,
     @SerialName("par_codice") val code: String,
     @SerialName("par_privato") val isPrivate: Boolean,
-
     @SerialName("utenti")  val userDTO : UserDTO? = null
 )

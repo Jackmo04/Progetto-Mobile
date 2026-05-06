@@ -89,6 +89,34 @@ DROP TRIGGER IF EXISTS on_auth_user_created ON auth.users;
 CREATE TRIGGER on_auth_user_created
   AFTER INSERT ON auth.users
   FOR EACH ROW EXECUTE FUNCTION public.handle_new_user();
+  
+-- Funzione per l'aggiornamento dei tag di una partita
+CREATE OR REPLACE FUNCTION sync_event_tags(p_eventId int4, p_tags JSONB)
+RETURNS void
+LANGUAGE plpgsql
+AS $$
+BEGIN
+    -- 1. Elimina i record dell'utente che NON sono presenti nel JSON
+    DELETE FROM tags
+    WHERE tag_partita = p_eventId
+    AND tag_id NOT IN (
+        SELECT (jsonb_array_elements(p_tags)->>'tag_id')::UUID
+    );
+
+    -- 2. Inserisci i record dal JSON ignorando i conflitti
+    INSERT INTO tags (tag_id, tag_posizione, tag_partita, tag_latitudine, tag_longitudine, tag_indizio, tag_immagine)
+    SELECT 
+        (value->>'tag_id')::UUID,
+        (value->>'tag_posizione')::int4,
+        p_eventId::int4,
+        (value->>'tag_latitudine')::float8,
+        (value->>'tag_longitudine')::float8,
+        value->>'tag_indizio',
+        value->>'tag_immagine'
+    FROM jsonb_array_elements(p_tags)
+    ON CONFLICT (tag_id) DO NOTHING;
+END;
+$$;
 
 
 -- ==========================================

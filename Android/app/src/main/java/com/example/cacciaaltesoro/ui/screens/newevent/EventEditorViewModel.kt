@@ -24,6 +24,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
+import java.util.UUID
 import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
@@ -44,8 +45,7 @@ data class NewEventState(
     val isImpossibleEndDateTime: Boolean = false,
     val timeZone: ZoneId = ZoneId.systemDefault(),
     val description: String = "",
-    val visibility: Visibility = Visibility.PUBLIC,
-    val isLoading: Boolean = false
+    val visibility: Visibility = Visibility.PUBLIC
 ) {
     val fStartDate: String get() = startDate.formatShortDate()
     val fStartTime: String get() = startTime.formatShortTime()
@@ -76,14 +76,25 @@ data class NewEventActions(
 
 class EventEditorViewModel(
     private val repository: EventRepository,
-    private val eventId: Int?
+    private val eventId: Int? = null
 ) : ViewModel() {
     private val _state = MutableStateFlow(NewEventState())
     val state = _state.asStateFlow()
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading = _isLoading.asStateFlow()
+
+    private val _isEditMode = MutableStateFlow(false)
+    val isEditMode = _isEditMode.asStateFlow()
+
+    private val _uiEvent = Channel<String>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     init {
         eventId?.let { id ->
+            _isEditMode.value = true
             viewModelScope.launch {
+                _isLoading.value = true
                 repository.getEventById(id)?.let { event ->
                     _state.update {
                         it.copy(
@@ -99,12 +110,10 @@ class EventEditorViewModel(
                     }
                     checkTimestamps()
                 }
+                _isLoading.value = false
             }
         }
     }
-
-    private val _uiEvent = Channel<String>()
-    val uiEvent = _uiEvent.receiveAsFlow()
 
     val actions = NewEventActions(
         onNameChange = { newName ->
@@ -157,11 +166,11 @@ class EventEditorViewModel(
                 }
             }
             viewModelScope.launch(Dispatchers.IO) {
-                _state.update { it.copy(isLoading = true) }
+                _isLoading.value = true
                 val event = state.value.let {
                     // TODO CHANGE TO ACTUAL DATA
                     Event(
-                        id = null,
+                        id = eventId,
                         name = it.name,
                         organizerUUID = "5bbddf24-0be5-4348-bb0f-665c510307bf",
                         lat = it.location!!.latitude,
@@ -181,18 +190,21 @@ class EventEditorViewModel(
                         isPrivate = it.visibility == Visibility.PRIVATE,
                         tags = listOf(
                             Tag(
+                                id = "f20a3897-2b05-498f-9a62-64e0198dc943",
                                 number = 1,
                                 coordinates = Coordinates(15.0, 20.0),
                                 textHint = null,
                                 imageHint = null
                             ),
                             Tag(
+                                id = "f972aa98-479b-4453-bdee-f25b63d477c4",
                                 number = 2,
                                 coordinates = Coordinates(6.0, 7.0),
                                 textHint = null,
                                 imageHint = null
                             ),
                             Tag(
+                                id = "8cccd449-8320-44d2-aed7-0d7ea0fa59ff",
                                 number = 3,
                                 coordinates = Coordinates(40.0, 75.0),
                                 textHint = null,
@@ -203,13 +215,19 @@ class EventEditorViewModel(
                 }
 
                 try {
-                    repository.upsertEvent(event)
-                    _uiEvent.send("Evento creato con successo!") // TODO
+                    if (!isEditMode.value) {
+                        repository.insertEvent(event)
+                    } else {
+                        repository.updateEvent(event)
+                    }
+                    val message = if (isEditMode.value) "Evento aggiornato!" else "Evento creato!"
+                    _uiEvent.send(message)
+                    _state.update { NewEventState() }
                 } catch (e: Exception) {
-                    _uiEvent.send("Errore durante la creazione evento!")
+                    _uiEvent.send("Errore durante il salvataggio!")
+                    e.printStackTrace()
                 }
-
-                _state.update { NewEventState() }
+                _isLoading.value = false
             }
         },
         onCancelCreation = {
