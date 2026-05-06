@@ -9,20 +9,21 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
-import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
 data class OnlineEventState(
     val listEvent: List<EventDTO> = emptyList(),
-    val uuid: String = ""
+    val uuid: String = "",
+    val idEventCodeSearched: Int? = null
 )
 
 data class OnlineEventAction(
     val saveCurrentLocation: (Location) -> Unit,
+    val saveIdEventCodeSearched:(String) -> Unit,
+    val resetIdEventCodeSearched: () -> Unit,
     val onSearchEvent: (String) -> Unit,
-    val onViewEvent: (String) -> Unit,
     val onOrderChanged: (String) -> Unit
 )
 
@@ -76,9 +77,27 @@ class OnlineEventViewModel(
                 }
             }
         },
-        onViewEvent = {
+        saveIdEventCodeSearched = {code ->
+            viewModelScope.launch {
+                isLoading = true
+                try {
+                    _state = _state.copy(
+                        idEventCodeSearched = repository.getEventsByCode(code)?.id
+                    )
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante la ricerca"
+                } finally {
+                    isLoading = false
+                }
+            }
 
         },
+        resetIdEventCodeSearched={
+            viewModelScope.launch {
+            _state = _state.copy(idEventCodeSearched = null)
+            }
+        }
+        ,
         onOrderChanged = { selected ->
             viewModelScope.launch {
             isLoading = true

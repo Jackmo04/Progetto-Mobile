@@ -12,7 +12,7 @@ import kotlin.time.ExperimentalTime
 
 interface OnlineEventRepository {
     suspend fun getAllEvents(query: String): List<EventDTO>
-   // suspend fun searchEvents(query: String): Unit
+   suspend fun getEventsByCode(code: String): EventDTO?
 
     suspend fun getOrderedEvent (type : String , location: Location?) : List<EventDTO>
 }
@@ -24,15 +24,19 @@ class OnlineEventRepositoryImpl(private val supabase: SupabaseClient) : OnlineEv
     val listEvent: List<EventDTO>
         get() = _listEvent
 
-  /*  override suspend fun searchEvents(): List<EventDTO> {
-        var result = emptyList<EventDTO>()
+  override suspend fun getEventsByCode(code: String): EventDTO? {
         return try {
-            supabase.from(SupabaseTables.EVENTS.tableName).select().decodeList<EventDTO>()
+            supabase.from(SupabaseTables.EVENTS.tableName).select {
+                filter {
+                    EventDTO::code eq code
+                    EventDTO::organizerUUID neq supabase.auth.currentUserOrNull()?.id
+                }
+            }.decodeSingleOrNull<EventDTO>()
         } catch (e: Exception) {
-            Log.e("EventRepository", "Error fetching events", e)
-            emptyList()
+            Log.e("EventRepository", "Error fetching event", e)
+            null
         }
-    }*/
+    }
 
     override suspend fun getAllEvents(query: String): List<EventDTO> {
         try {
