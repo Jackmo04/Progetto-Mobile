@@ -6,7 +6,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
-import com.example.cacciaaltesoro.data.repositories.EventDetailsRepository
+import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
@@ -21,7 +21,7 @@ data class EventDetailsEventAction(
 )
 
 class EventDetailsViewModel(
-    private val repository: EventDetailsRepository,
+    private val repository: EventRepository,
     private val loginRepositoryImpl: LoginRepositoryImpl
 ) : ViewModel() {
 

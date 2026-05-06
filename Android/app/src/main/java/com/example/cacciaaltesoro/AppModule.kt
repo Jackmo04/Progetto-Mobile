@@ -3,15 +3,9 @@ package com.example.cacciaaltesoro
 import android.content.Context
 import androidx.datastore.preferences.preferencesDataStore
 import com.example.cacciaaltesoro.data.database.Supabase
-import com.example.cacciaaltesoro.data.repositories.EventDetailsRepository
-import com.example.cacciaaltesoro.data.repositories.EventDetailsRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.EventRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
-import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
-import com.example.cacciaaltesoro.data.repositories.OnlineEventRepositoryImpl
-import com.example.cacciaaltesoro.data.repositories.SavedEventRepository
-import com.example.cacciaaltesoro.data.repositories.SavedEventRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.TagRepository
 import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
@@ -33,10 +27,6 @@ val appModule = module {
     single { LoginRepositoryImpl(get() , get()) }
     single<TagRepository> { TagRepositoryImpl() }
     single<EventRepository> { EventRepositoryImpl(get()) }
-    single<OnlineEventRepository> { OnlineEventRepositoryImpl(get()) }
-    single<SavedEventRepository> { SavedEventRepositoryImpl(get()) }
-
-    single<EventDetailsRepository> { EventDetailsRepositoryImpl(get()) }
 
     single<SupabaseClient> { Supabase().supabase }
 
