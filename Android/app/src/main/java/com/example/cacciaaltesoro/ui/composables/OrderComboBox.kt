@@ -11,6 +11,7 @@ import androidx.compose.material3.DropdownMenu
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Text
@@ -33,7 +34,7 @@ fun OrderComboBox(options: List<String>, onOptionSelected: (String) -> Unit ) {
             value = selectedOption,
             onValueChange = {},
             readOnly = true,
-            label = { Text("Ordina per:", color = Color.LightGray) },
+            label = { Text("Ordina per:", color =MaterialTheme.colorScheme.primary) },
             trailingIcon = {
                 IconButton(onClick = { expanded = !expanded }) {
                     Icon(
@@ -45,12 +46,12 @@ fun OrderComboBox(options: List<String>, onOptionSelected: (String) -> Unit ) {
             },
             modifier = Modifier.fillMaxWidth(),
             colors = OutlinedTextFieldDefaults.colors(
-                focusedTextColor = Color.White,
-                unfocusedTextColor = Color.White,
-                focusedBorderColor = Color.White,
-                unfocusedBorderColor = Color.LightGray,
-                focusedLabelColor = Color.White,
-                unfocusedLabelColor = Color.LightGray
+                focusedTextColor = MaterialTheme.colorScheme.primary,
+                unfocusedTextColor = MaterialTheme.colorScheme.primary,
+                focusedBorderColor = MaterialTheme.colorScheme.primary,
+                unfocusedBorderColor =MaterialTheme.colorScheme.secondary,
+                focusedLabelColor = MaterialTheme.colorScheme.primary,
+                unfocusedLabelColor = MaterialTheme.colorScheme.secondary
             )
         )
         Box(

@@ -53,7 +53,7 @@ fun EventCard(
 
     val mapImageUrl = getImageUrl(event)
 
-    val backgroundColor = if (isMineEvent) Color(0xBFB3E2EE) else Color(0xFFFEF7FF)
+    val backgroundColor = if (isMineEvent) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
 
     OutlinedCard(
         modifier = Modifier
@@ -64,7 +64,7 @@ fun EventCard(
             containerColor = backgroundColor
         ),
         border = CardDefaults.outlinedCardBorder().copy(
-            brush = SolidColor(Color(0xFFCAC4D0)) // M3/sys/light/outline-variant
+            brush = SolidColor(MaterialTheme.colorScheme.outlineVariant)
         )
     ) {
         Column(
@@ -86,7 +86,7 @@ fun EventCard(
                     Text(
                         text = event.name.take(1).uppercase(),
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF4F378A)
+                        color = MaterialTheme.colorScheme.onPrimaryContainer
                     )
                 }
 
@@ -96,14 +96,14 @@ fun EventCard(
                     Text(
                         text = event.name,
                         style = MaterialTheme.typography.titleMedium,
-                        color = Color(0xFF1D1B20),
+                        color = MaterialTheme.colorScheme.onSurface,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
                         text = "Code: ${event.code} • ${if(event.isPrivate) "Private" else "Public"}",
                         style = MaterialTheme.typography.bodyMedium,
-                        color = Color(0xFF1D1B20),
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
@@ -120,7 +120,7 @@ fun EventCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(188.dp)
-                    .background(Color(0xFFECE6F0)), // Placeholder background color
+                    .background(MaterialTheme.colorScheme.surfaceVariant), // Placeholder background color
                 contentScale = ContentScale.Crop
             )
             Column(
@@ -131,19 +131,19 @@ fun EventCard(
                 Text(
                     text = event.name,
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
-                    color = Color(0xFF1D1B20),
+                    color = MaterialTheme.colorScheme.onSurface,
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
                     text = "Organizer: ${event.userDTO?.username ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF49454F),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
                 )
                 Text(
                     text = event.description ?: "No description provided.",
                     style = MaterialTheme.typography.bodyMedium,
-                    color = Color(0xFF49454F),
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )

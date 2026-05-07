@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
@@ -34,11 +35,11 @@ fun EventListCard(
     isMyEvent: Boolean,
     onClick: () -> Unit
 ) {
-    val surfaceColor = if (isMyEvent) Color(0xFFEADDFF) else Color(0xFFFEF7FF)
-    val outlineVariant = Color(0xFFCAC4D0)
-    val primaryContainer = Color(0xFFEADDFF)
-    val onPrimaryContainer = Color(0xFF4F378A)
-    val onSurface = Color(0xFF1D1B20)
+    val surfaceColor = if (isMyEvent) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
+    val outlineVariant = MaterialTheme.colorScheme.outlineVariant
+    val primaryContainer = MaterialTheme.colorScheme.primaryContainer
+    val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
+    val onSurface = MaterialTheme.colorScheme.onSurface
     Row(
         modifier = Modifier
             .fillMaxWidth()
@@ -103,7 +104,7 @@ fun EventListCard(
                         fontWeight = FontWeight.Normal,
                         lineHeight = 20.sp,
                         letterSpacing = 0.25.sp,
-                        color = onSurface
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                 )
             }
