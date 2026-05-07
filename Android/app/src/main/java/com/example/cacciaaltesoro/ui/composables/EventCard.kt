@@ -1,5 +1,7 @@
 package com.example.cacciaaltesoro.ui.composables
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -12,6 +14,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
@@ -21,17 +24,32 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cacciaaltesoro.BuildConfig
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 
 @Composable
 fun EventCard(
-    event: EventDTO
+    event: EventDTO,
+    viewModel: EventDetailsViewModel
 ) {
-    val mapImageUrl = "https://maps.googleapis.com/maps/api/staticmap?" +
-            "center=${event.lat},${event.lon}" +
-            "&zoom=15" +
-            "&size=600x300" +
-            "&markers=color:red%7C${event.lat},${event.lon}" +
-            "&key=${BuildConfig.MAPS_KEY}"
+
+    viewModel.action.saveIdUser()
+    val isMineEvent : Boolean = viewModel.getState().userId == event.organizerUUID
+
+    Log.i("CardEvent", viewModel.getState().userId +" pippo "+ event.organizerUUID)
+    val ctx = LocalContext.current
+
+
+    val mapImageUrl = getImageUrl(event)
+
+    if (isMineEvent){
+        Toast.makeText(
+            ctx,
+            "Location permission is needed to find nearby events.",
+            Toast.LENGTH_LONG
+        ).show()
+    }
+
+    val backgroundColor = if (isMineEvent) Color(0xFF9CB1EC) else Color(0xFFFEF7FF)
 
     OutlinedCard(
         modifier = Modifier
@@ -39,10 +57,10 @@ fun EventCard(
             .wrapContentHeight(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.outlinedCardColors(
-            containerColor = Color(0xFFFEF7FF)
+            containerColor = backgroundColor
         ),
         border = CardDefaults.outlinedCardBorder().copy(
-            brush = androidx.compose.ui.graphics.SolidColor(Color(0xFFCAC4D0)) // M3/sys/light/outline-variant
+            brush = SolidColor(Color(0xFFCAC4D0)) // M3/sys/light/outline-variant
         )
     ) {
         Column(
@@ -58,7 +76,7 @@ fun EventCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFEADDFF)), // M3/sys/light/primary-container
+                        .background(backgroundColor), // M3/sys/light/primary-container
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -157,4 +175,15 @@ fun EventCard(
             }
         }
     }
+
+
+}
+
+fun getImageUrl(event: EventDTO) : String{
+   return "https://maps.googleapis.com/maps/api/staticmap?" +
+            "center=${event.lat},${event.lon}" +
+            "&zoom=15" +
+            "&size=600x300" +
+            "&markers=color:red%7C${event.lat},${event.lon}" +
+            "&key=${BuildConfig.MAPS_KEY}"
 }
