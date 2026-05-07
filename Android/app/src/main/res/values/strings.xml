@@ -53,4 +53,7 @@
     <string name="error_no_position_permission">Location permission is needed to find nearby events.</string>
     <string name="edit_event">Edit event</string>
     <string name="save_changes">Save changes</string>
+    <string name="new_password">New Password</string>
+    <string name="change_password">Change Password</string>
+    <string name="update_password_title">Update Password</string>
 </resources>

@@ -52,9 +52,9 @@ fun LoginScreen(
     }
 
     val title = if (viewModel.getState().isLogin) {
-        if (isUpdatePassword) "Aggiorna Password" else stringResource(R.string.profile_title)
+        if (isUpdatePassword) stringResource(R.string.update_password_title) else stringResource(R.string.profile_title)
     } else if (isUpdatePassword) {
-        "Aggiorna Password"
+        stringResource(R.string.update_password_title)
     } else if (!isSignUp) {
         stringResource(R.string.login_title)
     } else {
@@ -78,7 +78,7 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = username,
                     onValueChange = { text -> username = text },
-                    label = { Text("Username") },
+                    label = { Text("E-mail") },
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !viewModel.isLoading,
                     readOnly = viewModel.getState().isLogin
@@ -99,7 +99,7 @@ fun LoginScreen(
                 OutlinedTextField(
                     value = password,
                     onValueChange = { password = it },
-                    label = { Text("Nuova Password") },
+                    label = { Text(stringResource(R.string.new_password)) },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
                     enabled = !viewModel.isLoading,
@@ -133,7 +133,7 @@ fun LoginScreen(
                     ErrorText(viewModel)
                     SuccessText(viewModel)
                     Spacer(modifier = Modifier.size(36.dp))
-                    LoginAnswer(isSignUp = isSignUp, onToggle = { viewModel.action.changeSignScreen() })
+                    LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen() })
                     Spacer(modifier = Modifier.size(8.dp))
                     SendEmail(username, viewModel.action.callResetPasswordEmail)
                 } else if (isSignUp && !viewModel.getState().isLogin) {
@@ -152,7 +152,7 @@ fun LoginScreen(
                         viewModel.action.onSignOn(username, password, passwordConfirm)
                     })
                     Spacer(modifier = Modifier.size(36.dp))
-                    LoginAnswer(isSignUp = isSignUp, onToggle = { viewModel.action.changeSignScreen() })
+                    LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen() })
                 } else {
                     ErrorText(viewModel)
                     SuccessText(viewModel)
@@ -162,7 +162,7 @@ fun LoginScreen(
                         password = ""
                     })
                     Spacer(modifier = Modifier.size(8.dp))
-                    MyButton("Cambia Password", onClick = {
+                    MyButton(stringResource(R.string.change_password), onClick = {
                         viewModel.action.toggleUpdatePassword(true)
                         password = ""
                         passwordConfirm = ""
