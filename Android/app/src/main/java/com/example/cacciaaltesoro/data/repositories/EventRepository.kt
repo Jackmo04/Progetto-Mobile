@@ -42,6 +42,8 @@ interface EventRepository {
 
     suspend fun unscribeFromEvent(idEvent: Int , idUser: String)
 
+    suspend fun deleteEvent(idEvent: String)
+
 }
 
 @Serializable
@@ -283,6 +285,23 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 filter {
                     eq("prt_partita", idEvent)
                     eq("prt_utente", idUser)
+                }
+            }
+        }catch (e: Exception){
+            Log.e("JoinEvent",e.toString())
+        }
+    }
+
+    override suspend fun deleteEvent(idEvent: String) {
+        try {
+            supabase.from("partecipazioni").delete {
+                filter {
+                    eq("prt_partita", idEvent)
+                }
+            }
+            supabase.from(SupabaseTables.EVENTS.tableName).delete {
+                filter {
+                    eq("par_id", idEvent)
                 }
             }
         }catch (e: Exception){

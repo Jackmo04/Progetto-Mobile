@@ -25,7 +25,8 @@ data class EventDetailsEventAction(
     val findEventByID: (Int) -> Unit,
     val saveIdUser: () -> Unit,
     val joinToEvent:() -> Unit,
-    val unscribeFromEvent:() -> Unit
+    val unscribeFromEvent:() -> Unit,
+    val deleteEvent:() -> Unit
 )
 
 class EventDetailsViewModel(
@@ -82,6 +83,11 @@ class EventDetailsViewModel(
             viewModelScope.launch {
                 repository.unscribeFromEvent(_state.idEvent, _state.userId!!)
                 _state = _state.copy(imSubscribe = false)
+            }
+        },
+        deleteEvent = {
+            viewModelScope.launch {
+                repository.deleteEvent(_state.idEvent)
             }
         }
     )

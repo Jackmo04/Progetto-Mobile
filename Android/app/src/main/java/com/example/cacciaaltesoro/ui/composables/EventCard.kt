@@ -14,6 +14,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -24,6 +25,8 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cacciaaltesoro.BuildConfig
@@ -33,7 +36,8 @@ import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 @Composable
 fun EventCard(
     event: EventDTO,
-    viewModel: EventDetailsViewModel
+    viewModel: EventDetailsViewModel,
+    navController: NavHostController
 ) {
 
     viewModel.action.saveIdUser()
@@ -43,6 +47,7 @@ fun EventCard(
     val ctx = LocalContext.current
 
     val imSubscribe = viewModel.getState().imSubscribe
+    var showDeleteDialog by remember { mutableStateOf(false) }
 
 
 
@@ -192,11 +197,45 @@ fun EventCard(
                 }}
                 else{
                     Button(
-                        onClick = {  },
+                        onClick = {showDeleteDialog = true  },
                         modifier = Modifier.padding(end = 8.dp),
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC72D27))
                     ) {
                         Text("Cancella")
+                    }
+                    if (showDeleteDialog) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                showDeleteDialog = false
+                            },
+                            title = {
+                                Text(text = "Conferma eliminazione")
+                            },
+                            text = {
+                                Text(text = "Sei sicuro di voler cancellare questo evento? Questa azione non può essere annullata.")
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.action.deleteEvent()
+                                        showDeleteDialog = false
+                                        navController.navigateUp()
+
+                                    }
+                                ) {
+                                    Text("OK", color = Color(0xFFC72D27))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        showDeleteDialog = false
+                                    }
+                                ) {
+                                    Text("Annulla")
+                                }
+                            }
+                        )
                     }
                     Button(
                         onClick = {  },
