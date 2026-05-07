@@ -10,6 +10,10 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -37,6 +41,9 @@ fun EventCard(
 
     Log.i("CardEvent", viewModel.getState().userId +" pippo "+ event.organizerUUID)
     val ctx = LocalContext.current
+
+    val imSubscribe by remember { mutableStateOf(viewModel.getState().imSubscribe)}
+
 
 
     val mapImageUrl = getImageUrl(event)
@@ -161,12 +168,22 @@ fun EventCard(
                 }
 
                 if (!isMineEvent){
+                    if(!imSubscribe){
+
                 Button(
-                    onClick = {  },
+                    onClick = { viewModel.action.joinToEvent },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text("Iscriviti")
-                }
+                }}
+                    else{
+                        Button(
+                            onClick = { viewModel.action.unscribeFromEvent },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("Disiscriviti")
+                        }
+                    }
 
                 Button(
                     onClick = {  }

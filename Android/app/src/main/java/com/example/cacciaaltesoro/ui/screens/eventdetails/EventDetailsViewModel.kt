@@ -17,12 +17,15 @@ import kotlin.time.ExperimentalTime
 data class EventDetailsEventState(
     val idEvent: Int = 0,
     val event: EventDTO? = null,
-    val userId: String? = null
+    val userId: String? = null,
+    val imSubscribe: Boolean = false
 )
 
 data class EventDetailsEventAction(
     val findEventByID: (Int) -> Unit,
-    val saveIdUser: () -> Unit
+    val saveIdUser: () -> Unit,
+    val joinToEvent:() -> Unit,
+    val unscribeFromEvent:() -> Unit
 )
 
 class EventDetailsViewModel(
@@ -35,6 +38,7 @@ class EventDetailsViewModel(
     fun getState() = _state
 
     init {
+
 
     }
 
@@ -53,9 +57,28 @@ class EventDetailsViewModel(
             viewModelScope.launch {
                 loginRepositoryImpl.userId.collect { userId ->
                     _state = _state.copy(userId = userId)
-                    Log.i("CardEvent", _state.userId!!)
+                    try {
+                        val myEvents = repository.getAllMyEvents(userId!!)
+                        val isSubscribed = myEvents.any { it.id == _state.idEvent }
+                        _state = _state.copy(imSubscribe = isSubscribed)
+                    } catch (e: Exception) {
+                        Log.e("EventDetailsViewModel", "Error checking subscription: ${e.message}")
+                    }
                 }
 
+            }
+        },
+        joinToEvent = {
+            viewModelScope.launch {
+
+                repository.joinToEvent(_state.idEvent, _state.userId!!)
+                _state = _state.copy(imSubscribe = true)
+            }
+        },
+        unscribeFromEvent = {
+            viewModelScope.launch {
+                repository.unscribeFromEvent(_state.idEvent, _state.userId!!)
+                _state = _state.copy(imSubscribe = false)
             }
         }
     )

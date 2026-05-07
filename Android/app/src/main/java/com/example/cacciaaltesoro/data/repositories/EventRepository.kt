@@ -38,6 +38,10 @@ interface EventRepository {
     suspend fun getAllMyEvents( uuid:String): List<EventDTO>
     suspend fun getOrderedMyEvent (type : String , location: Location?) : List<EventDTO>
 
+    suspend fun joinToEvent(idEvent: Int , idUser: String)
+
+    suspend fun unscribeFromEvent(idEvent: Int , idUser: String)
+
 }
 
 @Serializable
@@ -45,6 +49,13 @@ data class SyncEventTags(
     @SerialName("p_eventid") val eventId: Int,
     @SerialName("p_tags") val tags: List<TagDTO>
 )
+
+@Serializable
+data class UserEvent(
+    @SerialName("prt_partita") val idEvent: Int,
+    @SerialName("prt_utente") val idUser: String
+)
+
 
 class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepository {
     override suspend fun insertEvent(event: Event) {
@@ -254,6 +265,29 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             Log.e("EventRepository", "Error fetching ordered events", e)
         }
         return result
+    }
+
+    override suspend fun joinToEvent(idEvent: Int, idUser: String) {
+        try {
+            val link = UserEvent(idEvent,idUser)
+            supabase.postgrest["partecipazioni"].insert(link)
+        }catch (e: Exception){
+            Log.e("JoinEvent",e.toString())
+        }
+    }
+
+    override suspend fun unscribeFromEvent(idEvent: Int, idUser: String) {
+
+        try {
+            supabase.from("partecipazioni").delete {
+                filter {
+                    eq("prt_partita", idEvent)
+                    eq("prt_utente", idUser)
+                }
+            }
+        }catch (e: Exception){
+            Log.e("JoinEvent",e.toString())
+        }
     }
 
     private  fun orderLocationByDistance(
