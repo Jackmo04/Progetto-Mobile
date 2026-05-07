@@ -1,12 +1,10 @@
 package com.example.cacciaaltesoro.ui.composables
 
 import androidx.compose.foundation.background
-import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -64,7 +62,7 @@ fun EventCard(
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
-                        text = event.name?.take(1)?.uppercase() ?: "?",
+                        text = event.name.take(1).uppercase(),
                         style = MaterialTheme.typography.titleMedium,
                         color = Color(0xFF4F378A)
                     )
@@ -74,7 +72,7 @@ fun EventCard(
 
                 Column(modifier = Modifier.weight(1f)) {
                     Text(
-                        text = event.name ?: "Unknown Event",
+                        text = event.name,
                         style = MaterialTheme.typography.titleMedium,
                         color = Color(0xFF1D1B20),
                         maxLines = 1,
@@ -109,7 +107,7 @@ fun EventCard(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = event.name ?: "Event Details",
+                    text = event.name,
                     style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
                     color = Color(0xFF1D1B20),
                     modifier = Modifier.padding(bottom = 4.dp)

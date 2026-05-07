@@ -5,6 +5,7 @@ import androidx.compose.runtime.Composable
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsScreen
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
@@ -47,7 +48,13 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         composable<CacciaAlTesoroRoute.Home> {
             HomeScreen(navController)
         }
-        composable<CacciaAlTesoroRoute.Login> {
+        composable<CacciaAlTesoroRoute.Login>(
+            deepLinks = listOf(
+                navDeepLink {
+                    uriPattern = "caccia-al-tesoro://reset-password.*"
+                }
+            )
+        ) {
             val loginVm = koinViewModel<LoginScreenViewModel>()
             LoginScreen(
                 navController = navController,

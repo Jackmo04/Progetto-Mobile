@@ -9,12 +9,23 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 
-class LoginRepository(
+interface LoginRepository {
+    suspend fun setUsername(username: String) : Preferences
+    suspend fun setUserId(userId: String) : Preferences
+    suspend fun setIsLogin(isLogin: Boolean): Preferences
+    suspend fun setIsSignUp(isSignUp: Boolean) : Preferences
+    suspend fun clearSession():Preferences
+    suspend fun onLogIn(username: String, password: String)
+    suspend fun logOut()
+}
+class LoginRepositoryImpl (
     private val dataStore: DataStore<Preferences>,
-    private val supabase: SupabaseClient
-) {
+    val supabase: SupabaseClient
+): LoginRepository {
     companion object {
         private val USERNAME_KEY = stringPreferencesKey("username")
         private val USERNAME_UUID = stringPreferencesKey("idUser")
@@ -25,19 +36,18 @@ class LoginRepository(
     }
 
     val username = dataStore.data.map { it[USERNAME_KEY] ?: "" }
-    val password = dataStore.data.map { it[PASSWORD] ?: "" }
     val userId = dataStore.data.map { it[USERNAME_UUID] ?: "" }
     val isLogin = dataStore.data.map { it[IS_LOGIN] ?: false }
     val isSignUp = dataStore.data.map { it[IS_SIGN_UP] ?: false }
+    private val _isPasswordUpdateRequested = MutableStateFlow(false)
 
 
-    suspend fun setUsername(username: String) = dataStore.edit { it[USERNAME_KEY] = username }
-    suspend fun setUserId(userId: String) = dataStore.edit { it[USERNAME_UUID] = userId }
-    suspend fun setPassword(password: String) = dataStore.edit { it[PASSWORD] = password }
-    suspend fun setIsLogin(isLogin: Boolean) = dataStore.edit { it[IS_LOGIN] = isLogin }
-    suspend fun setIsSignUp(isSignUp: Boolean) = dataStore.edit { it[IS_SIGN_UP] = isSignUp }
+    override suspend fun setUsername(username: String) = dataStore.edit { it[USERNAME_KEY] = username }
+    override suspend fun setUserId(userId: String) = dataStore.edit { it[USERNAME_UUID] = userId }
+    override suspend fun setIsLogin(isLogin: Boolean) = dataStore.edit { it[IS_LOGIN] = isLogin }
+    override suspend fun setIsSignUp(isSignUp: Boolean) = dataStore.edit { it[IS_SIGN_UP] = isSignUp }
 
-    suspend fun clearSession() = dataStore.edit {
+    override suspend fun clearSession() = dataStore.edit {
         it.remove(USERNAME_KEY)
         it.remove(USERNAME_UUID)
         it.remove(PASSWORD)
@@ -46,7 +56,7 @@ class LoginRepository(
 
     }
 
-    suspend fun onLogIn(username: String, password: String) {
+    override suspend fun onLogIn(username: String, password: String) {
         try {
             supabase.auth.signInWith(Email) {
                 this.email = username
@@ -85,7 +95,7 @@ class LoginRepository(
         }
     }
 
-    suspend fun logOut() {
+    override suspend fun logOut() {
         try {
             supabase.auth.signOut()
             clearSession()
@@ -95,5 +105,30 @@ class LoginRepository(
             Log.e("LoginDebug", "Errore nel Log Out", e)
             throw e
         }
+    }
+
+    suspend fun sendResetPasswordEmail(email: String) {
+        supabase.auth.resetPasswordForEmail(
+            email = email,
+            redirectUrl = "caccia-al-tesoro://reset-password"
+        )
+    }
+
+    suspend fun updatePassword(newPassword: String){
+        try {
+            supabase.auth.updateUser {
+                password = newPassword
+            }
+        } catch (e: Exception) {
+            Log.e("ChangePassword", "Errore aggiornamento password", e)
+            throw e
+        }
+    }
+
+
+    val isPasswordUpdateRequested = _isPasswordUpdateRequested.asStateFlow()
+
+    fun setPasswordUpdateRequested(value: Boolean) {
+        _isPasswordUpdateRequested.value = value
     }
 }

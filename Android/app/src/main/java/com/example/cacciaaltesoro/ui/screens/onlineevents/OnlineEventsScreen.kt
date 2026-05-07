@@ -54,13 +54,21 @@ import com.example.cacciaaltesoro.ui.composables.EventListCard
 import com.example.cacciaaltesoro.ui.composables.OrderComboBox
 import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
+import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.launch
 
 
 @Composable
 fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel ) {
-
     val ctx = LocalContext.current
+    LaunchedEffect(viewModel.getState().idEventCodeSearched) {
+        viewModel.getState().idEventCodeSearched?.let { id ->
+            viewModel.action.resetIdEventCodeSearched()
+            navController.navigate(CacciaAlTesoroRoute.EventDetails(id))
+
+        }
+    }
+
 
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
@@ -156,7 +164,8 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     )
 
                     Button(
-                        onClick = { viewModel.action.onSearchEvent(searchQuery) },
+                        onClick = {
+                           viewModel.action.saveIdEventCodeSearched(searchQuery)},
                         modifier = Modifier.height(56.dp),
                         shape = RoundedCornerShape(12.dp),
                         colors = ButtonDefaults.buttonColors(

@@ -5,25 +5,29 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.launch
 
 data class LoginState(
     val username: String = "",
     val userId: String = "",
     val isLogin: Boolean = false,
-    val isSignUp: Boolean = false
+    val isSignUp: Boolean = false,
+    val isUpdatePassword: Boolean = false
 )
 
 data class LoginAction(
     val onLogIn: (String, String) -> Unit,
     val onSignOn: (String, String, String) -> Unit,
     val onLogOut: () -> Unit,
-    val changeSignScreen: () -> Unit
+    val changeSignScreen: () -> Unit,
+    val callResetPasswordEmail:(String) -> Unit,
+    val changePassword: (String, String, String) -> Unit,
+    val toggleUpdatePassword: (Boolean) -> Unit
 )
 
 class LoginScreenViewModel(
-    private val repository: LoginRepository
+    private val repository: LoginRepositoryImpl
 ) : ViewModel() {
 
     private var _state by mutableStateOf(LoginState())
@@ -58,6 +62,13 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             repository.isSignUp.collect { isSignUp ->
                 _state = _state.copy(isSignUp = isSignUp)
+            }
+        }
+        viewModelScope.launch {
+            repository.isPasswordUpdateRequested.collect { isRequested ->
+                if (isRequested) {
+                    _state = _state.copy(isUpdatePassword = true)
+                }
             }
         }
 
@@ -117,5 +128,47 @@ class LoginScreenViewModel(
             viewModelScope.launch {
                 repository.setIsSignUp(!_state.isSignUp)
             }
+        },
+        callResetPasswordEmail={email->
+            viewModelScope.launch {
+                isLoading = true
+                errorMessage = null
+                successMessage = null
+                try {
+                    repository.sendResetPasswordEmail(email)
+                    successMessage = "Email di reset inviata"
+                } catch (e: Exception) {
+                    errorMessage = "Errore nell'invio dell'email"
+                } finally {
+                    isLoading = false
+                }
+            }
+        },
+        changePassword = { username, password, passwordConfirm ->
+            viewModelScope.launch {
+                if (password != passwordConfirm) {
+                    errorMessage = "Le password non coincidono"
+                    return@launch
+                }
+                isLoading = true
+                errorMessage = null
+                successMessage = null
+                try {
+                    repository.updatePassword(password)
+                    successMessage = "Password aggiornata"
+
+                    repository.setPasswordUpdateRequested(false)
+                    _state = _state.copy(isUpdatePassword = false)
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante il cambio password"
+                } finally {
+                    isLoading = false
+                }
+            }
+        },
+
+        toggleUpdatePassword = { isVisible ->
+            repository.setPasswordUpdateRequested(isVisible)
+            _state = _state.copy(isUpdatePassword = isVisible)
         })
 }

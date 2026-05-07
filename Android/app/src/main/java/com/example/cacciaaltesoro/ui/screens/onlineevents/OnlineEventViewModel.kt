@@ -7,28 +7,29 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
-import com.example.cacciaaltesoro.data.repositories.OnlineEventRepository
-import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
+import com.example.cacciaaltesoro.data.repositories.EventRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
 data class OnlineEventState(
     val listEvent: List<EventDTO> = emptyList(),
-    val uuid: String = ""
+    val uuid: String = "",
+    val idEventCodeSearched: Int? = null
 )
 
 data class OnlineEventAction(
     val saveCurrentLocation: (Location) -> Unit,
+    val saveIdEventCodeSearched:(String) -> Unit,
+    val resetIdEventCodeSearched: () -> Unit,
     val onSearchEvent: (String) -> Unit,
-    val onViewEvent: (String) -> Unit,
     val onOrderChanged: (String) -> Unit
 )
 
 class OnlineEventViewModel(
-    private val repository: OnlineEventRepository,
-    private val loginRepository: LoginRepository
+    private val repository: EventRepository,
+    private val loginRepositoryImpl: LoginRepositoryImpl
 ) : ViewModel() {
 
     private var _state by mutableStateOf(OnlineEventState())
@@ -52,7 +53,7 @@ class OnlineEventViewModel(
             try {
                 isLoading = true
                 _state = _state.copy(listEvent = repository.getAllEvents("%"))
-                _state = _state.copy(uuid = loginRepository.userId.first())
+                _state = _state.copy(uuid = loginRepositoryImpl.userId.first())
             }finally {
                 isLoading = false
             }
@@ -76,9 +77,27 @@ class OnlineEventViewModel(
                 }
             }
         },
-        onViewEvent = {
+        saveIdEventCodeSearched = {code ->
+            viewModelScope.launch {
+                isLoading = true
+                try {
+                    _state = _state.copy(
+                        idEventCodeSearched = repository.getEventsByCode(code)?.id
+                    )
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante la ricerca"
+                } finally {
+                    isLoading = false
+                }
+            }
 
         },
+        resetIdEventCodeSearched={
+            viewModelScope.launch {
+            _state = _state.copy(idEventCodeSearched = null)
+            }
+        }
+        ,
         onOrderChanged = { selected ->
             viewModelScope.launch {
             isLoading = true

@@ -7,8 +7,8 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
-import com.example.cacciaaltesoro.data.repositories.SavedEventRepository
+import com.example.cacciaaltesoro.data.repositories.EventRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.flow.first
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
@@ -26,8 +26,8 @@ data class SavedEventAction(
 )
 
 class SavedEventsViewModel(
-    private val repository: SavedEventRepository,
-    private val loginRepository: LoginRepository
+    private val repository: EventRepository,
+    private val loginRepositoryImpl: LoginRepositoryImpl
 ) : ViewModel() {
 
     private var _state by mutableStateOf(SavedEventState())
@@ -47,8 +47,8 @@ class SavedEventsViewModel(
 
             try {
                 isLoading = true
-                _state = _state.copy(listEvent = repository.getAllMyEvents( loginRepository.userId.first()))
-                _state = _state.copy(uuid = loginRepository.userId.first())
+                _state = _state.copy(listEvent = repository.getAllMyEvents( loginRepositoryImpl.userId.first()))
+                _state = _state.copy(uuid = loginRepositoryImpl.userId.first())
             }finally {
                 isLoading = false
             }
@@ -64,7 +64,7 @@ class SavedEventsViewModel(
             viewModelScope.launch {
                 isLoading = true
                 try {
-                    _state = _state.copy(listEvent = repository.getAllMyEvents(loginRepository.userId.first()))
+                    _state = _state.copy(listEvent = repository.getAllMyEvents(loginRepositoryImpl.userId.first()))
 
                 } finally {
                     isLoading = false
