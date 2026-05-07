@@ -88,9 +88,8 @@ fun EventEditorScreen(
     navController: NavHostController,
     viewModel: EventEditorViewModel
 ) {
-    val state by viewModel.state.collectAsStateWithLifecycle()
-    val isLoading by viewModel.isLoading.collectAsStateWithLifecycle()
-    val isEditMode by viewModel.isEditMode.collectAsStateWithLifecycle()
+    val eventState by viewModel.eventState.collectAsStateWithLifecycle()
+    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
 
     val focusManager = LocalFocusManager.current
 
@@ -102,7 +101,7 @@ fun EventEditorScreen(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             AppBar(
-                title = if (isEditMode) stringResource(R.string.edit_event)
+                title = if (uiState.isEditMode) stringResource(R.string.edit_event)
                         else stringResource(R.string.new_event),
                 navController = navController
             )
@@ -131,7 +130,7 @@ fun EventEditorScreen(
 
             // Event name
             OutlinedTextField(
-                value = state.name,
+                value = eventState.name,
                 onValueChange = { viewModel.actions.onNameChange(it) },
                 label = { Text(stringResource(R.string.name)) },
                 modifier = Modifier.fillMaxWidth(),
@@ -144,7 +143,7 @@ fun EventEditorScreen(
 
             // Event description
             OutlinedTextField(
-                value = state.description,
+                value = eventState.description,
                 onValueChange = { viewModel.actions.onDescriptionChange(it) },
                 label = { Text("${stringResource(R.string.description)} ${stringResource(R.string.optional_par)}") },
                 modifier = Modifier.fillMaxWidth(),
@@ -159,7 +158,7 @@ fun EventEditorScreen(
                 onClick = { showMapDialog = true }
             ) {
                 OutlinedTextField(
-                    value = state.location?.let {
+                    value = eventState.location?.let {
                         """${it.latitude}
                        |${it.longitude}""".trimMargin()
                     } ?: "",
@@ -178,7 +177,7 @@ fun EventEditorScreen(
 
             // Start DateTime
             //DateTimeInputs1(state, viewModel) // old design
-            DateTimeInputs2(state, viewModel)
+            DateTimeInputs2(eventState, viewModel)
 
             HorizontalDivider()
 
@@ -198,7 +197,7 @@ fun EventEditorScreen(
                             shape = SegmentedButtonDefaults
                                 .itemShape(index = index, count = Visibility.entries.size),
                             onClick = { viewModel.actions.onVisibilityChange(visibility) },
-                            selected = visibility == state.visibility,
+                            selected = visibility == eventState.visibility,
                             icon = {
                                 Icon(
                                     when (visibility) {
@@ -237,15 +236,18 @@ fun EventEditorScreen(
             Spacer(modifier = Modifier.weight(1f))
             Button(
                 modifier = Modifier.fillMaxWidth(),
-                onClick = { viewModel.actions.onSaveEvent() },
-                enabled = state.location != null
-                        && state.name.isNotBlank()
-                        && !state.isImpossibleStartDateTime
-                        && !state.isImpossibleEndDateTime
-                        && !isLoading
+                onClick = {
+                    viewModel.actions.onSaveEvent()
+                    focusManager.clearFocus()
+                },
+                enabled = eventState.location != null
+                        && eventState.name.isNotBlank()
+                        && !eventState.isImpossibleStartDateTime
+                        && !eventState.isImpossibleEndDateTime
+                        && !uiState.isLoading
             ) {
                 Text(
-                    if (isEditMode) stringResource(R.string.save_changes)
+                    if (uiState.isEditMode) stringResource(R.string.save_changes)
                     else stringResource(R.string.create_event)
                 )
             }
@@ -253,7 +255,7 @@ fun EventEditorScreen(
 
         if (showMapDialog) {
             MapPickerDialog (
-                startingMarkerPosition = state.location?.toLatLng(),
+                startingMarkerPosition = eventState.location?.toLatLng(),
                 onDismiss = { showMapDialog = false },
                 onLocationSelected = { latLng ->
                     viewModel.actions.onLocationChange(latLng.toCoordinates())
@@ -262,7 +264,7 @@ fun EventEditorScreen(
             )
         }
 
-        if (isLoading) {
+        if (uiState.isLoading) {
             Box(
                 modifier = Modifier
                     .fillMaxSize()
@@ -284,7 +286,7 @@ fun EventEditorScreen(
 
 @Composable
 fun DateTimeInputs2(
-    state: NewEventState,
+    state: EventState,
     viewModel: EventEditorViewModel
 ) {
     val context = LocalContext.current

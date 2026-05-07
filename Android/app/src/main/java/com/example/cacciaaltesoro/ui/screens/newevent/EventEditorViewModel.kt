@@ -9,7 +9,6 @@ import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -26,6 +25,7 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
+import java.util.UUID
 import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
@@ -35,7 +35,7 @@ enum class Visibility(val labelRes: Int) {
     PRIVATE(R.string.private_k)
 }
 
-data class NewEventState(
+data class EventState(
     val name: String = "",
     val location: Coordinates? = null,
     val startDate: LocalDate = LocalDate.now(),
@@ -47,6 +47,7 @@ data class NewEventState(
     val timeZone: ZoneId = ZoneId.systemDefault(),
     val description: String = "",
     val visibility: Visibility = Visibility.PUBLIC,
+    val code: String = "",
     val tags: List<Tag> = emptyList()
 ) {
     val fStartDate: String get() = startDate.formatShortDate()
@@ -63,7 +64,12 @@ data class NewEventState(
     }
 }
 
-data class NewEventActions(
+data class UIState(
+    val isLoading: Boolean = false,
+    val isEditMode: Boolean = false
+)
+
+data class EventActions(
     val onNameChange: (String) -> Unit,
     val onLocationChange: (Coordinates) -> Unit,
     val onStartDateChange: (year: Int, month: Int, day: Int) -> Unit,
@@ -81,92 +87,95 @@ class EventEditorViewModel(
     private val loginRepository: LoginRepositoryImpl,
     private val eventId: Int? = null
 ) : ViewModel() {
-    private val _state = MutableStateFlow(NewEventState())
-    val state = _state.asStateFlow()
+    private val _eventState = MutableStateFlow(EventState())
+    val eventState = _eventState.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
-    private val _isEditMode = MutableStateFlow(false)
-    val isEditMode = _isEditMode.asStateFlow()
+    private val _uiState = MutableStateFlow(UIState())
+    val uiState = _uiState.asStateFlow()
 
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     init {
         eventId?.let { id ->
-            _isEditMode.value = true
+            _uiState.update { it.copy(isEditMode = true) }
             viewModelScope.launch {
-                _isLoading.value = true
-                eventRepository.getEventWithTags(id)?.let { event ->
-                    _state.update {
-                        it.copy(
-                            name = event.name,
-                            location = Coordinates(event.lat, event.lon),
-                            startDate = event.startTime.toJavaInstant().atZone(it.timeZone).toLocalDate(),
-                            startTime = event.startTime.toJavaInstant().atZone(it.timeZone).toLocalTime(),
-                            endDate = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalDate(),
-                            endTime = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalTime(),
-                            description = event.description ?: "",
-                            visibility = if (event.isPrivate) Visibility.PRIVATE else Visibility.PUBLIC,
-                            tags = event.tags
-                        )
+                _uiState.update { it.copy(isLoading = true) }
+                try {
+                    eventRepository.getEventWithTags(id)?.let { event ->
+                        _eventState.update {
+                            it.copy(
+                                name = event.name,
+                                location = Coordinates(event.lat, event.lon),
+                                startDate = event.startTime.toJavaInstant().atZone(it.timeZone).toLocalDate(),
+                                startTime = event.startTime.toJavaInstant().atZone(it.timeZone).toLocalTime(),
+                                endDate = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalDate(),
+                                endTime = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalTime(),
+                                description = event.description ?: "",
+                                visibility = if (event.isPrivate) Visibility.PRIVATE else Visibility.PUBLIC,
+                                code = event.code,
+                                tags = event.tags
+                            )
+                        }
+                        checkTimestamps()
                     }
-                    checkTimestamps()
+                } catch (e: Exception) {
+                    _uiEvent.send("Errore durante il caricamento dell'evento!") // TODO change to res
+                    e.printStackTrace()
                 }
-                _isLoading.value = false
+                _uiState.update { it.copy(isLoading = false) }
             }
         }
     }
 
-    val actions = NewEventActions(
+    val actions = EventActions(
         onNameChange = { newName ->
-            _state.update { it.copy(name = newName) }
+            _eventState.update { it.copy(name = newName) }
         },
         onLocationChange = { newLocation ->
-            _state.update { it.copy(location = newLocation) }
+            _eventState.update { it.copy(location = newLocation) }
         },
         onStartDateChange = { year, month, day ->
             val localDate = LocalDate.of(year, month, day)
-            if (localDate.isAfter(state.value.endDate)) {
-                _state.update { it.copy(endDate = localDate) }
+            if (localDate.isAfter(eventState.value.endDate)) {
+                _eventState.update { it.copy(endDate = localDate) }
             }
-            _state.update { it.copy(startDate = localDate) }
+            _eventState.update { it.copy(startDate = localDate) }
             checkTimestamps()
         },
         onStartTimeChange = { hour, minute ->
             val localTime = LocalTime.of(hour, minute)
-            if (localTime.isAfter(state.value.endTime)) {
-                _state.update { it.copy(endTime = localTime.plusHours(1)) }
+            if (localTime.isAfter(eventState.value.endTime)) {
+                _eventState.update { it.copy(endTime = localTime.plusHours(1)) }
             }
-            _state.update { it.copy(startTime = localTime) }
+            _eventState.update { it.copy(startTime = localTime) }
             checkTimestamps()
         },
         onEndDateChange = { year, month, day ->
             val localDate = LocalDate.of(year, month, day)
-            _state.update { it.copy(endDate = localDate) }
+            _eventState.update { it.copy(endDate = localDate) }
             checkTimestamps()
         },
         onEndTimeChange = { hour, minute ->
             val localTime = LocalTime.of(hour, minute)
-            _state.update { it.copy(endTime = localTime) }
+            _eventState.update { it.copy(endTime = localTime) }
             checkTimestamps()
         },
         onDescriptionChange = { newDescription ->
-            _state.update { it.copy(description = newDescription) }
+            _eventState.update { it.copy(description = newDescription) }
         },
         onVisibilityChange = { visibility ->
-            _state.update { it.copy(visibility = visibility) }
+            _eventState.update { it.copy(visibility = visibility) }
         },
         onSaveEvent = {
-            _state.value.let {
+            _eventState.value.let {
                 if (
                     it.name.isBlank() ||
                     it.location == null ||
                     it.isImpossibleEndDateTime ||
                     it.isImpossibleStartDateTime
                 ) {
-                    return@NewEventActions
+                    return@EventActions
                 }
             }
             viewModelScope.launch(Dispatchers.IO) {
@@ -175,8 +184,8 @@ class EventEditorViewModel(
                     _uiEvent.send("Errore! Login non effettuato!") // TODO change this
                     return@launch
                 }
-                _isLoading.value = true
-                val event = state.value.let {
+                _uiState.update { it.copy(isLoading = true) }
+                val event = eventState.value.let {
                     Event(
                         id = eventId,
                         name = it.name,
@@ -194,45 +203,45 @@ class EventEditorViewModel(
                             .toInstant()
                             .toKotlinInstant(),
                         description = it.description,
-                        code = "PIPPO", // TODO generate
+                        code = if (uiState.value.isEditMode) it.code else UUID.randomUUID().toString().take(8).uppercase(),
                         isPrivate = it.visibility == Visibility.PRIVATE,
                         tags = it.tags
                     )
                 }
 
                 try {
-                    if (!isEditMode.value) {
+                    if (!uiState.value.isEditMode) {
                         eventRepository.insertEvent(event)
                     } else {
                         eventRepository.updateEvent(event)
                     }
-                    val message = if (isEditMode.value) "Evento aggiornato!" else "Evento creato!"
+                    val message = if (uiState.value.isEditMode) "Evento aggiornato!" else "Evento creato!"
                     _uiEvent.send(message)
-                    _state.update { NewEventState() }
+                    _eventState.update { EventState() }
                 } catch (e: Exception) {
                     _uiEvent.send("Errore durante il salvataggio!")
                     e.printStackTrace()
                 }
-                _isLoading.value = false
+                _uiState.update { it.copy(isLoading = false) }
             }
         },
         onCancelCreation = {
             // TODO add functionality to remove tags if needed
-            _state.update { NewEventState() }
+            _eventState.update { EventState() }
         }
     )
 
     // TODO improve this if I have time
     private fun checkTimestamps() {
         val now = LocalDateTime.now()
-        val startDateTime = state.value.let { it.startDate.atTime(it.startTime) }
-        val endDateTime = state.value.let { it.endDate.atTime(it.endTime) }
+        val startDateTime = eventState.value.let { it.startDate.atTime(it.startTime) }
+        val endDateTime = eventState.value.let { it.endDate.atTime(it.endTime) }
 
         val isStartPast = startDateTime.isBefore(now)
         val isEndBeforeStart = endDateTime.isBefore(startDateTime)
         val isEndPast = endDateTime.isBefore(now)
 
-        _state.update {
+        _eventState.update {
             it.copy(
                 isImpossibleStartDateTime = isStartPast,
                 isImpossibleEndDateTime = isEndBeforeStart || isEndPast
