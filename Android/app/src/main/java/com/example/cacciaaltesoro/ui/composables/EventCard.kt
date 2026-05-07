@@ -160,6 +160,7 @@ fun EventCard(
                     )
                 }
 
+                if (!isMineEvent){
                 Button(
                     onClick = {  },
                     modifier = Modifier.padding(end = 8.dp)
@@ -171,6 +172,21 @@ fun EventCard(
                     onClick = {  }
                 ) {
                     Text("Avvia gioco")
+                }}
+                else{
+                    Button(
+                        onClick = {  },
+                        modifier = Modifier.padding(end = 8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC72D27))
+                    ) {
+                        Text("Cancella")
+                    }
+                    Button(
+                        onClick = {  },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC72D27))
+                    ) {
+                        Text("Modifica")
+                    }
                 }
             }
         }
