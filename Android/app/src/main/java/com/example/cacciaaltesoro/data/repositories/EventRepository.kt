@@ -42,7 +42,7 @@ interface EventRepository {
 
     suspend fun unscribeFromEvent(idEvent: Int , idUser: String)
 
-    suspend fun deleteEvent(idEvent: String)
+    suspend fun deleteEvent(idEvent: Int)
 
 }
 
@@ -292,7 +292,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
 
-    override suspend fun deleteEvent(idEvent: String) {
+    override suspend fun deleteEvent(idEvent: Int) {
         try {
             supabase.from("partecipazioni").delete {
                 filter {

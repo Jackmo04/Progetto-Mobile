@@ -53,15 +53,7 @@ fun EventCard(
 
     val mapImageUrl = getImageUrl(event)
 
-    if (isMineEvent){
-        Toast.makeText(
-            ctx,
-            "Location permission is needed to find nearby events.",
-            Toast.LENGTH_LONG
-        ).show()
-    }
-
-    val backgroundColor = if (isMineEvent) Color(0xFF9CB1EC) else Color(0xFFFEF7FF)
+    val backgroundColor = if (isMineEvent) Color(0xBFB3E2EE) else Color(0xFFFEF7FF)
 
     OutlinedCard(
         modifier = Modifier
@@ -199,7 +191,7 @@ fun EventCard(
                     Button(
                         onClick = {showDeleteDialog = true  },
                         modifier = Modifier.padding(end = 8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC72D27))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xC8B24843))
                     ) {
                         Text("Cancella")
                     }
@@ -223,7 +215,7 @@ fun EventCard(
 
                                     }
                                 ) {
-                                    Text("OK", color = Color(0xFFC72D27))
+                                    Text("OK", color = Color(0xC8B24843))
                                 }
                             },
                             dismissButton = {
@@ -239,7 +231,7 @@ fun EventCard(
                     }
                     Button(
                         onClick = {  },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xFFC72D27))
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xC8B24843))
                     ) {
                         Text("Modifica")
                     }

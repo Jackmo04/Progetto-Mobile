@@ -90,6 +90,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
         }catch (e: Exception){
 
         }
+        viewModel.action.onSearchEvent("%")
 
     }
     LaunchedEffect(coordinates) {
@@ -136,7 +137,6 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                             toastDistancePermission(ctx)
                         }
                     }
-
 
                 }
                 if (viewModel.isLoading) {
