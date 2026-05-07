@@ -6,6 +6,7 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
+import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepository
@@ -45,7 +46,8 @@ data class NewEventState(
     val isImpossibleEndDateTime: Boolean = false,
     val timeZone: ZoneId = ZoneId.systemDefault(),
     val description: String = "",
-    val visibility: Visibility = Visibility.PUBLIC
+    val visibility: Visibility = Visibility.PUBLIC,
+    val tags: List<Tag> = emptyList()
 ) {
     val fStartDate: String get() = startDate.formatShortDate()
     val fStartTime: String get() = startTime.formatShortTime()
@@ -106,7 +108,8 @@ class EventEditorViewModel(
                             endDate = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalDate(),
                             endTime = event.endTime.toJavaInstant().atZone(it.timeZone).toLocalTime(),
                             description = event.description ?: "",
-                            visibility = if (event.isPrivate) Visibility.PRIVATE else Visibility.PUBLIC
+                            visibility = if (event.isPrivate) Visibility.PRIVATE else Visibility.PUBLIC,
+                            tags = event.tags
                         )
                     }
                     checkTimestamps()
@@ -193,7 +196,7 @@ class EventEditorViewModel(
                         description = it.description,
                         code = "PIPPO", // TODO generate
                         isPrivate = it.visibility == Visibility.PRIVATE,
-                        tags = emptyList()
+                        tags = it.tags
                     )
                 }
 

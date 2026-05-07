@@ -55,20 +55,6 @@ fun HomeScreen(navController: NavHostController) {
                 MyButton("Online Events") { navController.navigate(CacciaAlTesoroRoute.OnlineEvents) }
                 MyButton("Saved Events") { navController.navigate(CacciaAlTesoroRoute.SavedEvents) }
                 MyButton("New Event") { navController.navigate(CacciaAlTesoroRoute.EventEditor()) }
-
-                // TODO delete following code
-                Spacer(modifier = Modifier.height(16.dp))
-                Row(modifier = Modifier.fillMaxWidth()) {
-                    OutlinedTextField(
-                        value = eventId,
-                        onValueChange = { eventId = it },
-                        label = { Text("Num evento") },
-                        modifier = Modifier.weight(1f)
-                    )
-                    Button(onClick = { if (eventId.isNotBlank()) navController.navigate(CacciaAlTesoroRoute.EventEditor(eventId.toInt())) }) {
-                        Text("Modifica")
-                    }
-                }
             }
         }
     }
