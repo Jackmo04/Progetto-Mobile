@@ -9,6 +9,7 @@ import androidx.datastore.preferences.core.stringPreferencesKey
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
@@ -21,6 +22,7 @@ interface LoginRepository {
     suspend fun clearSession():Preferences
     suspend fun onLogIn(username: String, password: String)
     suspend fun logOut()
+    suspend fun getLoggedUser() : UserInfo?
 }
 class LoginRepositoryImpl (
     private val dataStore: DataStore<Preferences>,
@@ -123,6 +125,10 @@ class LoginRepositoryImpl (
             Log.e("ChangePassword", "Errore aggiornamento password", e)
             throw e
         }
+    }
+
+    override suspend fun getLoggedUser(): UserInfo? {
+        return supabase.auth.currentSessionOrNull()?.user
     }
 
 

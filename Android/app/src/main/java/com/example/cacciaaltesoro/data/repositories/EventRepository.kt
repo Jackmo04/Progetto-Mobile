@@ -30,7 +30,7 @@ import kotlin.collections.plus
 interface EventRepository {
     suspend fun insertEvent(event: Event)
     suspend fun updateEvent(event: Event)
-    suspend fun getEventById(eventId: Int): Event?
+    suspend fun getEventWithTags(eventId: Int): Event?
     suspend fun getEvent(id: Int): EventDTO?
     suspend fun getAllEvents(query: String): List<EventDTO>
     suspend fun getEventsByCode(code: String): EventDTO?
@@ -86,22 +86,17 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
 
-    override suspend fun getEventById(eventId: Int): Event? {
+    override suspend fun getEventWithTags(eventId: Int): Event? {
         return withContext(Dispatchers.IO) {
-            try {
-                val eventDto = supabase.from(SupabaseTables.EVENTS.tableName).select {
-                    filter { EventDTO::id eq eventId }
-                }.decodeSingleOrNull<EventDTO>()
+            val eventDto = supabase.from(SupabaseTables.EVENTS.tableName).select {
+                filter { EventDTO::id eq eventId }
+            }.decodeSingleOrNull<EventDTO>()
 
-                val tagDTOs = supabase.from(SupabaseTables.TAGS.tableName).select {
-                    filter { TagDTO::eventId eq eventId }
-                }.decodeList<TagDTO>()
+            val tagDTOs = supabase.from(SupabaseTables.TAGS.tableName).select {
+                filter { TagDTO::eventId eq eventId }
+            }.decodeList<TagDTO>()
 
-                eventDto?.toDomain(tags = tagDTOs.map { it.toDomain() })
-            } catch (e: Exception) {
-                Log.e("EventRepository", "Error fetching event $eventId", e)
-                null
-            }
+            eventDto?.toDomain(tags = tagDTOs.map { it.toDomain() })
         }
     }
 

@@ -6,9 +6,10 @@ import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
-import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepository
+import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -24,7 +25,6 @@ import java.time.format.DateTimeFormatter
 import java.time.format.FormatStyle
 import java.time.temporal.TemporalAccessor
 import java.util.Locale
-import java.util.UUID
 import kotlin.time.ExperimentalTime
 import kotlin.time.toJavaInstant
 import kotlin.time.toKotlinInstant
@@ -75,7 +75,8 @@ data class NewEventActions(
 )
 
 class EventEditorViewModel(
-    private val repository: EventRepository,
+    private val eventRepository: EventRepository,
+    private val loginRepository: LoginRepositoryImpl,
     private val eventId: Int? = null
 ) : ViewModel() {
     private val _state = MutableStateFlow(NewEventState())
@@ -95,7 +96,7 @@ class EventEditorViewModel(
             _isEditMode.value = true
             viewModelScope.launch {
                 _isLoading.value = true
-                repository.getEventById(id)?.let { event ->
+                eventRepository.getEventWithTags(id)?.let { event ->
                     _state.update {
                         it.copy(
                             name = event.name,
@@ -166,13 +167,17 @@ class EventEditorViewModel(
                 }
             }
             viewModelScope.launch(Dispatchers.IO) {
+                val user = loginRepository.getLoggedUser()
+                if (user == null) {
+                    _uiEvent.send("Errore! Login non effettuato!") // TODO change this
+                    return@launch
+                }
                 _isLoading.value = true
                 val event = state.value.let {
-                    // TODO CHANGE TO ACTUAL DATA
                     Event(
                         id = eventId,
                         name = it.name,
-                        organizerUUID = "5bbddf24-0be5-4348-bb0f-665c510307bf",
+                        organizerUUID = user.id,
                         lat = it.location!!.latitude,
                         lon = it.location.longitude,
                         startTime = it.startDate
@@ -186,7 +191,7 @@ class EventEditorViewModel(
                             .toInstant()
                             .toKotlinInstant(),
                         description = it.description,
-                        code = "PIPPO",
+                        code = "PIPPO", // TODO generate
                         isPrivate = it.visibility == Visibility.PRIVATE,
                         tags = emptyList()
                     )
@@ -194,9 +199,9 @@ class EventEditorViewModel(
 
                 try {
                     if (!isEditMode.value) {
-                        repository.insertEvent(event)
+                        eventRepository.insertEvent(event)
                     } else {
-                        repository.updateEvent(event)
+                        eventRepository.updateEvent(event)
                     }
                     val message = if (isEditMode.value) "Evento aggiornato!" else "Evento creato!"
                     _uiEvent.send(message)

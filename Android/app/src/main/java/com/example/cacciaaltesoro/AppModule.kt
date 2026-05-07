@@ -5,6 +5,7 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.EventRepositoryImpl
+import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.TagRepository
 import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
@@ -24,7 +25,7 @@ val Context.dataStore by preferencesDataStore("settings")
 val appModule = module {
     single { get<Context>().dataStore }
 
-    single { LoginRepositoryImpl(get() , get()) }
+    single<LoginRepositoryImpl> { LoginRepositoryImpl(get() , get()) }
     single<TagRepository> { TagRepositoryImpl() }
     single<EventRepository> { EventRepositoryImpl(get()) }
 
@@ -34,7 +35,11 @@ val appModule = module {
     viewModel { OnlineEventViewModel(get(), get ()) }
     viewModel { SavedEventsViewModel(get(), get ()) }
     viewModel { (eventId: Int?) ->
-        EventEditorViewModel(eventId = eventId, repository = get())
+        EventEditorViewModel(
+            eventId = eventId,
+            eventRepository = get(),
+            loginRepository = get()
+        )
     }
     viewModel { EventMapEditorViewModel(get()) }
     viewModel { EventDetailsViewModel(get(), get()) }
