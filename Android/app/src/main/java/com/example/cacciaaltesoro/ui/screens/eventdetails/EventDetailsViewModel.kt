@@ -47,9 +47,12 @@ class EventDetailsViewModel(
         findEventByID = { id ->
             viewModelScope.launch {
                 try {
-                    _state = _state.copy(event = repository.getEvent(id))
-                }catch (e: Exception){
-
+                    _state = _state.copy(
+                        idEvent = id,
+                        event = repository.getEvent(id)
+                    )
+                } catch (e: Exception){
+                    Log.e("EventDetailsViewModel", "Errore nel caricamento evento", e)
                 }
             }
         },

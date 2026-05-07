@@ -42,7 +42,7 @@ fun EventCard(
     Log.i("CardEvent", viewModel.getState().userId +" pippo "+ event.organizerUUID)
     val ctx = LocalContext.current
 
-    val imSubscribe by remember { mutableStateOf(viewModel.getState().imSubscribe)}
+    val imSubscribe = viewModel.getState().imSubscribe
 
 
 
@@ -171,14 +171,14 @@ fun EventCard(
                     if(!imSubscribe){
 
                 Button(
-                    onClick = { viewModel.action.joinToEvent },
+                    onClick = { viewModel.action.joinToEvent() },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text("Iscriviti")
                 }}
                     else{
                         Button(
-                            onClick = { viewModel.action.unscribeFromEvent },
+                            onClick = { viewModel.action.unscribeFromEvent() },
                             modifier = Modifier.padding(end = 8.dp)
                         ) {
                             Text("Disiscriviti")
