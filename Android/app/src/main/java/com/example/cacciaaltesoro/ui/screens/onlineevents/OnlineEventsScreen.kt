@@ -2,9 +2,7 @@ package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import android.Manifest
 import android.content.Context
-import android.content.Intent
 import android.location.Location
-import android.provider.Settings
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
@@ -48,13 +46,12 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.LocationService
-import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
+import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.EventListCard
 import com.example.cacciaaltesoro.ui.composables.OrderComboBox
 import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
-import com.google.android.gms.tasks.Tasks.await
 import kotlinx.coroutines.launch
 
 
@@ -64,7 +61,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
     LaunchedEffect(viewModel.getState().idEventCodeSearched) {
         viewModel.getState().idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
-            navController.navigate(CacciaAlTesoroRoute.EventDetails(id))
+            navController.navigate(NavigationRoute.EventDetails(id))
 
         }
     }
@@ -211,7 +208,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                         EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
                             Log.i("CardLog" , event.id.toString())
                             event.id.let { id ->
-                                navController.navigate(CacciaAlTesoroRoute.EventDetails(id))
+                                navController.navigate(NavigationRoute.EventDetails(id))
                             }
                         }
                 }

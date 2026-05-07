@@ -3,7 +3,6 @@ package com.example.cacciaaltesoro.ui.screens.savedevents
 import android.Manifest
 import android.content.Context
 import android.location.Location
-import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
@@ -25,9 +24,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -36,7 +33,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.LocationService
-import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
+import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.EventListCard
 import com.example.cacciaaltesoro.ui.composables.OrderComboBox
@@ -150,7 +147,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                     ) {
                         items(viewModel.getState().listEvent) { event ->
                             EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
-                                navController.navigate(CacciaAlTesoroRoute.EventDetails(event.id))
+                                navController.navigate(NavigationRoute.EventDetails(event.id))
                             }
                     }
                 }

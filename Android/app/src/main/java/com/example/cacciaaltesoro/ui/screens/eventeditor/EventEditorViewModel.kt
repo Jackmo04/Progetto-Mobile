@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalTime::class)
 
-package com.example.cacciaaltesoro.ui.screens.newevent
+package com.example.cacciaaltesoro.ui.screens.eventeditor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope

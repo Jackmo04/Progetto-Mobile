@@ -1,6 +1,6 @@
 @file:OptIn(ExperimentalTime::class)
 
-package com.example.cacciaaltesoro.ui.screens.newevent
+package com.example.cacciaaltesoro.ui.screens.eventeditor
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
@@ -72,6 +72,7 @@ import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.mappers.toCoordinates
 import com.example.cacciaaltesoro.data.mappers.toLatLng
+import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.ClickableBox
 import com.google.android.gms.maps.model.CameraPosition
@@ -225,7 +226,7 @@ fun EventEditorScreen(
                 Text("Numero tag: 0", style = MaterialTheme.typography.titleMedium)
 
                 FilledTonalButton(
-                    onClick = {/* TODO */}
+                    onClick = { navController.navigate(NavigationRoute.EventTagEditor) }
                 ) {
                     Icon(Icons.Default.PinDrop, contentDescription = null)
                     Text(stringResource(R.string.manage_tags))

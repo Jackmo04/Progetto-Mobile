@@ -5,14 +5,12 @@ import androidx.datastore.preferences.preferencesDataStore
 import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.EventRepositoryImpl
-import com.example.cacciaaltesoro.data.repositories.LoginRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.TagRepository
 import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
-import com.example.cacciaaltesoro.ui.screens.eventmapeditor.EventMapEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
-import com.example.cacciaaltesoro.ui.screens.newevent.EventEditorViewModel
+import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
 import io.github.jan.supabase.SupabaseClient
@@ -41,6 +39,5 @@ val appModule = module {
             loginRepository = get()
         )
     }
-    viewModel { EventMapEditorViewModel(get()) }
     viewModel { EventDetailsViewModel(get(), get()) }
 }

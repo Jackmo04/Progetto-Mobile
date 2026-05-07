@@ -2,20 +2,14 @@ package com.example.cacciaaltesoro.ui.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.SearchBar
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -28,7 +22,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
-import com.example.cacciaaltesoro.ui.CacciaAlTesoroRoute
+import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 
 @Composable
@@ -51,10 +45,10 @@ fun HomeScreen(navController: NavHostController) {
             ) {
                 // Test buttons
                 Text("Bottoni di test")
-                MyButton("Login") { navController.navigate(CacciaAlTesoroRoute.Login) }
-                MyButton("Online Events") { navController.navigate(CacciaAlTesoroRoute.OnlineEvents) }
-                MyButton("Saved Events") { navController.navigate(CacciaAlTesoroRoute.SavedEvents) }
-                MyButton("New Event") { navController.navigate(CacciaAlTesoroRoute.EventEditor()) }
+                MyButton("Login") { navController.navigate(NavigationRoute.Login) }
+                MyButton("Online Events") { navController.navigate(NavigationRoute.OnlineEvents) }
+                MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
+                MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
             }
         }
     }
