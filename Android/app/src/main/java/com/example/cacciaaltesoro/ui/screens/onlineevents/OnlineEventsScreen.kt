@@ -38,6 +38,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
@@ -58,6 +59,8 @@ import kotlinx.coroutines.launch
 @Composable
 fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel ) {
     val ctx = LocalContext.current
+    var searchQuery by rememberSaveable { mutableStateOf("") }
+
     LaunchedEffect(viewModel.getState().idEventCodeSearched) {
         viewModel.getState().idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
@@ -104,6 +107,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
         try {
             getLocationOrRequestPermission()
         }catch (e: Exception){
+            Log.e("Position", e.toString())
 
         }
         viewModel.action.onSearchEvent("%")
@@ -134,7 +138,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-                var searchQuery by remember { mutableStateOf("") }
+
 
                 Row(
                     modifier = Modifier

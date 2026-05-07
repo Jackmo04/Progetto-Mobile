@@ -22,6 +22,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -39,9 +40,9 @@ fun LoginScreen(
     navController: NavHostController,
     viewModel: LoginScreenViewModel = koinViewModel()
 ) {
-    var username by remember { mutableStateOf(viewModel.getState().username) }
-    var password by remember { mutableStateOf("") }
-    var passwordConfirm by remember { mutableStateOf("") }
+    var username by rememberSaveable { mutableStateOf(viewModel.getState().username) }
+    var password by rememberSaveable { mutableStateOf("") }
+    var passwordConfirm by rememberSaveable { mutableStateOf("") }
     val isSignUp = viewModel.getState().isSignUp
     val isUpdatePassword = viewModel.getState().isUpdatePassword
 
