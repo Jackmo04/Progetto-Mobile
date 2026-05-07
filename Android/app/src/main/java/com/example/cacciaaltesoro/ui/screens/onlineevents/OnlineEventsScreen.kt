@@ -106,6 +106,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
         }catch (e: Exception){
 
         }
+        viewModel.action.onSearchEvent("%")
 
     }
     LaunchedEffect(coordinates) {

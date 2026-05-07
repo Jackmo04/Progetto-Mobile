@@ -54,4 +54,7 @@
     <string name="error_no_position_permission">Necessario permesso posizione per trovare i posti vicini!</string>
     <string name="edit_event">Modifica evento</string>
     <string name="save_changes">Salva modifiche</string>
+    <string name="new_password">Nuova Password</string>
+    <string name="change_password">Cambia Password</string>
+    <string name="update_password_title">Aggiorna Password</string>
 </resources>

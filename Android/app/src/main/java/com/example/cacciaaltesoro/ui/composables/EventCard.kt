@@ -1,5 +1,7 @@
 package com.example.cacciaaltesoro.ui.composables
 
+import android.util.Log
+import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
@@ -8,30 +10,50 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.navigation.NavController
+import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cacciaaltesoro.BuildConfig
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 
 @Composable
 fun EventCard(
-    event: EventDTO
+    event: EventDTO,
+    viewModel: EventDetailsViewModel,
+    navController: NavHostController
 ) {
-    val mapImageUrl = "https://maps.googleapis.com/maps/api/staticmap?" +
-            "center=${event.lat},${event.lon}" +
-            "&zoom=15" +
-            "&size=600x300" +
-            "&markers=color:red%7C${event.lat},${event.lon}" +
-            "&key=${BuildConfig.MAPS_KEY}"
+
+    viewModel.action.saveIdUser()
+    val isMineEvent : Boolean = viewModel.getState().userId == event.organizerUUID
+
+    Log.i("CardEvent", viewModel.getState().userId +" pippo "+ event.organizerUUID)
+    val ctx = LocalContext.current
+
+    val imSubscribe = viewModel.getState().imSubscribe
+    var showDeleteDialog by remember { mutableStateOf(false) }
+
+
+
+    val mapImageUrl = getImageUrl(event)
+
+    val backgroundColor = if (isMineEvent) Color(0xBFB3E2EE) else Color(0xFFFEF7FF)
 
     OutlinedCard(
         modifier = Modifier
@@ -39,10 +61,10 @@ fun EventCard(
             .wrapContentHeight(),
         shape = RoundedCornerShape(12.dp),
         colors = CardDefaults.outlinedCardColors(
-            containerColor = Color(0xFFFEF7FF)
+            containerColor = backgroundColor
         ),
         border = CardDefaults.outlinedCardBorder().copy(
-            brush = androidx.compose.ui.graphics.SolidColor(Color(0xFFCAC4D0)) // M3/sys/light/outline-variant
+            brush = SolidColor(Color(0xFFCAC4D0)) // M3/sys/light/outline-variant
         )
     ) {
         Column(
@@ -58,7 +80,7 @@ fun EventCard(
                     modifier = Modifier
                         .size(40.dp)
                         .clip(CircleShape)
-                        .background(Color(0xFFEADDFF)), // M3/sys/light/primary-container
+                        .background(backgroundColor), // M3/sys/light/primary-container
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -142,19 +164,90 @@ fun EventCard(
                     )
                 }
 
+                if (!isMineEvent){
+                    if(!imSubscribe){
+
                 Button(
-                    onClick = {  },
+                    onClick = { viewModel.action.joinToEvent() },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
                     Text("Iscriviti")
-                }
+                }}
+                    else{
+                        Button(
+                            onClick = { viewModel.action.unscribeFromEvent() },
+                            modifier = Modifier.padding(end = 8.dp)
+                        ) {
+                            Text("Disiscriviti")
+                        }
+                    }
 
                 Button(
                     onClick = {  }
                 ) {
                     Text("Avvia gioco")
+                }}
+                else{
+                    Button(
+                        onClick = {showDeleteDialog = true  },
+                        modifier = Modifier.padding(end = 8.dp),
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xC8B24843))
+                    ) {
+                        Text("Cancella")
+                    }
+                    if (showDeleteDialog) {
+                        AlertDialog(
+                            onDismissRequest = {
+                                showDeleteDialog = false
+                            },
+                            title = {
+                                Text(text = "Conferma eliminazione")
+                            },
+                            text = {
+                                Text(text = "Sei sicuro di voler cancellare questo evento? Questa azione non può essere annullata.")
+                            },
+                            confirmButton = {
+                                TextButton(
+                                    onClick = {
+                                        viewModel.action.deleteEvent()
+                                        showDeleteDialog = false
+                                        navController.navigateUp()
+
+                                    }
+                                ) {
+                                    Text("OK", color = Color(0xC8B24843))
+                                }
+                            },
+                            dismissButton = {
+                                TextButton(
+                                    onClick = {
+                                        showDeleteDialog = false
+                                    }
+                                ) {
+                                    Text("Annulla")
+                                }
+                            }
+                        )
+                    }
+                    Button(
+                        onClick = {  },
+                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xC8B24843))
+                    ) {
+                        Text("Modifica")
+                    }
                 }
             }
         }
     }
+
+
+}
+
+fun getImageUrl(event: EventDTO) : String{
+   return "https://maps.googleapis.com/maps/api/staticmap?" +
+            "center=${event.lat},${event.lon}" +
+            "&zoom=15" +
+            "&size=600x300" +
+            "&markers=color:red%7C${event.lat},${event.lon}" +
+            "&key=${BuildConfig.MAPS_KEY}"
 }
