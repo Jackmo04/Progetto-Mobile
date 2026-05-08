@@ -160,8 +160,8 @@ fun EventCard(
                 IconButton(onClick = { /* Handle more action */ }) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "More options",
-                        tint = Color(0xFF49454F)
+                        contentDescription = "Share Event",
+                        tint = MaterialTheme.colorScheme.primary
                     )
                 }
 
@@ -172,7 +172,7 @@ fun EventCard(
                     onClick = { viewModel.action.joinToEvent() },
                     modifier = Modifier.padding(end = 8.dp)
                 ) {
-                    Text("Iscriviti")
+                    Text("Inscriviti")
                 }}
                     else{
                         Button(
