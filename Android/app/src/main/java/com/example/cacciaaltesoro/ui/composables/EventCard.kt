@@ -31,6 +31,7 @@ import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cacciaaltesoro.BuildConfig
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 
 @Composable
@@ -230,7 +231,7 @@ fun EventCard(
                         )
                     }
                     Button(
-                        onClick = {  },
+                        onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) },
                         colors = ButtonDefaults.buttonColors(containerColor = Color(0xC8B24843))
                     ) {
                         Text("Modifica")
