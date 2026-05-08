@@ -47,6 +47,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
 
 
     val ctx = LocalContext.current
+    val uuid = viewModel.getState().uuid
 
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
@@ -146,7 +147,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
                         items(viewModel.getState().listEvent) { event ->
-                            EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
+                            EventListCard(event, event.organizerUUID == uuid) {
                                 navController.navigate(NavigationRoute.EventDetails(event.id))
                             }
                     }

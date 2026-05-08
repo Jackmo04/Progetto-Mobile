@@ -63,6 +63,7 @@ class SavedEventsViewModel(
         onSearchEvent = {
             viewModelScope.launch {
                 isLoading = true
+                _state = _state.copy(uuid = loginRepositoryImpl.userId.first())
                 try {
                     _state = _state.copy(listEvent = repository.getAllMyEvents(loginRepositoryImpl.userId.first()))
 
