@@ -67,6 +67,14 @@ fun EventCard(
     val imSubscribe = viewModel.getState().imSubscribe
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
+    var addressText by remember { mutableStateOf("Caricamento indirizzo...") }
+
+    LaunchedEffect(event.lat, event.lon) {
+        val address = withContext(Dispatchers.IO) {
+            getAddressFromCoords(event.lat, event.lon)
+        }
+        addressText = address
+    }
 
 
     val mapImageUrl = getImageUrl(event)
@@ -181,14 +189,14 @@ fun EventCard(
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
                 )
-/*
+
                 Text(
-                    text = getAddressFromCoords(event.lat,event.lon)?: "No address.",
+                    text = addressText,
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
                     overflow = TextOverflow.Ellipsis
-                )*/
+                )
 
 
             }
