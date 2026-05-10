@@ -4,6 +4,7 @@ package com.example.cacciaaltesoro.ui.screens.eventeditor
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -97,6 +98,8 @@ fun EventEditorScreen(
     var showMapDialog by remember { mutableStateOf(false) }
 
     val snackbarHostState = remember { SnackbarHostState() }
+
+
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
