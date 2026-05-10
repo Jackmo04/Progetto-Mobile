@@ -83,7 +83,7 @@ fun EventCard(
     fun shareDetails() {
         coroutineScope.launch(Dispatchers.IO) {
             try {
-                val textToShare = shareTextBuilder(event)
+                val textToShare = shareTextBuilder(event ,addressText)
                 withContext(Dispatchers.Main) {
                     val sendIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
@@ -309,25 +309,29 @@ fun getImageUrl(event: EventDTO) : String{
 }
 
 @OptIn(ExperimentalTime::class)
-fun shareTextBuilder(event :EventDTO) :String{
-    val incipit = "Sei stato invitato a partecipare alla nuova caccia!"
-    val nameEvent = "Nome:" + event.name
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm")
+fun shareTextBuilder(event: EventDTO, resolvedAddress: String): String {
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", java.util.Locale.ITALY)
     val dateTime = java.time.Instant.ofEpochSecond(event.startTime.epochSeconds)
         .atZone(ZoneId.systemDefault())
         .format(formatter)
-    val date = "Il:$dateTime"
-    val location = "Inizia in :" + getAddressFromCoords(event.lat ,event.lon) + "https://maps.google.com/?q=${event.lat},${event.lon}"
-    val sfida = "Riuscirai a trovare tutti i Tag?"
-    val link = "Per partecipare usa il codice ( " + event.code + " ) nell'app!"
+
     return """
-        $incipit
-        $nameEvent
-        $date
-        $location
-        $sfida
-        $link
+        *📍 NUOVA CACCIA AL TESORO!*
         
+        Ciao! Sei stato invitato a partecipare a un nuovo evento. Ecco i dettagli:
+        
+        *🏆 Nome:* ${event.name}
+        *📅 Data:* $dateTime
+        *📍 Punto di ritrovo:* $resolvedAddress
+        
+        *Codice di accesso:* `${event.code}`
+        
+        ---
+        
+        *📲 Come partecipare:*
+        Scarica l'app, inserisci il codice qui sopra e preparati a trovare tutti i Tag!
+        
+        *Mappa:* https://maps.google.com/?q=${event.lat},${event.lon}
     """.trimIndent()
 }
 
