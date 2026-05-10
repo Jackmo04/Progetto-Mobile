@@ -11,6 +11,7 @@ import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
+import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
 import io.github.jan.supabase.SupabaseClient
@@ -39,5 +40,6 @@ val appModule = module {
             loginRepository = get()
         )
     }
+    viewModel { EventTagEditorViewModel() }
     viewModel { EventDetailsViewModel(get(), get()) }
 }

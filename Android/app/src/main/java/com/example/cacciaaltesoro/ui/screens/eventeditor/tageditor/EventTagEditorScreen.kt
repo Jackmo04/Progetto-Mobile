@@ -1,22 +1,22 @@
-package com.example.cacciaaltesoro.ui.screens.eventeditor
+package com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor
 
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.padding
-import androidx.compose.material3.Button
 import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
+import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
 
 @Composable
 fun EventTagEditorScreen(
     navController: NavHostController,
-    viewModel: EventEditorViewModel
+    sharedViewModel: EventEditorViewModel,
+    viewModel: EventTagEditorViewModel
 ) {
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -27,6 +27,7 @@ fun EventTagEditorScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
+
 
 //            val cameraPositionState = rememberCameraPositionState {
 //                position = CameraPosition.fromLatLngZoom(

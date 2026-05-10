@@ -10,13 +10,14 @@ import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsScreen
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
-import com.example.cacciaaltesoro.ui.screens.eventeditor.EventTagEditorScreen
+import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorScreen
 import com.example.cacciaaltesoro.ui.screens.game.GameScreen
 import com.example.cacciaaltesoro.ui.screens.home.HomeScreen
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreen
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorScreen
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
+import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
@@ -89,8 +90,9 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry<NavigationRoute.EventEditor>()
             }
-            val viewModel: EventEditorViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
-            EventTagEditorScreen(navController, viewModel)
+            val sharedViewModel: EventEditorViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
+            val viewModel = koinViewModel<EventTagEditorViewModel>()
+            EventTagEditorScreen(navController, sharedViewModel, viewModel)
         }
     }
 }
