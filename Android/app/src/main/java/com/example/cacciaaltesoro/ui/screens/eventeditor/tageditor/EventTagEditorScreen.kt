@@ -1,9 +1,9 @@
 package com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.BottomSheetScaffold
@@ -22,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -65,10 +63,12 @@ fun EventTagEditorScreen(
     startingLat: Double,
     startingLon: Double
 ) {
-
     val eventState by sharedViewModel.eventState.collectAsStateWithLifecycle()
+    val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
-    val uiState by viewModel.uiState.collectAsStateWithLifecycle()
+    BackHandler(enabled = screenState !is TagScreenState.ViewingList) {
+        viewModel.returnToViewingList()
+    }
 
     val sheetState = rememberStandardBottomSheetState(
         initialValue = SheetValue.PartiallyExpanded
@@ -88,7 +88,7 @@ fun EventTagEditorScreen(
         topBar = { AppBar(stringResource(R.string.new_event), navController) },
         sheetPeekHeight = 120.dp,
         sheetContent = {
-            Crossfade(targetState = uiState, label = "sheet_content") { state ->
+            Crossfade(targetState = screenState, label = "sheet_content") { state ->
                 when (state) {
                     is TagScreenState.ViewingList -> {
                         TagListContent(
@@ -105,10 +105,6 @@ fun EventTagEditorScreen(
                             }
                         )
                     }
-//                    is TagScreenState.AddingDetails -> {
-//                        // TODO
-//                        Text("AddingDetails")
-//                    }
                     is TagScreenState.Editing -> {
                         // TODO
                         Text("Editing")
