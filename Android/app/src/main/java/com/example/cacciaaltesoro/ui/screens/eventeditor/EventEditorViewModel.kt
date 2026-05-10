@@ -79,7 +79,9 @@ data class EventActions(
     val onDescriptionChange: (String) -> Unit,
     val onVisibilityChange: (Visibility) -> Unit,
     val onSaveEvent: () -> Unit,
-    val onCancelCreation: () -> Unit
+    val onCancelCreation: () -> Unit,
+    val onEditTagsClick: () -> Boolean,
+    val onNewTagPositionSelected: (Coordinates) -> Unit
 )
 
 class EventEditorViewModel(
@@ -228,6 +230,22 @@ class EventEditorViewModel(
         onCancelCreation = {
             // TODO add functionality to remove tags if needed
             _eventState.update { EventState() }
+        },
+        onEditTagsClick = {
+            if (eventState.value.location == null) {
+                viewModelScope.launch { _uiEvent.send("Prima seleziona un punto di ritrovo!") }
+            }
+            eventState.value.location != null
+        },
+        onNewTagPositionSelected = { coordinates ->
+            _eventState.update {
+                it.copy(tags = it.tags + Tag(
+                    id = UUID.randomUUID().toString(),
+                    number = it.tags.size + 1,
+                    coordinates = coordinates,
+                    eventId = eventId
+                ))
+            }
         }
     )
 

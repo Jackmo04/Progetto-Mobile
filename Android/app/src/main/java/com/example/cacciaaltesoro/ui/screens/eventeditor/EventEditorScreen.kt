@@ -226,10 +226,22 @@ fun EventEditorScreen(
                 verticalAlignment = Alignment.CenterVertically,
                 modifier = Modifier.fillMaxWidth()
             ) {
-                Text("Numero tag: 0", style = MaterialTheme.typography.titleMedium)
+                Text(
+                    "${stringResource(R.string.tag_number)}: ${eventState.tags.size}",
+                    style = MaterialTheme.typography.titleMedium
+                )
 
                 FilledTonalButton(
-                    onClick = { navController.navigate(NavigationRoute.EventTagEditor) }
+                    onClick = {
+                        if (viewModel.actions.onEditTagsClick()) {
+                            eventState.location?.let {
+                                navController.navigate(NavigationRoute.EventTagEditor(
+                                    it.latitude,
+                                    it.longitude
+                                ))
+                            }
+                        }
+                    }
                 ) {
                     Icon(Icons.Default.PinDrop, contentDescription = null)
                     Text(stringResource(R.string.manage_tags))

@@ -8,7 +8,7 @@ import com.google.android.gms.maps.model.LatLng
 
 fun Tag.toDto(): TagDTO {
     return TagDTO(
-        id = id ?: throw IllegalArgumentException("Missing tag UUID"),
+        id = id,
         number = number,
         eventId = eventId ?: throw IllegalArgumentException("Missing event id from tag"),
         lat = coordinates.latitude,

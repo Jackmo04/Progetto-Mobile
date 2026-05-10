@@ -57,4 +57,5 @@
     <string name="new_password">Nuova Password</string>
     <string name="change_password">Cambia Password</string>
     <string name="update_password_title">Aggiorna Password</string>
+    <string name="tag_number">Numero di Tag</string>
 </resources>

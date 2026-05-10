@@ -8,6 +8,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
+import com.example.cacciaaltesoro.data.Coordinates
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsScreen
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorScreen
@@ -34,7 +35,7 @@ sealed interface NavigationRoute {
     @Serializable data object SavedEvents : NavigationRoute
     @Serializable data object Login : NavigationRoute
     @Serializable data class EventEditor(val eventId: Int? = null) : NavigationRoute
-    @Serializable data object EventTagEditor : NavigationRoute
+    @Serializable data class EventTagEditor(val lat: Double, val lon: Double) : NavigationRoute
 }
 
 @Composable
@@ -90,9 +91,16 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
             val parentEntry = remember(backStackEntry) {
                 navController.getBackStackEntry<NavigationRoute.EventEditor>()
             }
+            val route = backStackEntry.toRoute<NavigationRoute.EventTagEditor>()
             val sharedViewModel: EventEditorViewModel = koinViewModel(viewModelStoreOwner = parentEntry)
             val viewModel = koinViewModel<EventTagEditorViewModel>()
-            EventTagEditorScreen(navController, sharedViewModel, viewModel)
+            EventTagEditorScreen(
+                navController,
+                sharedViewModel,
+                viewModel,
+                route.lat,
+                route.lon
+            )
         }
     }
 }
