@@ -21,7 +21,8 @@ data class EventDetailsEventState(
     val idEvent: Int = 0,
     val event: EventDTO? = null,
     val userId: String? = null,
-    val imSubscribe: Boolean = false
+    val imSubscribe: Boolean = false,
+    val isLoadingSubscription: Boolean = true
 )
 
 data class EventDetailsEventAction(
@@ -60,36 +61,42 @@ class EventDetailsViewModel(
         saveIdUser = {
             viewModelScope.launch {
                 loginRepositoryImpl.userId.collect { userId ->
-                    _state.update {
-                        it.copy(userId = userId)
-                    }
+                    _state.update { it.copy(userId = userId, isLoadingSubscription = true) }
                     try {
                         val myEvents = repository.getAllMyEvents(userId!!)
                         val isSubscribed = myEvents.any { it.id == _state.value.idEvent }
                         _state.update {
-                            it.copy(imSubscribe = isSubscribed)
+                            it.copy(
+                                imSubscribe = isSubscribed,
+                                isLoadingSubscription = false
+                            )
                         }
                     } catch (e: Exception) {
                         Log.e("EventDetailsViewModel", "Error checking subscription: ${e.message}")
+                        _state.update { it.copy(isLoadingSubscription = false) }
                     }
                 }
-
             }
         },
         joinToEvent = {
             viewModelScope.launch {
-
-                repository.joinToEvent(_state.value.idEvent, _state.value.userId!!)
-                _state.update {
-                    it.copy(imSubscribe = true)
+                _state.update { it.copy(isLoadingSubscription = true) } // Inizio azione
+                try {
+                    repository.joinToEvent(_state.value.idEvent, _state.value.userId!!)
+                    _state.update { it.copy(imSubscribe = true) }
+                } finally {
+                    _state.update { it.copy(isLoadingSubscription = false) } // Fine azione
                 }
             }
         },
         unscribeFromEvent = {
             viewModelScope.launch {
-                repository.unscribeFromEvent(_state.value.idEvent, _state.value.userId!!)
-                _state.update {
-                    it.copy(imSubscribe = false)
+                _state.update { it.copy(isLoadingSubscription = true) } // Inizio azione
+                try {
+                    repository.unscribeFromEvent(_state.value.idEvent, _state.value.userId!!)
+                    _state.update { it.copy(imSubscribe = false) }
+                } finally {
+                    _state.update { it.copy(isLoadingSubscription = false) } // Fine azione
                 }
             }
         },

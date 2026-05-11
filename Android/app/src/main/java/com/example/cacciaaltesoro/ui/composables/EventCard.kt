@@ -68,7 +68,6 @@ fun EventCard(
     Log.i("CardEvent", state.userId + " Organizzatore: " + event.organizerUUID)
     val ctx = LocalContext.current
 
-    val imSubscribe = state.imSubscribe
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var addressText by remember { mutableStateOf("Caricamento indirizzo...") }
@@ -166,7 +165,7 @@ fun EventCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(188.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant), // Placeholder background color
+                    .background(MaterialTheme.colorScheme.surfaceVariant),
                 contentScale = ContentScale.Crop
             )
             Column(
@@ -221,22 +220,31 @@ fun EventCard(
                 }
 
                 if (!isMineEvent) {
-                    if (!imSubscribe) {
 
                         Button(
-                            onClick = { viewModel.action.joinToEvent() },
-                            modifier = Modifier.padding(end = 8.dp)
+                            onClick = {
+                                if (!state.imSubscribe){
+                                    viewModel.action.joinToEvent()
+                                }
+                                else{
+                                    viewModel.action.unscribeFromEvent()
+                                }
+                            },
+                            enabled = !state.isLoadingSubscription,
+                            modifier = Modifier
+                                .padding(end = 8.dp)
+                                .width(130.dp)
                         ) {
-                            Text("Inscriviti")
+                            if (state.isLoadingSubscription) {
+                                CircularProgressIndicator(
+                                    modifier = Modifier.size(20.dp),
+                                    color = MaterialTheme.colorScheme.onPrimary,
+                                    strokeWidth = 2.dp
+                                )
+                            } else {
+                                Text(if (!state.imSubscribe) "Inscriviti" else "Disiscriviti")
+                            }
                         }
-                    } else {
-                        Button(
-                            onClick = { viewModel.action.unscribeFromEvent() },
-                            modifier = Modifier.padding(end = 8.dp)
-                        ) {
-                            Text("Disiscriviti")
-                        }
-                    }
 
                     Button(
                         onClick = { }
