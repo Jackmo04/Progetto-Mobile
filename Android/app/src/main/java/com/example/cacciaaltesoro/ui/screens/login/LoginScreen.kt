@@ -79,9 +79,18 @@ fun LoginScreen(
 
     val (_, takePicture) = rememberCameraLauncher (
         onPictureTaken = { imageUri ->
-            viewModel.action.uploadImage(imageUri, contentResolver)
+
+            val inputStream = contentResolver.openInputStream(imageUri)
+
+            val bytes = inputStream?.readBytes()
+            inputStream?.close()
+
+            bytes?.let {
+                viewModel.action.uploadImage(imageUri, it)
+            }
         }
     )
+
 
     Scaffold(
         topBar = {

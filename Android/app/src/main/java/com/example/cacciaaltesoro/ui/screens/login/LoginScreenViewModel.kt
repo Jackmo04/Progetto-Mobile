@@ -39,7 +39,7 @@ data class LoginAction(
     val toggleUpdatePassword: (Boolean) -> Unit,
     val setImageUri: (Uri?) -> Unit,
     val getImageFromCloud:() -> Unit,
-    val uploadImage: (Uri, android.content.ContentResolver) -> Unit,
+    val uploadImage: (Uri, ByteArray) -> Unit,
 
     val setShowLocationDisabledAlert: (Boolean) -> Unit,
     val setShowPermissionDeniedAlert: (Boolean) -> Unit,
@@ -61,33 +61,7 @@ class LoginScreenViewModel(
     var successMessage by mutableStateOf<String?>(null)
         private set
 
-    init {
-        viewModelScope.launch {
-            combine(
-                repository.isLogin,
-                repository.username,
-                repository.userId,
-                repository.isSignUp,
-                repository.isPasswordUpdateRequested
-            ) { isLogin, username, userId, isSignUp, isRequested ->
 
-                _state.value.copy(
-                    isLogin = isLogin,
-                    username = username,
-                    userId = userId,
-                    isSignUp = isSignUp,
-                    isUpdatePassword = isRequested,
-                    isInitializing = false
-                )
-            }.collect { newState ->
-                _state.value = newState
-
-                if (newState.isLogin && newState.userId.isNotEmpty() && newState.imageUri == null) {
-                    action.getImageFromCloud()
-                }
-            }
-        }
-    }
 
     val action = LoginAction(
         onLogIn = { username, password ->
@@ -206,24 +180,20 @@ class LoginScreenViewModel(
             }
         },
 
-        uploadImage = { uri, contentResolver ->
+        uploadImage = { uri, imageBytes ->
             viewModelScope.launch {
                 enableLoading()
                 try {
                     val uid = _state.value.userId
                     if (uid.isNotEmpty()) {
-                        val inputStream = contentResolver.openInputStream(uri)
-                        val bytes = inputStream?.readBytes()
-                        inputStream?.close()
+                        val fileName = "profile_${uid}.jpg"
 
-                        if (bytes != null) {
-                            val fileName = "profile_${uid}.jpg"
+                        // Chiama il DB
+                        repository.uploadProfileImage(uid, imageBytes, fileName)
 
-                            repository.uploadProfileImage(uid, bytes, fileName)
-
-                            _state.update { it.copy(imageUri = uri) }
-                            successMessage = "Immagine del profilo aggiornata!"
-                        }
+                        // Aggiorna la UI
+                        _state.update { it.copy(imageUri = uri) }
+                        successMessage = "Immagine del profilo aggiornata!"
                     }
                 } catch (e: Exception) {
                     errorMessage = "Errore durante il caricamento della foto"
@@ -242,6 +212,33 @@ class LoginScreenViewModel(
         setShowNoConnectivitySnackbar={ show ->
             _state.update { it.copy(showNoConnectivitySnackbar = show) } },
     )
+
+    init {
+        viewModelScope.launch {
+            combine(
+                repository.isLogin,
+                repository.username,
+                repository.userId,
+                repository.isSignUp,
+                repository.isPasswordUpdateRequested
+            ) { isLogin, username, userId, isSignUp, isRequested ->
+                _state.value.copy(
+                    isLogin = isLogin,
+                    username = username,
+                    userId = userId,
+                    isSignUp = isSignUp,
+                    isUpdatePassword = isRequested,
+                    isInitializing = false
+                )
+            }.collect { newState ->
+                _state.value = newState
+
+                if (newState.isLogin && newState.userId.isNotEmpty() && newState.imageUri == null) {
+                    action.getImageFromCloud()
+                }
+            }
+        }
+    }
 
     fun disableLoading(){
             _state.update { it.copy(isLoading = false) }
