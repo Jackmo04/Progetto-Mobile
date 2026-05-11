@@ -1,15 +1,20 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
+import androidx.compose.animation.animateContentSize
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.aspectRatio
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PhotoCamera
@@ -31,12 +36,15 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.ImageWithPlaceholder
@@ -178,7 +186,10 @@ fun LoginScreen(
 
 
             Box(
-                modifier = Modifier.fillMaxWidth().requiredSize(200.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .heightIn(min = 200.dp)
+                    .animateContentSize(),
                 contentAlignment = Alignment.TopCenter
             ) {
                 if (state.isLoading) {
@@ -229,10 +240,19 @@ fun LoginScreen(
                                     modifier = Modifier.size(ButtonDefaults.IconSize)
                                 )
                                 Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                Text("Take a picture")
+                                Text("Cambia Immagine")
                             }
                             Spacer(Modifier.size(8.dp))
-                            ImageWithPlaceholder(state.imageUri, Size.Lg)
+                            AsyncImage(
+                                model = state.imageUri,
+                                contentDescription = "Foto del profilo",
+                                modifier = Modifier
+                                    .size(140.dp) // 1. Imposta la dimensione base
+                                    .aspectRatio(1f) // 2. FORZA la forma a essere un quadrato perfetto (1:1)
+                                    .clip(CircleShape) // 3. Taglia il quadrato trasformandolo in un cerchio
+                                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                                contentScale = ContentScale.Crop // 4. Riempi il cerchio senza schiacciare la foto
+                            )
                         }
                         }
                     }
