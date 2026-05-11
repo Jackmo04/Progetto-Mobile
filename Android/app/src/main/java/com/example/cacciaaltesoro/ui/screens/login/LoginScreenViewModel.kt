@@ -190,6 +190,7 @@ class LoginScreenViewModel(
             _state.update { it.copy(imageUri = imageUri) } },
         getImageFromCloud = {
 
+
         },
 
         setShowLocationDisabledAlert ={ show ->

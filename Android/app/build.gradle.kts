@@ -80,6 +80,7 @@ dependencies {
     implementation(libs.postgrest.kt)
     implementation(libs.ktor.client.android)
     implementation(libs.slf4j.simple)
+    implementation(libs.storage.kt)
 
     //Test
     testImplementation(libs.kotlinx.coroutines.test)

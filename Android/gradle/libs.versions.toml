@@ -27,6 +27,7 @@ playServicesLocation = "21.3.0"
 playServicesMaps = "20.0.0"
 robolectric = "4.11.1"
 slf4jSimple = "2.0.12"
+storageKt = "3.0.0-rc-1"
 
 [libraries]
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
@@ -68,6 +69,7 @@ play-services-maps = { module = "com.google.android.gms:play-services-maps", ver
 postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt" }
 robolectric = { module = "org.robolectric:robolectric", version.ref = "robolectric" }
 slf4j-simple = { module = "org.slf4j:slf4j-simple", version.ref = "slf4jSimple" }
+storage-kt = { module = "io.github.jan-tennert.supabase:storage-kt", version.ref = "storageKt" }
 supabase-postgrest-kt = { module = "io.github.jan-tennert.supabase:postgrest-kt", version.ref = "bom" }
 
 [plugins]

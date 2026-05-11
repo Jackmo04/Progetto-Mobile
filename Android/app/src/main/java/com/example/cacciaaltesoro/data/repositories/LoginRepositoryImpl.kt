@@ -13,7 +13,8 @@ import io.github.jan.supabase.auth.user.UserInfo
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
-
+import kotlin.time.Duration.Companion.minutes
+import io.github.jan.supabase.storage.storage
 interface LoginRepository {
     suspend fun setUsername(username: String) : Preferences
     suspend fun setUserId(userId: String) : Preferences
@@ -23,6 +24,8 @@ interface LoginRepository {
     suspend fun onLogIn(username: String, password: String)
     suspend fun logOut()
     suspend fun getLoggedUser() : UserInfo?
+
+    suspend fun getImageFromBucket(name: String): String?
 }
 class LoginRepositoryImpl (
     private val dataStore: DataStore<Preferences>,
@@ -136,5 +139,15 @@ class LoginRepositoryImpl (
 
     fun setPasswordUpdateRequested(value: Boolean) {
         _isPasswordUpdateRequested.value = value
+    }
+
+    override suspend fun getImageFromBucket(name: String): String? {
+        return try {
+            supabase.storage.from("Upload")
+                .createSignedUrl(path = name, expiresIn = 60.minutes)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            null
+        }
     }
 }
