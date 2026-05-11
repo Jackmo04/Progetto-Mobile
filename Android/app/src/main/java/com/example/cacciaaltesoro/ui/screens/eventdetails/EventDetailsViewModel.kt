@@ -10,7 +10,10 @@ import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.domain.User
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
@@ -34,9 +37,10 @@ class EventDetailsViewModel(
     private val loginRepositoryImpl: LoginRepositoryImpl
 ) : ViewModel() {
 
-    private var _state by mutableStateOf(EventDetailsEventState(
-    ))
-    fun getState() = _state
+    private var _state = MutableStateFlow(EventDetailsEventState())
+
+    val state = _state.asStateFlow()
+    fun getState() = state.value
 
     init {
 
@@ -48,10 +52,12 @@ class EventDetailsViewModel(
         findEventByID = { id ->
             viewModelScope.launch {
                 try {
-                    _state = _state.copy(
-                        idEvent = id,
-                        event = repository.getEvent(id)
-                    )
+                    _state.update {
+                        it.copy(
+                            idEvent = id,
+                            event = repository.getEvent(id)
+                        )
+                    }
                 } catch (e: Exception){
                     Log.e("EventDetailsViewModel", "Errore nel caricamento evento", e)
                 }
@@ -60,11 +66,15 @@ class EventDetailsViewModel(
         saveIdUser = {
             viewModelScope.launch {
                 loginRepositoryImpl.userId.collect { userId ->
-                    _state = _state.copy(userId = userId)
+                    _state.update {
+                        it.copy(userId = userId)
+                    }
                     try {
                         val myEvents = repository.getAllMyEvents(userId!!)
-                        val isSubscribed = myEvents.any { it.id == _state.idEvent }
-                        _state = _state.copy(imSubscribe = isSubscribed)
+                        val isSubscribed = myEvents.any { it.id == _state.value.idEvent }
+                        _state.update {
+                            it.copy(imSubscribe = isSubscribed)
+                        }
                     } catch (e: Exception) {
                         Log.e("EventDetailsViewModel", "Error checking subscription: ${e.message}")
                     }
@@ -75,19 +85,23 @@ class EventDetailsViewModel(
         joinToEvent = {
             viewModelScope.launch {
 
-                repository.joinToEvent(_state.idEvent, _state.userId!!)
-                _state = _state.copy(imSubscribe = true)
+                repository.joinToEvent(_state.value.idEvent, _state.value.userId!!)
+                _state.update {
+                    it.copy(imSubscribe = true)
+                }
             }
         },
         unscribeFromEvent = {
             viewModelScope.launch {
-                repository.unscribeFromEvent(_state.idEvent, _state.userId!!)
-                _state = _state.copy(imSubscribe = false)
+                repository.unscribeFromEvent(_state.value.idEvent, _state.value.userId!!)
+                _state.update {
+                    it.copy(imSubscribe = false)
+                }
             }
         },
         deleteEvent = {
             viewModelScope.launch {
-                repository.deleteEvent(_state.idEvent)
+                repository.deleteEvent(_state.value.idEvent)
             }
         }
     )

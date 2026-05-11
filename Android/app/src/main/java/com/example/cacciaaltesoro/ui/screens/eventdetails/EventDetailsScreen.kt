@@ -11,6 +11,8 @@ import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
@@ -26,6 +28,7 @@ import org.koin.androidx.compose.koinViewModel
 fun EventDetailsScreen(navController: NavHostController,
                        eventId: Int,
                        viewModel: EventDetailsViewModel = koinViewModel()) {
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect (eventId) {
         Log.i("CardLog" , eventId.toString())
@@ -41,7 +44,7 @@ fun EventDetailsScreen(navController: NavHostController,
                 .fillMaxSize()
                 .border(2.dp, Color(0x1AFFFFFF), RoundedCornerShape(2.dp))
         ) {
-            if (viewModel.getState().event != null) {
+            if (state.event != null) {
                 Column(
                     modifier = Modifier
                         .fillMaxSize()

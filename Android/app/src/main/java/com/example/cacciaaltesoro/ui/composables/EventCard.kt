@@ -58,10 +58,12 @@ fun EventCard(
     navController: NavHostController
 ) {
 
-    viewModel.action.saveIdUser()
-    val isMineEvent : Boolean = viewModel.getState().userId == event.organizerUUID
+    LaunchedEffect(Unit) {
+        viewModel.action.saveIdUser()
+    }
 
-    Log.i("CardEvent", viewModel.getState().userId +" pippo "+ event.organizerUUID)
+    val isMineEvent: Boolean = viewModel.getState().userId == event.organizerUUID
+    Log.i("CardEvent", viewModel.getState().userId + " Organizzatore: " + event.organizerUUID)
     val ctx = LocalContext.current
 
     val imSubscribe = viewModel.getState().imSubscribe
