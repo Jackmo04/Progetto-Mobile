@@ -74,6 +74,16 @@ fun LoginScreen(
         }
     ) { contentPadding ->
 
+        if (state.isInitializing) {
+            Box(
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .fillMaxSize(),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -147,16 +157,16 @@ fun LoginScreen(
                 modifier = Modifier.fillMaxWidth().requiredSize(200.dp),
                 contentAlignment = Alignment.TopCenter
             ) {
-                if (state.isLoading) { // <-- CORRETTO DA isLogin A isLoading!
+                if (state.isLoading) {
                     CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
                 } else {
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (isUpdatePassword) {
-                            MyButton("Aggiorna Password", onClick = {
+                            MyButton(stringResource(R.string.update_password_title), onClick = {
                                 viewModel.action.changePassword(username, password, passwordConfirm)
                             })
                             Spacer(modifier = Modifier.size(8.dp))
-                            MyButton("Annulla", onClick = { viewModel.action.toggleUpdatePassword(false) })
+                            MyButton(stringResource(R.string.cancel), onClick = { viewModel.action.toggleUpdatePassword(false) })
 
                         } else if (!isSignUp && !state.isLogin) {
                             MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
@@ -188,7 +198,10 @@ fun LoginScreen(
                     }
                 }
             }
-        }}}
+    }
+        }
+    }
+}
 
 @Composable
 fun MyButton(label: String, onClick: () -> Unit) {

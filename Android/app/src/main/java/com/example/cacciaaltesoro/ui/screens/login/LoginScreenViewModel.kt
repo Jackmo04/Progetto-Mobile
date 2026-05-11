@@ -8,6 +8,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
@@ -17,7 +18,8 @@ data class LoginState(
     val isLogin: Boolean = false,
     val isSignUp: Boolean = false,
     val isUpdatePassword: Boolean = false,
-    val isLoading: Boolean = false
+    val isLoading: Boolean = false,
+    val isInitializing: Boolean = true
 )
 
 data class LoginAction(
@@ -50,42 +52,26 @@ class LoginScreenViewModel(
 
     init {
         viewModelScope.launch {
-            repository.isLogin.collect { isLogin ->
-                _state.update {
-                    it.copy(isLogin = isLogin)
-                }
-            }
-        }
-        viewModelScope.launch {
-            repository.username.collect { username ->
-                _state.update {
-                    it.copy(username = username)
-                }
-            }
-        }
-        viewModelScope.launch {
-            repository.userId.collect { userId ->
-                _state.update {
-                    it.copy(userId = userId)
-                }
-            }
-        }
+            combine(
+                repository.isLogin,
+                repository.username,
+                repository.userId,
+                repository.isSignUp,
+                repository.isPasswordUpdateRequested
+            ) { isLogin, username, userId, isSignUp, isRequested ->
 
-        viewModelScope.launch {
-            repository.isSignUp.collect { isSignUp ->
-                _state.update {
-                    it.copy(isSignUp = isSignUp)
-                }
+                _state.value.copy(
+                    isLogin = isLogin,
+                    username = username,
+                    userId = userId,
+                    isSignUp = isSignUp,
+                    isUpdatePassword = isRequested,
+                    isInitializing = false
+                )
+            }.collect { newState ->
+                _state.value = newState
             }
         }
-        viewModelScope.launch {
-            repository.isPasswordUpdateRequested.collect { isRequested ->
-                _state.update {
-                    it.copy(isUpdatePassword = isRequested) // Usa il valore esatto!
-                }
-            }
-        }
-
     }
 
     val action = LoginAction(
