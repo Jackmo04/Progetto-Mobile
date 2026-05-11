@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -43,9 +44,6 @@ class OnlineEventViewModel(
     var errorMessage by mutableStateOf<String?>(null)
         private set
 
-    var successMessage by mutableStateOf<String?>(null)
-        private set
-
     var isLoading by mutableStateOf(false)
         private set
 
@@ -75,6 +73,7 @@ class OnlineEventViewModel(
                         it.copy(listEvent = repository.getAllEvents(query))
                     }
                 } catch (e: Exception) {
+                    Log.e("OnlineEvent" , e.toString())
                     errorMessage = "Errore durante la ricerca"
                 } finally {
                     isLoading = false
@@ -91,6 +90,7 @@ class OnlineEventViewModel(
                         )
                     }
                 } catch (e: Exception) {
+                    Log.e("OnlineEvent" , e.toString())
                     errorMessage = "Errore durante la ricerca"
                 } finally {
                     isLoading = false
@@ -114,6 +114,7 @@ class OnlineEventViewModel(
                     it.copy(listEvent = repository.getOrderedEvent(selected , currentLocation))
                 }
             } catch (e: Exception) {
+                Log.e("OnlineEvent" , e.toString())
                 errorMessage = "Errore durante la ricerca"
             } finally {
                 isLoading = false

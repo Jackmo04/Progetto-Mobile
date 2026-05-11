@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -36,9 +37,8 @@ data class LoginAction(
     val onLogOut: () -> Unit,
     val changeSignScreen: () -> Unit,
     val callResetPasswordEmail:(String) -> Unit,
-    val changePassword: (String, String, String) -> Unit,
+    val changePassword: (String, String) -> Unit,
     val toggleUpdatePassword: (Boolean) -> Unit,
-    val setImageUri: (Uri?) -> Unit,
     val getImageFromCloud:() -> Unit,
     val uploadImage: (Uri, ByteArray) -> Unit,
 
@@ -75,6 +75,7 @@ class LoginScreenViewModel(
                     repository.onLogIn(username, password)
                     successMessage = "Login eseguito con successo"
                 } catch (e: Exception) {
+                    Log.e("Login" , e.toString())
                     errorMessage = "Errore durante il login: Email o Password non corrette"
                 } finally {
                     disableLoading()
@@ -94,6 +95,7 @@ class LoginScreenViewModel(
                     repository.onSignOn(username, password)
                     successMessage = "Registrazione completata"
                 } catch (e: Exception) {
+                    Log.e("Login" , e.toString())
                     errorMessage = "Errore durante la registrazione"
                 } finally {
                    disableLoading()
@@ -109,6 +111,7 @@ class LoginScreenViewModel(
                     repository.logOut()
                     successMessage = "Logout effettuato"
                 } catch (e: Exception) {
+                    Log.e("Login" , e.toString())
                     errorMessage = "Errore durante il logout"
                 } finally {
                    disableLoading()
@@ -129,13 +132,14 @@ class LoginScreenViewModel(
                     repository.sendResetPasswordEmail(email)
                     successMessage = "Email di reset inviata"
                 } catch (e: Exception) {
+                    Log.e("Login" , e.toString())
                     errorMessage = "Errore nell'invio dell'email"
                 } finally {
                     disableLoading()
                 }
             }
         },
-        changePassword = { username, password, passwordConfirm ->
+        changePassword = { password, passwordConfirm ->
             viewModelScope.launch {
                 if (password != passwordConfirm) {
                     errorMessage = "Le password non coincidono"
@@ -153,6 +157,7 @@ class LoginScreenViewModel(
                         it.copy(isUpdatePassword = false)
                     }
                 } catch (e: Exception) {
+                    Log.e("Login" , e.toString())
                     errorMessage = "Errore durante il cambio password"
                 } finally {
                     disableLoading()
@@ -166,8 +171,6 @@ class LoginScreenViewModel(
                 it.copy(isUpdatePassword = isVisible)
             }
         },
-        setImageUri ={ imageUri ->
-            _state.update { it.copy(imageUri = imageUri) } },
         getImageFromCloud = {
             viewModelScope.launch {
                 val uid = _state.value.userId
@@ -196,6 +199,7 @@ class LoginScreenViewModel(
                         successMessage = "Immagine del profilo aggiornata!"
                     }
                 } catch (e: Exception) {
+                    Log.e("UploadPhoto" , e.toString())
                     errorMessage = "Errore durante il caricamento della foto"
                 } finally {
                     disableLoading()

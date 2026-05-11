@@ -39,7 +39,6 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
@@ -134,7 +133,7 @@ fun LoginScreen(
     fun checkAndRequestCameraPermission() {
         val permissionCheckResult = ContextCompat.checkSelfPermission(
             context,
-            android.Manifest.permission.CAMERA
+            Manifest.permission.CAMERA
         )
         if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
             takePicture()
@@ -242,7 +241,7 @@ fun LoginScreen(
                     Column(horizontalAlignment = Alignment.CenterHorizontally) {
                         if (isUpdatePassword) {
                             MyButton(stringResource(R.string.update_password_title), onClick = {
-                                viewModel.action.changePassword(username, password, passwordConfirm)
+                                viewModel.action.changePassword(password, passwordConfirm)
                             })
                             Spacer(modifier = Modifier.size(8.dp))
                             MyButton(stringResource(R.string.cancel), onClick = { viewModel.action.toggleUpdatePassword(false) })
