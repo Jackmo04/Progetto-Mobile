@@ -162,10 +162,7 @@ fun EventEditorScreen(
                 onClick = { showMapDialog = true }
             ) {
                 OutlinedTextField(
-                    value = eventState.location?.let {
-                        """${it.latitude}
-                       |${it.longitude}""".trimMargin()
-                    } ?: "",
+                    value = eventState.fLocation,
                     onValueChange = {},
                     readOnly = true,
                     label = { Text(stringResource(R.string.meeting_point)) },

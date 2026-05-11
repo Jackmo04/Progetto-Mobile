@@ -4,12 +4,16 @@ package com.example.cacciaaltesoro.ui.screens.eventeditor
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cacciaaltesoro.BuildConfig
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
+import com.google.maps.GeoApiContext
+import com.google.maps.GeocodingApi
+import com.google.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -48,12 +52,14 @@ data class EventState(
     val description: String = "",
     val visibility: Visibility = Visibility.PUBLIC,
     val code: String = "",
-    val tags: List<Tag> = emptyList()
+    val tags: List<Tag> = emptyList(),
+    val address: String = ""
 ) {
     val fStartDate: String get() = startDate.formatShortDate()
     val fStartTime: String get() = startTime.formatShortTime()
     val fEndDate: String get() = endDate.formatShortDate()
     val fEndTime: String get() = endTime.formatShortTime()
+    val fLocation: String get() = address.ifBlank { location?.let { "${it.latitude}, ${it.longitude}" } ?: "" }
 
     private fun LocalDate.formatShortDate(): String = formatWithStyle(FormatStyle.SHORT, isDate = true)
     private fun LocalTime.formatShortTime(): String = formatWithStyle(FormatStyle.SHORT, isDate = false)
@@ -98,6 +104,10 @@ class EventEditorViewModel(
     private val _uiEvent = Channel<String>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
+    private val geoApiContext = GeoApiContext.Builder()
+        .apiKey(BuildConfig.MAPS_KEY)
+        .build()
+
     init {
         eventId?.let { id ->
             _uiState.update { it.copy(isEditMode = true) }
@@ -120,6 +130,7 @@ class EventEditorViewModel(
                             )
                         }
                         checkTimestamps()
+                        eventState.value.location?.let { updateAddress(it) }
                     }
                 } catch (e: Exception) {
                     _uiEvent.send("Errore durante il caricamento dell'evento!") // TODO change to res
@@ -136,6 +147,7 @@ class EventEditorViewModel(
         },
         onLocationChange = { newLocation ->
             _eventState.update { it.copy(location = newLocation) }
+            updateAddress(newLocation)
         },
         onStartDateChange = { year, month, day ->
             val localDate = LocalDate.of(year, month, day)
@@ -248,6 +260,21 @@ class EventEditorViewModel(
             }
         }
     )
+
+    private fun updateAddress(coordinates: Coordinates) {
+        viewModelScope.launch(Dispatchers.IO) {
+            try {
+                val results = GeocodingApi.reverseGeocode(
+                    geoApiContext,
+                    LatLng(coordinates.latitude, coordinates.longitude)
+                ).await()
+                val addressName = results.firstOrNull()?.formattedAddress ?: ""
+                _eventState.update { it.copy(address = addressName) }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     // TODO improve this if I have time
     private fun checkTimestamps() {
