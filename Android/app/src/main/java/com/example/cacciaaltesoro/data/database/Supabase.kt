@@ -7,6 +7,7 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.createSupabaseClient
 import io.github.jan.supabase.postgrest.Postgrest
 import io.github.jan.supabase.postgrest.PropertyConversionMethod
+import io.github.jan.supabase.storage.Storage
 import kotlinx.serialization.json.buildJsonObject
 import kotlinx.serialization.json.JsonPrimitive
 
@@ -19,6 +20,7 @@ class Supabase {
             propertyConversionMethod = PropertyConversionMethod.SERIAL_NAME
         }
         install(Auth)
+        install(Storage)
     }
 
 
