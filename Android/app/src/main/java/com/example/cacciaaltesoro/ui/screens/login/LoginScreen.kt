@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -40,19 +42,23 @@ fun LoginScreen(
     navController: NavHostController,
     viewModel: LoginScreenViewModel = koinViewModel()
 ) {
-    var username by rememberSaveable { mutableStateOf(viewModel.getState().username) }
+
+
+    val state by viewModel.state.collectAsState()
+    val isUpdatePassword = state.isUpdatePassword
+    val isSignUp = state.isSignUp
+
+    var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordConfirm by rememberSaveable { mutableStateOf("") }
-    val isSignUp = viewModel.getState().isSignUp
-    val isUpdatePassword = viewModel.getState().isUpdatePassword
 
-    LaunchedEffect(viewModel.getState().username) {
-        if (username.isEmpty()) {
-            username = viewModel.getState().username
+    LaunchedEffect(state.username) {
+        if (state.username.isNotEmpty() && username.isEmpty()) {
+            username = state.username
         }
     }
 
-    val title = if (viewModel.getState().isLogin) {
+    val title = if (state.isLogin) {
         if (isUpdatePassword) stringResource(R.string.update_password_title) else stringResource(R.string.profile_title)
     } else if (isUpdatePassword) {
         stringResource(R.string.update_password_title)
@@ -67,6 +73,7 @@ fun LoginScreen(
             AppBar(title, navController)
         }
     ) { contentPadding ->
+
         Column(
             horizontalAlignment = Alignment.CenterHorizontally,
             modifier = Modifier
@@ -75,17 +82,18 @@ fun LoginScreen(
                 .fillMaxSize()
         ) {
 
+
             if (!isUpdatePassword) {
                 OutlinedTextField(
                     value = username,
                     onValueChange = { text -> username = text },
                     label = { Text("E-mail") },
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !viewModel.isLoading,
-                    readOnly = viewModel.getState().isLogin
+                    enabled = !state.isLoading,
+                    readOnly = state.isLogin
                 )
 
-                if (!viewModel.getState().isLogin) {
+                if (!state.isLogin) {
                     Spacer(modifier = Modifier.size(8.dp))
                     OutlinedTextField(
                         value = password,
@@ -93,8 +101,21 @@ fun LoginScreen(
                         label = { Text("Password") },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
-                        enabled = !viewModel.isLoading,
+                        enabled = !state.isLoading,
                     )
+
+
+                    if (isSignUp) {
+                        Spacer(modifier = Modifier.size(8.dp))
+                        OutlinedTextField(
+                            value = passwordConfirm,
+                            onValueChange = { passwordConfirm = it },
+                            label = { Text(stringResource(R.string.password_confirm)) },
+                            visualTransformation = PasswordVisualTransformation(),
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !state.isLoading
+                        )
+                    }
                 }
             } else {
                 OutlinedTextField(
@@ -103,7 +124,7 @@ fun LoginScreen(
                     label = { Text(stringResource(R.string.new_password)) },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !viewModel.isLoading,
+                    enabled = !state.isLoading,
                 )
                 Spacer(modifier = Modifier.size(8.dp))
                 OutlinedTextField(
@@ -112,67 +133,62 @@ fun LoginScreen(
                     label = { Text(stringResource(R.string.password_confirm)) },
                     visualTransformation = PasswordVisualTransformation(),
                     modifier = Modifier.fillMaxWidth(),
-                    enabled = !viewModel.isLoading
+                    enabled = !state.isLoading
                 )
             }
 
+            Spacer(modifier = Modifier.size(16.dp))
+            ErrorText(viewModel)
+            SuccessText(viewModel)
             Spacer(modifier = Modifier.size(8.dp))
 
-            if (viewModel.isLoading) {
-                CircularProgressIndicator()
-            } else {
-                if (isUpdatePassword) {
-                    MyButton("Aggiorna Password", onClick = {
-                        viewModel.action.changePassword(username, password, passwordConfirm)
-                    })
-                    Spacer(modifier = Modifier.size(8.dp))
-                    MyButton("Annulla", onClick = { viewModel.action.toggleUpdatePassword(false) })
-                    ErrorText(viewModel)
-                    SuccessText(viewModel)
-                } else if (!isSignUp && !viewModel.getState().isLogin) {
-                    MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
-                    ErrorText(viewModel)
-                    SuccessText(viewModel)
-                    Spacer(modifier = Modifier.size(36.dp))
-                    LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen() })
-                    Spacer(modifier = Modifier.size(8.dp))
-                    SendEmail(username, viewModel.action.callResetPasswordEmail)
-                } else if (isSignUp && !viewModel.getState().isLogin) {
-                    OutlinedTextField(
-                        value = passwordConfirm,
-                        onValueChange = { passwordConfirm = it },
-                        label = { Text(stringResource(R.string.password_confirm)) },
-                        visualTransformation = PasswordVisualTransformation(),
-                        modifier = Modifier.fillMaxWidth(),
-                        enabled = !viewModel.isLoading
-                    )
-                    ErrorText(viewModel)
-                    SuccessText(viewModel)
-                    Spacer(modifier = Modifier.size(8.dp))
-                    MyButton(stringResource(R.string.signup_title), onClick = {
-                        viewModel.action.onSignOn(username, password, passwordConfirm)
-                    })
-                    Spacer(modifier = Modifier.size(36.dp))
-                    LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen() })
+
+            Box(
+                modifier = Modifier.fillMaxWidth().requiredSize(200.dp),
+                contentAlignment = Alignment.TopCenter
+            ) {
+                if (state.isLoading) { // <-- CORRETTO DA isLogin A isLoading!
+                    CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
                 } else {
-                    ErrorText(viewModel)
-                    SuccessText(viewModel)
-                    MyButton("Log Out", onClick = {
-                        viewModel.action.onLogOut()
-                        username = ""
-                        password = ""
-                    })
-                    Spacer(modifier = Modifier.size(8.dp))
-                    MyButton(stringResource(R.string.change_password), onClick = {
-                        viewModel.action.toggleUpdatePassword(true)
-                        password = ""
-                        passwordConfirm = ""
-                    })
+                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                        if (isUpdatePassword) {
+                            MyButton("Aggiorna Password", onClick = {
+                                viewModel.action.changePassword(username, password, passwordConfirm)
+                            })
+                            Spacer(modifier = Modifier.size(8.dp))
+                            MyButton("Annulla", onClick = { viewModel.action.toggleUpdatePassword(false) })
+
+                        } else if (!isSignUp && !state.isLogin) {
+                            MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
+                            Spacer(modifier = Modifier.size(36.dp))
+                            LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen() })
+                            Spacer(modifier = Modifier.size(8.dp))
+                            SendEmail(username, viewModel.action.callResetPasswordEmail)
+
+                        } else if (isSignUp && !state.isLogin) {
+                            MyButton(stringResource(R.string.signup_title), onClick = {
+                                viewModel.action.onSignOn(username, password, passwordConfirm)
+                            })
+                            Spacer(modifier = Modifier.size(36.dp))
+                            LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen() })
+
+                        } else {
+                            MyButton("Log Out", onClick = {
+                                viewModel.action.onLogOut()
+                                username = ""
+                                password = ""
+                            })
+                            Spacer(modifier = Modifier.size(8.dp))
+                            MyButton(stringResource(R.string.change_password), onClick = {
+                                viewModel.action.toggleUpdatePassword(true)
+                                password = ""
+                                passwordConfirm = ""
+                            })
+                        }
+                    }
                 }
             }
-        }
-    }
-}
+        }}}
 
 @Composable
 fun MyButton(label: String, onClick: () -> Unit) {

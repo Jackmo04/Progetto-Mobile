@@ -6,6 +6,9 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 
 data class LoginState(
@@ -13,7 +16,8 @@ data class LoginState(
     val userId: String = "",
     val isLogin: Boolean = false,
     val isSignUp: Boolean = false,
-    val isUpdatePassword: Boolean = false
+    val isUpdatePassword: Boolean = false,
+    val isLoading: Boolean = false
 )
 
 data class LoginAction(
@@ -30,8 +34,10 @@ class LoginScreenViewModel(
     private val repository: LoginRepositoryImpl
 ) : ViewModel() {
 
-    private var _state by mutableStateOf(LoginState())
-    fun getState() = _state
+    private var _state = MutableStateFlow(LoginState())
+
+    val  state =_state.asStateFlow()
+    fun getState() = state.value
 
     var errorMessage by mutableStateOf<String?>(null)
         private set
@@ -39,35 +45,43 @@ class LoginScreenViewModel(
     var successMessage by mutableStateOf<String?>(null)
         private set
 
-    var isLoading by mutableStateOf(false)
-        private set
+   // var isLoading by mutableStateOf(false)
+   //     private set
 
     init {
         viewModelScope.launch {
             repository.isLogin.collect { isLogin ->
-                _state = _state.copy(isLogin = isLogin)
+                _state.update {
+                    it.copy(isLogin = isLogin)
+                }
             }
         }
         viewModelScope.launch {
             repository.username.collect { username ->
-                _state = _state.copy(username = username)
+                _state.update {
+                    it.copy(username = username)
+                }
             }
         }
         viewModelScope.launch {
             repository.userId.collect { userId ->
-                _state = _state.copy(userId = userId)
+                _state.update {
+                    it.copy(userId = userId)
+                }
             }
         }
 
         viewModelScope.launch {
             repository.isSignUp.collect { isSignUp ->
-                _state = _state.copy(isSignUp = isSignUp)
+                _state.update {
+                    it.copy(isSignUp = isSignUp)
+                }
             }
         }
         viewModelScope.launch {
             repository.isPasswordUpdateRequested.collect { isRequested ->
-                if (isRequested) {
-                    _state = _state.copy(isUpdatePassword = true)
+                _state.update {
+                    it.copy(isUpdatePassword = isRequested) // Usa il valore esatto!
                 }
             }
         }
@@ -76,8 +90,9 @@ class LoginScreenViewModel(
 
     val action = LoginAction(
         onLogIn = { username, password ->
+            enableLoading()
             viewModelScope.launch {
-                isLoading = true
+               enableLoading()
                 errorMessage = null
                 successMessage = null
                 try {
@@ -86,7 +101,7 @@ class LoginScreenViewModel(
                 } catch (e: Exception) {
                     errorMessage = "Errore durante il login: Email o Password non corrette"
                 } finally {
-                    isLoading = false
+                    disableLoading()
                 }
             }
         },
@@ -96,7 +111,7 @@ class LoginScreenViewModel(
                     errorMessage = "Le password non coincidono"
                     return@launch
                 }
-                isLoading = true
+                enableLoading()
                 errorMessage = null
                 successMessage = null
                 try {
@@ -105,13 +120,13 @@ class LoginScreenViewModel(
                 } catch (e: Exception) {
                     errorMessage = "Errore durante la registrazione"
                 } finally {
-                    isLoading = false
+                   disableLoading()
                 }
             }
         },
         onLogOut = {
             viewModelScope.launch {
-                isLoading = true
+                enableLoading()
                 errorMessage = null
                 successMessage = null
                 try {
@@ -120,18 +135,18 @@ class LoginScreenViewModel(
                 } catch (e: Exception) {
                     errorMessage = "Errore durante il logout"
                 } finally {
-                    isLoading = false
+                   disableLoading()
                 }
             }
         },
         changeSignScreen = {
             viewModelScope.launch {
-                repository.setIsSignUp(!_state.isSignUp)
+                repository.setIsSignUp(!_state.value.isSignUp)
             }
         },
         callResetPasswordEmail={email->
             viewModelScope.launch {
-                isLoading = true
+                enableLoading()
                 errorMessage = null
                 successMessage = null
                 try {
@@ -140,7 +155,7 @@ class LoginScreenViewModel(
                 } catch (e: Exception) {
                     errorMessage = "Errore nell'invio dell'email"
                 } finally {
-                    isLoading = false
+                    disableLoading()
                 }
             }
         },
@@ -150,7 +165,7 @@ class LoginScreenViewModel(
                     errorMessage = "Le password non coincidono"
                     return@launch
                 }
-                isLoading = true
+                enableLoading()
                 errorMessage = null
                 successMessage = null
                 try {
@@ -158,17 +173,30 @@ class LoginScreenViewModel(
                     successMessage = "Password aggiornata"
 
                     repository.setPasswordUpdateRequested(false)
-                    _state = _state.copy(isUpdatePassword = false)
+                    _state.update {
+                        it.copy(isUpdatePassword = false)
+                    }
                 } catch (e: Exception) {
                     errorMessage = "Errore durante il cambio password"
                 } finally {
-                    isLoading = false
+                    disableLoading()
                 }
             }
         },
 
         toggleUpdatePassword = { isVisible ->
             repository.setPasswordUpdateRequested(isVisible)
-            _state = _state.copy(isUpdatePassword = isVisible)
+            _state.update {
+                it.copy(isUpdatePassword = isVisible)
+            }
         })
+
+    fun disableLoading(){
+            _state.update { it.copy(isLoading = false) }
+
+    }
+    fun enableLoading(){
+            _state.update { it.copy(isLoading = true) }
+
+    }
 }
