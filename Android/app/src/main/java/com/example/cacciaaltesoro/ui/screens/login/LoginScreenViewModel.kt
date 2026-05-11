@@ -12,6 +12,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
+import androidx.core.net.toUri
 
 data class LoginState(
     val username: String = "",
@@ -173,8 +174,7 @@ class LoginScreenViewModel(
                 if (uid.isNotEmpty()) {
                     val url = repository.getImageFromBucket(uid)
                     if (url != null) {
-                        // Convertiamo l'URL stringa di Supabase in un Uri leggibile da Jetpack Compose
-                        _state.update { it.copy(imageUri = android.net.Uri.parse(url)) }
+                        _state.update { it.copy(imageUri = url.toUri()) }
                     }
                 }
             }

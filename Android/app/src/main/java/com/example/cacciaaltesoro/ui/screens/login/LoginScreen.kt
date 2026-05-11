@@ -1,8 +1,15 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
+import android.Manifest
+import android.content.pm.PackageManager
+import android.widget.Toast
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -18,6 +25,7 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PhotoCamera
+import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
@@ -43,6 +51,7 @@ import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
+import androidx.core.content.ContextCompat
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.cacciaaltesoro.R
@@ -98,6 +107,43 @@ fun LoginScreen(
             }
         }
     )
+
+    val galleryLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri ->
+        uri?.let { imageUri ->
+            val inputStream = contentResolver.openInputStream(imageUri)
+            val bytes = inputStream?.readBytes()
+            inputStream?.close()
+
+            bytes?.let {
+                viewModel.action.uploadImage(imageUri, it)
+            }
+        }
+    }
+
+    val cameraPermissionLauncher = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.RequestPermission()
+    ) { isGranted: Boolean ->
+        if (isGranted) {
+            takePicture()
+        } else {
+            viewModel.action.setShowPermissionDeniedAlert(true)
+            Toast.makeText(context, "Permesso fotocamera negato", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    fun checkAndRequestCameraPermission() {
+        val permissionCheckResult = ContextCompat.checkSelfPermission(
+            context,
+            android.Manifest.permission.CAMERA
+        )
+        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+            takePicture()
+        } else {
+            cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
+        }
+    }
 
 
     Scaffold(
@@ -230,8 +276,12 @@ fun LoginScreen(
                                 passwordConfirm = ""
                             })
                             Spacer(Modifier.size(24.dp))
-                            Button(
-                                onClick = takePicture,
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
+                                Button(
+                                onClick = { checkAndRequestCameraPermission() },
                                 contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
                             ) {
                                 Icon(
@@ -239,19 +289,37 @@ fun LoginScreen(
                                     contentDescription = "Camera icon",
                                     modifier = Modifier.size(ButtonDefaults.IconSize)
                                 )
-                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                Text("Cambia Immagine")
+                                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                    Text("Fotocamera")
+                            }
+
+                                Button(
+                                    onClick = {
+                                        galleryLauncher.launch(
+                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                        )
+                                    },
+                                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                                ) {
+                                    Icon(
+                                        Icons.Outlined.PhotoLibrary,
+                                        contentDescription = "Gallery icon",
+                                        modifier = Modifier.size(ButtonDefaults.IconSize)
+                                    )
+                                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                    Text("Galleria")
+                                }
                             }
                             Spacer(Modifier.size(8.dp))
                             AsyncImage(
                                 model = state.imageUri,
                                 contentDescription = "Foto del profilo",
                                 modifier = Modifier
-                                    .size(140.dp) // 1. Imposta la dimensione base
-                                    .aspectRatio(1f) // 2. FORZA la forma a essere un quadrato perfetto (1:1)
-                                    .clip(CircleShape) // 3. Taglia il quadrato trasformandolo in un cerchio
+                                    .size(140.dp)
+                                    .aspectRatio(1f)
+                                    .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentScale = ContentScale.Crop // 4. Riempi il cerchio senza schiacciare la foto
+                                contentScale = ContentScale.Crop
                             )
                         }
                         }

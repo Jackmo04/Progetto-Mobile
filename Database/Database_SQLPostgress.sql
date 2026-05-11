@@ -202,3 +202,20 @@ CREATE POLICY "Permetti tutto agli utenti autenticati su partite" ON public.part
 CREATE POLICY "Permetti tutto agli utenti autenticati su tags" ON public.tags FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Permetti tutto agli utenti autenticati su partecipazioni" ON public.partecipazioni FOR ALL TO authenticated USING (true) WITH CHECK (true);
 CREATE POLICY "Permetti tutto agli utenti autenticati su tagraccolti" ON public.tagraccolti FOR ALL TO authenticated USING (true) WITH CHECK (true);
+
+CREATE POLICY "Permetti caricamento foto profilo" 
+ON storage.objects FOR INSERT 
+TO authenticated 
+WITH CHECK (bucket_id = 'Upload');
+
+-- Permette agli utenti loggati di aggiornare (sovrascrivere) i propri file
+CREATE POLICY "Permetti aggiornamento foto profilo" 
+ON storage.objects FOR UPDATE 
+TO authenticated 
+USING (bucket_id = 'Upload');
+
+-- Permette a chiunque (o agli utenti loggati) di vedere i file
+CREATE POLICY "Permetti lettura foto" 
+ON storage.objects FOR SELECT 
+TO public 
+USING (bucket_id = 'Upload');
