@@ -6,15 +6,19 @@ import androidx.datastore.preferences.core.Preferences
 import androidx.datastore.preferences.core.booleanPreferencesKey
 import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
+import com.example.cacciaaltesoro.data.database.SupabaseTables
+import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.user.UserInfo
+import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Duration.Companion.minutes
 import io.github.jan.supabase.storage.storage
+
 interface LoginRepository {
     suspend fun setUsername(username: String) : Preferences
     suspend fun setUserId(userId: String) : Preferences
@@ -25,7 +29,7 @@ interface LoginRepository {
     suspend fun logOut()
     suspend fun getLoggedUser() : UserInfo?
 
-    suspend fun getImageFromBucket(name: String): String?
+    suspend fun getImageFromBucket(): String?
 }
 class LoginRepositoryImpl (
     private val dataStore: DataStore<Preferences>,
@@ -141,10 +145,16 @@ class LoginRepositoryImpl (
         _isPasswordUpdateRequested.value = value
     }
 
-    override suspend fun getImageFromBucket(name: String): String? {
+    override suspend fun getImageFromBucket(): String? {
+
+        val imgName = supabase.from(SupabaseTables.USERS.tableName).select {
+            filter {
+                UserDTO:: uuid eq userId
+            }
+        }.decodeSingle<UserDTO>().image
         return try {
             supabase.storage.from("Upload")
-                .createSignedUrl(path = name, expiresIn = 60.minutes)
+                .createSignedUrl(path = imgName, expiresIn = 60.minutes)
         } catch (e: Exception) {
             e.printStackTrace()
             null
