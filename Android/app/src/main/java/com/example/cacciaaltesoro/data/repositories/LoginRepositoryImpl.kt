@@ -28,7 +28,6 @@ interface LoginRepository {
     suspend fun onLogIn(username: String, password: String)
     suspend fun logOut()
     suspend fun getLoggedUser() : UserInfo?
-
     suspend fun getImageFromBucket(uid: String): String?
     suspend fun uploadProfileImage(uid: String, imageBytes: ByteArray, fileName: String)
 }
