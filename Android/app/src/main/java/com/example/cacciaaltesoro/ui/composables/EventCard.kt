@@ -1,6 +1,8 @@
 package com.example.cacciaaltesoro.ui.composables
 
+import android.content.Context
 import android.content.Intent
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
@@ -8,6 +10,7 @@ import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -43,6 +46,7 @@ import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.google.maps.GeoApiContext
 import com.google.maps.GeocodingApi
 import com.google.maps.model.LatLng
+import io.github.jan.supabase.auth.api.AuthenticatedApiConfig
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
@@ -51,6 +55,7 @@ import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
+import androidx.core.net.toUri
 
 @Composable
 fun EventCard(
@@ -204,6 +209,7 @@ fun EventCard(
 
             }
 
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
@@ -211,15 +217,31 @@ fun EventCard(
                 horizontalArrangement = Arrangement.End,
                 verticalAlignment = Alignment.CenterVertically
             ) {
+
+                IconButton(onClick = { openInMaps(event, ctx) }) {
+                    Icon(
+                        imageVector = Icons.Default.LocationOn,
+                        contentDescription = "Apri in Google Maps",
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+                }
                 IconButton(onClick = { shareDetails() }) {
                     Icon(
                         imageVector = Icons.Default.Share,
                         contentDescription = "Share Event",
                         tint = MaterialTheme.colorScheme.primary
                     )
-                }
+                }}
+            Row(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
+                horizontalArrangement = Arrangement.End,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
 
-                if (!isMineEvent) {
+
+            if (!isMineEvent) {
 
                         Button(
                             onClick = {
@@ -368,5 +390,14 @@ fun getAddressFromCoords(lat: Double, lng: Double): String {
         "Errore API: ${e.message}"
     } finally {
         context.shutdown()
+    }
+}
+fun openInMaps(event: EventDTO , ctx: Context) {
+    try {
+        val uri = "https://maps.google.com/?q=${event.lat},${event.lon}".toUri()
+        val mapIntent = Intent(Intent.ACTION_VIEW, uri)
+        ctx.startActivity(mapIntent)
+    } catch (e: Exception) {
+        Toast.makeText(ctx, "Impossibile aprire le mappe", Toast.LENGTH_SHORT).show()
     }
 }
