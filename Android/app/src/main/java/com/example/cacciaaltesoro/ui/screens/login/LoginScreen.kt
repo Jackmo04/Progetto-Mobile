@@ -56,8 +56,6 @@ import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
-import com.example.cacciaaltesoro.ui.composables.ImageWithPlaceholder
-import com.example.cacciaaltesoro.ui.composables.Size
 import com.example.cacciaaltesoro.utils.rememberCameraLauncher
 import org.koin.androidx.compose.koinViewModel
 
