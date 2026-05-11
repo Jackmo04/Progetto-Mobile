@@ -4,6 +4,7 @@ import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
@@ -15,12 +16,14 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
@@ -66,8 +69,11 @@ fun EventTagEditorScreen(
     val eventState by sharedViewModel.eventState.collectAsStateWithLifecycle()
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
 
+    val editingTag by viewModel.editingTag.collectAsStateWithLifecycle()
+
     BackHandler(enabled = screenState !is TagScreenState.ViewingList) {
-        viewModel.returnToViewingList()
+        // TODO logica per rimuovere il tag se non salvato
+        viewModel.toViewingList()
     }
 
     val sheetState = rememberStandardBottomSheetState(
@@ -95,6 +101,7 @@ fun EventTagEditorScreen(
                             tags = eventState.tags,
                             onTagClick = { tag ->
                                 coroutineScope.launch {
+                                    sheetState.expand()
                                     cameraPositionState.animate(
                                         CameraUpdateFactory.newLatLngZoom(
                                             tag.coordinates.toLatLng(),
@@ -102,12 +109,24 @@ fun EventTagEditorScreen(
                                         )
                                     )
                                 }
+                                viewModel.toEditing(tag)
                             }
                         )
                     }
                     is TagScreenState.Editing -> {
-                        // TODO
-                        Text("Editing")
+                        TagEditor(
+                            tag = editingTag,
+                            onChangeHint = { newHint ->
+                                viewModel.editingTagActions.onTextHintChange(newHint)
+                            },
+                            onChangeImage = { newImageUri ->
+                                viewModel.editingTagActions.onImageHintChange(newImageUri)
+                            },
+                            onSave = {
+                                sharedViewModel.tagActions.onUpdateTag(editingTag)
+                                viewModel.toViewingList()
+                            }
+                        )
                     }
                 }
             }
@@ -122,7 +141,19 @@ fun EventTagEditorScreen(
                 cameraPositionState = cameraPositionState,
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
-                    sharedViewModel.actions.onNewTagPositionSelected(latLng.toCoordinates())
+                    if (screenState is TagScreenState.ViewingList) {
+                        val newTag = sharedViewModel.tagActions.onNewTag(latLng.toCoordinates())
+                        viewModel.toEditing(newTag)
+                        coroutineScope.launch {
+                            sheetState.expand()
+                            cameraPositionState.animate(
+                                CameraUpdateFactory.newLatLngZoom(
+                                    latLng,
+                                    16f
+                                )
+                            )
+                        }
+                    }
                 },
                 uiSettings = MapUiSettings(
                     zoomControlsEnabled = false,
@@ -194,6 +225,46 @@ fun TagListContent(
                 )
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
             }
+        }
+    }
+}
+
+@Composable
+fun TagEditor(
+    tag: Tag,
+    onChangeHint: (String) -> Unit,
+    onChangeImage: (String) -> Unit,
+    onSave: () -> Unit
+) {
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp)
+    ) {
+        Text(
+            text = "Modifica Tag N° ${tag.number}",
+            style = MaterialTheme.typography.headlineSmall,
+            modifier = Modifier.padding(bottom = 16.dp)
+        )
+        OutlinedTextField(
+            value = tag.textHint ?: "",
+            onValueChange = onChangeHint,
+            label = { Text("Indizio") },
+            modifier = Modifier.fillMaxWidth()
+        )
+        Button(
+            onClick = {/* TODO */}
+        ) {
+            Text("Seleziona immagine")
+        }
+        // TODO add nfc writer
+
+        Button(
+            modifier = Modifier.fillMaxWidth(),
+            onClick = { onSave() },
+            enabled = true // TODO check for nfc
+        ) {
+            Text("Salva")
         }
     }
 }

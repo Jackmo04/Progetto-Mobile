@@ -80,8 +80,13 @@ data class EventActions(
     val onVisibilityChange: (Visibility) -> Unit,
     val onSaveEvent: () -> Unit,
     val onCancelCreation: () -> Unit,
-    val onEditTagsClick: () -> Boolean,
-    val onNewTagPositionSelected: (Coordinates) -> Unit
+    val onEditTagsClick: () -> Boolean
+)
+
+data class TagActions(
+    val onNewTag: (Coordinates) -> Tag,
+    val onDeleteTag: (Tag) -> Unit,
+    val onUpdateTag: (Tag) -> Unit
 )
 
 class EventEditorViewModel(
@@ -130,7 +135,7 @@ class EventEditorViewModel(
         }
     }
 
-    val actions = EventActions(
+    val eventActions = EventActions(
         onNameChange = { newName ->
             _eventState.update { it.copy(name = newName) }
         },
@@ -233,18 +238,38 @@ class EventEditorViewModel(
         },
         onEditTagsClick = {
             if (eventState.value.location == null) {
-                viewModelScope.launch { _uiEvent.send("Prima seleziona un punto di ritrovo!") }
+                viewModelScope.launch { _uiEvent.trySend("Prima seleziona un punto di ritrovo!") }
             }
             eventState.value.location != null
-        },
-        onNewTagPositionSelected = { coordinates ->
+        }
+    )
+
+    val tagActions = TagActions(
+        onNewTag = { coordinates ->
+            val newTag = Tag(
+                id = UUID.randomUUID().toString(),
+                number = eventState.value.tags.size + 1,
+                coordinates = coordinates,
+                eventId = eventId
+            )
             _eventState.update {
-                it.copy(tags = it.tags + Tag(
-                    id = UUID.randomUUID().toString(),
-                    number = it.tags.size + 1,
-                    coordinates = coordinates,
-                    eventId = eventId
-                ))
+                it.copy(tags = it.tags + newTag)
+            }
+            newTag
+        },
+        onDeleteTag = { tagToDelete ->
+            _eventState.update { state ->
+                val newTags = (state.tags - tagToDelete).mapIndexed { index, tag ->
+                    tag.copy(number = index + 1)
+                }
+                state.copy(tags = newTags)
+            }
+        },
+        onUpdateTag = { tag ->
+            _eventState.update { state ->
+                state.copy(
+                    tags = state.tags.map { if (it.id == tag.id) tag else it }
+                )
             }
         }
     )

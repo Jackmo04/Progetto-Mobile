@@ -4,7 +4,6 @@ package com.example.cacciaaltesoro.ui.screens.eventeditor
 
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
-import android.content.Intent
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -135,7 +134,7 @@ fun EventEditorScreen(
             // Event name
             OutlinedTextField(
                 value = eventState.name,
-                onValueChange = { viewModel.actions.onNameChange(it) },
+                onValueChange = { viewModel.eventActions.onNameChange(it) },
                 label = { Text(stringResource(R.string.name)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -148,7 +147,7 @@ fun EventEditorScreen(
             // Event description
             OutlinedTextField(
                 value = eventState.description,
-                onValueChange = { viewModel.actions.onDescriptionChange(it) },
+                onValueChange = { viewModel.eventActions.onDescriptionChange(it) },
                 label = { Text("${stringResource(R.string.description)} ${stringResource(R.string.optional_par)}") },
                 modifier = Modifier.fillMaxWidth(),
                 keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
@@ -200,7 +199,7 @@ fun EventEditorScreen(
                         SegmentedButton(
                             shape = SegmentedButtonDefaults
                                 .itemShape(index = index, count = Visibility.entries.size),
-                            onClick = { viewModel.actions.onVisibilityChange(visibility) },
+                            onClick = { viewModel.eventActions.onVisibilityChange(visibility) },
                             selected = visibility == eventState.visibility,
                             icon = {
                                 Icon(
@@ -233,7 +232,7 @@ fun EventEditorScreen(
 
                 FilledTonalButton(
                     onClick = {
-                        if (viewModel.actions.onEditTagsClick()) {
+                        if (viewModel.eventActions.onEditTagsClick()) {
                             eventState.location?.let {
                                 navController.navigate(NavigationRoute.EventTagEditor(
                                     it.latitude,
@@ -253,7 +252,7 @@ fun EventEditorScreen(
             Button(
                 modifier = Modifier.fillMaxWidth(),
                 onClick = {
-                    viewModel.actions.onSaveEvent()
+                    viewModel.eventActions.onSaveEvent()
                     focusManager.clearFocus()
                 },
                 enabled = eventState.location != null
@@ -274,7 +273,7 @@ fun EventEditorScreen(
                 startingMarkerPosition = eventState.location?.toLatLng(),
                 onDismiss = { showMapDialog = false },
                 onLocationSelected = { latLng ->
-                    viewModel.actions.onLocationChange(latLng.toCoordinates())
+                    viewModel.eventActions.onLocationChange(latLng.toCoordinates())
                     showMapDialog = false
                 }
             )
@@ -326,7 +325,7 @@ fun DateTimeInputs2(
                         DatePickerDialog(
                             context,
                             { _, year, month, dayOfMonth ->
-                                viewModel.actions.onStartDateChange(year, month + 1, dayOfMonth)
+                                viewModel.eventActions.onStartDateChange(year, month + 1, dayOfMonth)
                             },
                             state.startDate.year,
                             state.startDate.monthValue - 1,
@@ -354,7 +353,7 @@ fun DateTimeInputs2(
                         TimePickerDialog(
                             context,
                             { _, hour, minute ->
-                                viewModel.actions.onStartTimeChange(hour, minute)
+                                viewModel.eventActions.onStartTimeChange(hour, minute)
                             },
                             state.startTime.hour,
                             state.startTime.minute,
@@ -393,7 +392,7 @@ fun DateTimeInputs2(
                         DatePickerDialog(
                             context,
                             { _, year, month, dayOfMonth ->
-                                viewModel.actions.onEndDateChange(year, month + 1, dayOfMonth)
+                                viewModel.eventActions.onEndDateChange(year, month + 1, dayOfMonth)
                             },
                             state.endDate.year,
                             state.endDate.monthValue - 1,
@@ -421,7 +420,7 @@ fun DateTimeInputs2(
                         TimePickerDialog(
                             context,
                             { _, hour, minute ->
-                                viewModel.actions.onEndTimeChange(hour, minute)
+                                viewModel.eventActions.onEndTimeChange(hour, minute)
                             },
                             state.endTime.hour,
                             state.endTime.minute,
