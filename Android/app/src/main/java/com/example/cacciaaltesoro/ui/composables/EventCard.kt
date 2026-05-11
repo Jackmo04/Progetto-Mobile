@@ -12,6 +12,7 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -57,16 +58,17 @@ fun EventCard(
     viewModel: EventDetailsViewModel,
     navController: NavHostController
 ) {
+    val state by viewModel.state.collectAsState()
 
     LaunchedEffect(Unit) {
         viewModel.action.saveIdUser()
     }
 
-    val isMineEvent: Boolean = viewModel.getState().userId == event.organizerUUID
-    Log.i("CardEvent", viewModel.getState().userId + " Organizzatore: " + event.organizerUUID)
+    val isMineEvent: Boolean = state.userId == event.organizerUUID
+    Log.i("CardEvent", state.userId + " Organizzatore: " + event.organizerUUID)
     val ctx = LocalContext.current
 
-    val imSubscribe = viewModel.getState().imSubscribe
+    val imSubscribe = state.imSubscribe
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var addressText by remember { mutableStateOf("Caricamento indirizzo...") }

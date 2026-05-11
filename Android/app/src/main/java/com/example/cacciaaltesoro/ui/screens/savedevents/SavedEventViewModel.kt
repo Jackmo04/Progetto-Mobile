@@ -9,7 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
@@ -30,13 +33,11 @@ class SavedEventsViewModel(
     private val loginRepositoryImpl: LoginRepositoryImpl
 ) : ViewModel() {
 
-    private var _state by mutableStateOf(SavedEventState())
-    fun getState() = _state
+    private var _state = MutableStateFlow(SavedEventState())
+
+    var state = _state.asStateFlow()
 
     var currentLocation by mutableStateOf<Location?>(null)
-        private set
-
-    var errorMessage by mutableStateOf<String?>(null)
         private set
 
     var isLoading by mutableStateOf(false)
@@ -47,8 +48,10 @@ class SavedEventsViewModel(
 
             try {
                 isLoading = true
-                _state = _state.copy(listEvent = repository.getAllMyEvents( loginRepositoryImpl.userId.first()))
-                _state = _state.copy(uuid = loginRepositoryImpl.userId.first())
+                _state.update {
+                    it.copy(listEvent = repository.getAllMyEvents( loginRepositoryImpl.userId.first()),
+                            uuid = loginRepositoryImpl.userId.first())
+                }
             }finally {
                 isLoading = false
             }
@@ -63,9 +66,13 @@ class SavedEventsViewModel(
         onSearchEvent = {
             viewModelScope.launch {
                 isLoading = true
-                _state = _state.copy(uuid = loginRepositoryImpl.userId.first())
+                _state.update {
+                    it.copy(uuid = loginRepositoryImpl.userId.first())
+                }
                 try {
-                    _state = _state.copy(listEvent = repository.getAllMyEvents(loginRepositoryImpl.userId.first()))
+                    _state.update {
+                        it.copy(listEvent = repository.getAllMyEvents(loginRepositoryImpl.userId.first()))
+                    }
 
                 } finally {
                     isLoading = false
@@ -79,8 +86,9 @@ class SavedEventsViewModel(
             viewModelScope.launch {
             isLoading = true
             try {
-                _state =
-                    _state.copy(listEvent = repository.getOrderedMyEvent(selected, currentLocation))
+                _state.update {
+                    it.copy(listEvent = repository.getOrderedMyEvent(selected, currentLocation))
+                }
             } finally {
                 isLoading = false
             }

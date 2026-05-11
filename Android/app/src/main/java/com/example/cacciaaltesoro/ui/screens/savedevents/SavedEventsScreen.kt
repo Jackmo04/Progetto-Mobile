@@ -24,6 +24,8 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -47,7 +49,9 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
 
 
     val ctx = LocalContext.current
-    val uuid = viewModel.getState().uuid
+
+    val state by viewModel.state.collectAsState()
+    val uuid = state.uuid
 
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
@@ -146,7 +150,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(vertical = 8.dp)
                     ) {
-                        items(viewModel.getState().listEvent) { event ->
+                        items(state.listEvent) { event ->
                             EventListCard(event, event.organizerUUID == uuid) {
                                 navController.navigate(NavigationRoute.EventDetails(event.id))
                             }

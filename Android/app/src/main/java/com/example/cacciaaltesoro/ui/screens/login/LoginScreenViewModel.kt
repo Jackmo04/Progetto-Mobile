@@ -39,7 +39,6 @@ class LoginScreenViewModel(
     private var _state = MutableStateFlow(LoginState())
 
     val  state =_state.asStateFlow()
-    fun getState() = state.value
 
     var errorMessage by mutableStateOf<String?>(null)
         private set

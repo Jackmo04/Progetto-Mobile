@@ -37,6 +37,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
@@ -60,9 +61,10 @@ import kotlinx.coroutines.launch
 fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel ) {
     val ctx = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    val state by viewModel.state.collectAsState()
 
-    LaunchedEffect(viewModel.getState().idEventCodeSearched) {
-        viewModel.getState().idEventCodeSearched?.let { id ->
+    LaunchedEffect(state.idEventCodeSearched) {
+        state.idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
             navController.navigate(NavigationRoute.EventDetails(id))
 
@@ -209,8 +211,8 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     verticalArrangement = Arrangement.spacedBy(8.dp),
                     contentPadding = PaddingValues(vertical = 8.dp)
                 ) {
-                    items(viewModel.getState().listEvent) { event ->
-                        EventListCard(event, event.organizerUUID == viewModel.getState().uuid) {
+                    items(state.listEvent) { event ->
+                        EventListCard(event, event.organizerUUID == state.uuid) {
                             Log.i("CardLog" , event.id.toString())
                             event.id.let { id ->
                                 navController.navigate(NavigationRoute.EventDetails(id))

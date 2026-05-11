@@ -9,7 +9,10 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.first
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
@@ -32,9 +35,8 @@ class OnlineEventViewModel(
     private val loginRepositoryImpl: LoginRepositoryImpl
 ) : ViewModel() {
 
-    private var _state by mutableStateOf(OnlineEventState())
-    fun getState() = _state
-
+    private var _state = MutableStateFlow(OnlineEventState())
+    var state = _state.asStateFlow()
     var currentLocation by mutableStateOf<Location?>(null)
         private set
 
@@ -52,13 +54,13 @@ class OnlineEventViewModel(
 
             try {
                 isLoading = true
-                _state = _state.copy(listEvent = repository.getAllEvents("%"))
-                _state = _state.copy(uuid = loginRepositoryImpl.userId.first())
+                _state.update {
+                    it.copy(listEvent = repository.getAllEvents("%"),
+                        uuid = loginRepositoryImpl.userId.first())
+                }
             }finally {
                 isLoading = false
             }
-
-
         }
     }
 
@@ -69,7 +71,9 @@ class OnlineEventViewModel(
             viewModelScope.launch {
                 isLoading = true
                 try {
-                    _state = _state.copy(listEvent = repository.getAllEvents(query))
+                    _state.update {
+                        it.copy(listEvent = repository.getAllEvents(query))
+                    }
                 } catch (e: Exception) {
                     errorMessage = "Errore durante la ricerca"
                 } finally {
@@ -81,9 +85,11 @@ class OnlineEventViewModel(
             viewModelScope.launch {
                 isLoading = true
                 try {
-                    _state = _state.copy(
-                        idEventCodeSearched = repository.getEventsByCode(code)?.id
-                    )
+                    _state.update {
+                        it.copy(
+                            idEventCodeSearched = repository.getEventsByCode(code)?.id
+                        )
+                    }
                 } catch (e: Exception) {
                     errorMessage = "Errore durante la ricerca"
                 } finally {
@@ -94,7 +100,9 @@ class OnlineEventViewModel(
         },
         resetIdEventCodeSearched={
             viewModelScope.launch {
-            _state = _state.copy(idEventCodeSearched = null)
+            _state.update {
+                it.copy(idEventCodeSearched = null)
+            }
             }
         }
         ,
@@ -102,7 +110,9 @@ class OnlineEventViewModel(
             viewModelScope.launch {
             isLoading = true
             try {
-                _state = _state.copy(listEvent = repository.getOrderedEvent(selected , currentLocation))
+                _state.update {
+                    it.copy(listEvent = repository.getOrderedEvent(selected , currentLocation))
+                }
             } catch (e: Exception) {
                 errorMessage = "Errore durante la ricerca"
             } finally {

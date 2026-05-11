@@ -40,12 +40,6 @@ class EventDetailsViewModel(
     private var _state = MutableStateFlow(EventDetailsEventState())
 
     val state = _state.asStateFlow()
-    fun getState() = state.value
-
-    init {
-
-
-    }
 
     @OptIn(ExperimentalTime::class)
     val action = EventDetailsEventAction(

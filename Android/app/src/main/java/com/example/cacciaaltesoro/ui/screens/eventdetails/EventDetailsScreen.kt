@@ -51,9 +51,11 @@ fun EventDetailsScreen(navController: NavHostController,
                         .padding(16.dp),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    EventCard(viewModel.getState().event!! , viewModel,navController)
+                    EventCard(state.event!!, viewModel, navController)
                 }
             } else {
-                CircularProgressIndicator()
+                CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
             }
-}}}
+        }
+    }
+}
