@@ -29,7 +29,8 @@ interface LoginRepository {
     suspend fun logOut()
     suspend fun getLoggedUser() : UserInfo?
 
-    suspend fun getImageFromBucket(): String?
+    suspend fun getImageFromBucket(uid: String): String?
+    suspend fun uploadProfileImage(uid: String, imageBytes: ByteArray, fileName: String)
 }
 class LoginRepositoryImpl (
     private val dataStore: DataStore<Preferences>,
@@ -145,19 +146,46 @@ class LoginRepositoryImpl (
         _isPasswordUpdateRequested.value = value
     }
 
-    override suspend fun getImageFromBucket(): String? {
 
-        val imgName = supabase.from(SupabaseTables.USERS.tableName).select {
-            filter {
-                UserDTO:: uuid eq userId
-            }
-        }.decodeSingle<UserDTO>().image
+    override suspend fun getImageFromBucket(uid: String): String? {
         return try {
+            val userDto = supabase.from(SupabaseTables.USERS.tableName).select {
+                filter {
+                    UserDTO::uuid eq uid
+                }
+            }.decodeSingleOrNull<UserDTO>()
+
+            val imgName = userDto?.image
+
+            if (imgName.isNullOrEmpty()) return null
+
+
             supabase.storage.from("Upload")
                 .createSignedUrl(path = imgName, expiresIn = 60.minutes)
         } catch (e: Exception) {
             e.printStackTrace()
             null
+        }
+    }
+
+    override suspend fun uploadProfileImage(uid: String, imageBytes: ByteArray, fileName: String) {
+        try {
+            supabase.storage.from("Upload").upload(path = fileName, data = imageBytes) {
+                upsert = true
+            }
+
+            supabase.from(SupabaseTables.USERS.tableName).update(
+                {
+                    UserDTO::image setTo fileName
+                }
+            ) {
+                filter {
+                    UserDTO::uuid eq uid
+                }
+            }
+        } catch (e: Exception) {
+            Log.e("UploadError", "Errore durante l'upload dell'immagine", e)
+            throw e
         }
     }
 }

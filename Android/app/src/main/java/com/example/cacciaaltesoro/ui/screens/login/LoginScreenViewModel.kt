@@ -39,6 +39,7 @@ data class LoginAction(
     val toggleUpdatePassword: (Boolean) -> Unit,
     val setImageUri: (Uri?) -> Unit,
     val getImageFromCloud:() -> Unit,
+    val uploadImage: (Uri, android.content.ContentResolver) -> Unit,
 
     val setShowLocationDisabledAlert: (Boolean) -> Unit,
     val setShowPermissionDeniedAlert: (Boolean) -> Unit,
@@ -80,6 +81,10 @@ class LoginScreenViewModel(
                 )
             }.collect { newState ->
                 _state.value = newState
+
+                if (newState.isLogin && newState.userId.isNotEmpty() && newState.imageUri == null) {
+                    action.getImageFromCloud()
+                }
             }
         }
     }
@@ -189,8 +194,43 @@ class LoginScreenViewModel(
         setImageUri ={ imageUri ->
             _state.update { it.copy(imageUri = imageUri) } },
         getImageFromCloud = {
+            viewModelScope.launch {
+                val uid = _state.value.userId
+                if (uid.isNotEmpty()) {
+                    val url = repository.getImageFromBucket(uid)
+                    if (url != null) {
+                        // Convertiamo l'URL stringa di Supabase in un Uri leggibile da Jetpack Compose
+                        _state.update { it.copy(imageUri = android.net.Uri.parse(url)) }
+                    }
+                }
+            }
+        },
 
+        uploadImage = { uri, contentResolver ->
+            viewModelScope.launch {
+                enableLoading()
+                try {
+                    val uid = _state.value.userId
+                    if (uid.isNotEmpty()) {
+                        val inputStream = contentResolver.openInputStream(uri)
+                        val bytes = inputStream?.readBytes()
+                        inputStream?.close()
 
+                        if (bytes != null) {
+                            val fileName = "profile_${uid}.jpg"
+
+                            repository.uploadProfileImage(uid, bytes, fileName)
+
+                            _state.update { it.copy(imageUri = uri) }
+                            successMessage = "Immagine del profilo aggiornata!"
+                        }
+                    }
+                } catch (e: Exception) {
+                    errorMessage = "Errore durante il caricamento della foto"
+                } finally {
+                    disableLoading()
+                }
+            }
         },
 
         setShowLocationDisabledAlert ={ show ->
