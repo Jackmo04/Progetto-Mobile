@@ -329,8 +329,6 @@ fun EventCard(
 
     }
 
-
-
 }
 
 fun getImageUrl(event: EventDTO) : String{

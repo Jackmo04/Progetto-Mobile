@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
+import android.net.Uri
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -19,7 +20,13 @@ data class LoginState(
     val isSignUp: Boolean = false,
     val isUpdatePassword: Boolean = false,
     val isLoading: Boolean = false,
-    val isInitializing: Boolean = true
+    val isInitializing: Boolean = true,
+    val imageUri: Uri? = null,
+
+    val showLocationDisabledAlert: Boolean = false,
+    val showPermissionDeniedAlert: Boolean = false,
+    val showPermissionPermanentlyDeniedSnackbar: Boolean = false,
+    val showNoConnectivitySnackbar: Boolean = false
 )
 
 data class LoginAction(
@@ -29,7 +36,14 @@ data class LoginAction(
     val changeSignScreen: () -> Unit,
     val callResetPasswordEmail:(String) -> Unit,
     val changePassword: (String, String, String) -> Unit,
-    val toggleUpdatePassword: (Boolean) -> Unit
+    val toggleUpdatePassword: (Boolean) -> Unit,
+    val setImageUri: (Uri?) -> Unit,
+    val getImageFromCloud:() -> Unit,
+
+    val setShowLocationDisabledAlert: (Boolean) -> Unit,
+    val setShowPermissionDeniedAlert: (Boolean) -> Unit,
+    val setShowPermissionPermanentlyDeniedSnackbar: (Boolean) -> Unit,
+    val setShowNoConnectivitySnackbar: (Boolean) -> Unit
 )
 
 class LoginScreenViewModel(
@@ -45,9 +59,6 @@ class LoginScreenViewModel(
 
     var successMessage by mutableStateOf<String?>(null)
         private set
-
-   // var isLoading by mutableStateOf(false)
-   //     private set
 
     init {
         viewModelScope.launch {
@@ -174,7 +185,22 @@ class LoginScreenViewModel(
             _state.update {
                 it.copy(isUpdatePassword = isVisible)
             }
-        })
+        },
+        setImageUri ={ imageUri ->
+            _state.update { it.copy(imageUri = imageUri) } },
+        getImageFromCloud = {
+
+        },
+
+        setShowLocationDisabledAlert ={ show ->
+            _state.update { it.copy(showLocationDisabledAlert = show) } },
+        setShowPermissionDeniedAlert ={ show ->
+            _state.update { it.copy(showPermissionDeniedAlert = show) } },
+        setShowPermissionPermanentlyDeniedSnackbar={ show ->
+            _state.update { it.copy(showPermissionPermanentlyDeniedSnackbar = show) } },
+        setShowNoConnectivitySnackbar={ show ->
+            _state.update { it.copy(showNoConnectivitySnackbar = show) } },
+    )
 
     fun disableLoading(){
             _state.update { it.copy(isLoading = false) }

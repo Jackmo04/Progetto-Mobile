@@ -11,9 +11,12 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -35,6 +38,9 @@ import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
+import com.example.cacciaaltesoro.ui.composables.ImageWithPlaceholder
+import com.example.cacciaaltesoro.ui.composables.Size
+import com.example.cacciaaltesoro.utils.rememberCameraLauncher
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -67,6 +73,10 @@ fun LoginScreen(
     } else {
         stringResource(R.string.signup_title)
     }
+
+    val (_, takePicture) = rememberCameraLauncher (
+        onPictureTaken = { imageUri -> viewModel.action.setImageUri(imageUri) }
+    )
 
     Scaffold(
         topBar = {
@@ -194,6 +204,22 @@ fun LoginScreen(
                                 password = ""
                                 passwordConfirm = ""
                             })
+                            Spacer(Modifier.size(24.dp))
+                            Button(
+                                onClick = takePicture,
+                                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                            ) {
+                                Icon(
+                                    Icons.Outlined.PhotoCamera,
+                                    contentDescription = "Camera icon",
+                                    modifier = Modifier.size(ButtonDefaults.IconSize)
+                                )
+                                Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                Text("Take a picture")
+                            }
+                            Spacer(Modifier.size(8.dp))
+                            ImageWithPlaceholder(state.imageUri, Size.Lg)
+                        }
                         }
                     }
                 }
@@ -201,7 +227,7 @@ fun LoginScreen(
     }
         }
     }
-}
+
 
 @Composable
 fun MyButton(label: String, onClick: () -> Unit) {
