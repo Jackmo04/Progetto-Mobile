@@ -17,16 +17,19 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.FilledTonalButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
@@ -117,6 +120,9 @@ fun EventTagEditorScreen(
                                     )
                                 }
                                 viewModel.toEditing(tag)
+                            },
+                            onDeleteTag = { tag ->
+                                sharedViewModel.tagActions.onDeleteTag(tag)
                             }
                         )
                     }
@@ -192,7 +198,8 @@ fun EventTagEditorScreen(
 @Composable
 fun TagListContent(
     tags: List<Tag>,
-    onTagClick: (Tag) -> Unit
+    onTagClick: (Tag) -> Unit,
+    onDeleteTag: (Tag) -> Unit
 ) {
     if (tags.isEmpty()) {
         Box(
@@ -226,11 +233,21 @@ fun TagListContent(
                         )
                     },
                     trailingContent = {
-                        Icon(
-                            imageVector = Icons.Rounded.Edit,
-                            contentDescription = "Modifica tesoro",
-                            tint = MaterialTheme.colorScheme.onSurfaceVariant
-                        )
+                        Row(
+                            verticalAlignment = Alignment.CenterVertically,
+                            horizontalArrangement = Arrangement.spacedBy(16.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Edit,
+                                contentDescription = "Modifica tesoro",
+                                tint = MaterialTheme.colorScheme.onSurfaceVariant
+                            )
+                            IconButton(
+                                onClick = { onDeleteTag(tag) }
+                            ) {
+                                Icon(Icons.Default.Delete, contentDescription = "Elimina")
+                            }
+                        }
                     },
                     modifier = Modifier.clickable { onTagClick(tag) },
                     colors = ListItemDefaults.colors(

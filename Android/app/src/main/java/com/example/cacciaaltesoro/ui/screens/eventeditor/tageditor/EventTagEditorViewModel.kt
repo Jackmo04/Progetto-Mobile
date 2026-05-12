@@ -21,7 +21,7 @@ class EventTagEditorViewModel : ViewModel() {
     private val _screenState = MutableStateFlow<TagScreenState>(TagScreenState.ViewingList)
     val screenState = _screenState.asStateFlow()
 
-    private val _editingTag = MutableStateFlow<Tag>(Tag(
+    private val _editingTag = MutableStateFlow(Tag(
         number = 0,
         coordinates = Coordinates(0.0,0.0)
     ))
