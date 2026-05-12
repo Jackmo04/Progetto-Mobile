@@ -49,7 +49,7 @@ class SavedEventsViewModel(
             try {
                 isLoading = true
                 _state.update {
-                    it.copy(listEvent = repository.getAllMyEvents( loginRepositoryImpl.userId.first()),
+                    it.copy(listEvent = repository.getAllMyEvents(),
                             uuid = loginRepositoryImpl.userId.first())
                 }
             }finally {
@@ -71,7 +71,7 @@ class SavedEventsViewModel(
                 }
                 try {
                     _state.update {
-                        it.copy(listEvent = repository.getAllMyEvents(loginRepositoryImpl.userId.first()))
+                        it.copy(listEvent = repository.getAllMyEvents())
                     }
 
                 } finally {

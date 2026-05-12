@@ -63,7 +63,7 @@ class EventDetailsViewModel(
                 loginRepositoryImpl.userId.collect { userId ->
                     _state.update { it.copy(userId = userId, isLoadingSubscription = true) }
                     try {
-                        val myEvents = repository.getAllMyEvents(userId!!)
+                        val myEvents = repository.getAllMyEvents()
                         val isSubscribed = myEvents.any { it.id == _state.value.idEvent }
                         _state.update {
                             it.copy(
