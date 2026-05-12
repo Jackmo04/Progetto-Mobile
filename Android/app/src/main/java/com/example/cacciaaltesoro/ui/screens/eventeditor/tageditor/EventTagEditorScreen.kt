@@ -34,11 +34,16 @@ import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -55,6 +60,7 @@ import com.example.cacciaaltesoro.data.mappers.toCoordinates
 import com.example.cacciaaltesoro.data.mappers.toLatLng
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
+import com.example.cacciaaltesoro.utils.nfc.NfcReaderLifecycle
 import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
@@ -78,11 +84,19 @@ fun EventTagEditorScreen(
     startingLon: Double
 ) {
     val eventState by sharedViewModel.eventState.collectAsStateWithLifecycle()
-    val screenState by viewModel.screenState.collectAsStateWithLifecycle()
+    val sheetContentState by viewModel.sheetContentState.collectAsStateWithLifecycle()
+    val nfcState by viewModel.nfcState.collectAsStateWithLifecycle()
+
+    NfcReaderLifecycle(
+        isActive = nfcState is NfcState.WaitingForTag,
+        onTagDiscovered = { nfcTag ->
+            viewModel.nfcActions.onNfcTagDiscovered(nfcTag)
+        }
+    )
 
     val editingTag by viewModel.editingTag.collectAsStateWithLifecycle()
 
-    BackHandler(enabled = screenState !is ScaffoldState.ViewingList) {
+    BackHandler(enabled = sheetContentState !is SheetContentState.ViewingList) {
         // TODO logica per rimuovere il tag se non salvato
         viewModel.toViewingList()
     }
@@ -92,6 +106,8 @@ fun EventTagEditorScreen(
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val coroutineScope = rememberCoroutineScope()
+
+    val snackbarHostState = remember { SnackbarHostState() }
 
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
@@ -104,10 +120,11 @@ fun EventTagEditorScreen(
         scaffoldState = scaffoldState,
         topBar = { AppBar(stringResource(R.string.new_event), navController) },
         sheetPeekHeight = 200.dp,
+        snackbarHost = { SnackbarHost(snackbarHostState) },
         sheetContent = {
-            Crossfade(targetState = screenState, label = "sheet_content") { state ->
+            Crossfade(targetState = sheetContentState, label = "sheet_content") { state ->
                 when (state) {
-                    is ScaffoldState.ViewingList -> {
+                    is SheetContentState.ViewingList -> {
                         TagListContent(
                             tags = eventState.tags,
                             onTagClick = { tag ->
@@ -124,9 +141,12 @@ fun EventTagEditorScreen(
                             }
                         )
                     }
-                    is ScaffoldState.Editing -> {
+                    is SheetContentState.Editing -> {
                         TagEditor(
                             tag = editingTag,
+                            onAssociateNfcTag = {
+                                viewModel.nfcActions.prepareForWrite()
+                            },
                             onChangeHint = { newHint ->
                                 viewModel.editingTagActions.onTextHintChange(newHint)
                             },
@@ -144,6 +164,15 @@ fun EventTagEditorScreen(
             Spacer(modifier = Modifier.padding(24.dp))
         }
     ) { innerPadding ->
+        LaunchedEffect(Unit) {
+            viewModel.uiEvent.collect { message ->
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
+
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             GoogleMap(
                 properties = MapProperties(
@@ -152,7 +181,7 @@ fun EventTagEditorScreen(
                 cameraPositionState = cameraPositionState,
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
-                    if (screenState is ScaffoldState.ViewingList) {
+                    if (sheetContentState is SheetContentState.ViewingList) {
                         val newTag = sharedViewModel.tagActions.onNewTag(latLng.toCoordinates())
                         viewModel.toEditing(newTag)
                         coroutineScope.launch {
@@ -190,6 +219,9 @@ fun EventTagEditorScreen(
             }
         }
 
+        if (nfcState is NfcState.WaitingForTag) {
+            // TODO show ui
+        }
     }
 }
 
@@ -261,6 +293,7 @@ fun TagListContent(
 @Composable
 fun TagEditor(
     tag: Tag,
+    onAssociateNfcTag: () -> Unit,
     onChangeHint: (String) -> Unit,
     onChangeImage: (String) -> Unit,
     onSave: () -> Unit
@@ -281,7 +314,7 @@ fun TagEditor(
         HorizontalDivider()
 
         FilledTonalButton(
-            onClick = {}
+            onClick = { onAssociateNfcTag() }
         ) {
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
