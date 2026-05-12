@@ -92,8 +92,6 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
         }catch (e: Exception){
             Log.e("SavedEvent" , e.toString())
         }
-        viewModel.action.onSearchEvent("%")
-
     }
     LaunchedEffect(coordinates) {
         coordinates?.let {

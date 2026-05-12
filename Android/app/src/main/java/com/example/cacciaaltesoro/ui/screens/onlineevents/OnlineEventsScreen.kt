@@ -113,8 +113,6 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
             Log.e("Position", e.toString())
 
         }
-        viewModel.action.onSearchEvent("%")
-
     }
     LaunchedEffect(coordinates) {
         coordinates?.let {

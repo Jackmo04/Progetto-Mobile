@@ -32,7 +32,7 @@ interface EventRepository {
     suspend fun updateEvent(event: Event)
     suspend fun getEventWithTags(eventId: Int): Event?
     suspend fun getEvent(id: Int): EventDTO?
-    suspend fun getAllEvents(query: String): List<EventDTO>
+    suspend fun getAllEvents(): List<EventDTO>
     suspend fun getEventsByCode(code: String): EventDTO?
     suspend fun getOrderedEvent (type : String , location: Location?, listEvent: List<EventDTO>) : List<EventDTO>
     suspend fun getAllMyEvents(): List<EventDTO>
@@ -143,11 +143,10 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
 
-    override suspend fun getAllEvents(query: String): List<EventDTO> {
+    override suspend fun getAllEvents(): List<EventDTO> {
         try {
-            var listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
+            val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
-                    ilike("par_nome", "%$query%")
                     EventDTO::isPrivate eq false
                     EventDTO::organizerUUID neq supabase.auth.currentUserOrNull()?.id
                 }

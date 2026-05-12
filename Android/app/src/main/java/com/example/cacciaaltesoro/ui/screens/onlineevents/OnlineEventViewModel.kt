@@ -27,7 +27,7 @@ data class OnlineEventAction(
     val saveCurrentLocation: (Location) -> Unit,
     val saveIdEventCodeSearched:(String) -> Unit,
     val resetIdEventCodeSearched: () -> Unit,
-    val onSearchEvent: (String) -> Unit,
+    val onSearchEvent: () -> Unit,
     val onOrderChanged: (String) -> Unit
 )
 
@@ -53,7 +53,7 @@ class OnlineEventViewModel(
             try {
                 isLoading = true
                 _state.update {
-                    it.copy(listEvent = repository.getAllEvents("%"),
+                    it.copy(listEvent = repository.getAllEvents(),
                         uuid = loginRepositoryImpl.userId.first())
                 }
             }finally {
@@ -65,12 +65,12 @@ class OnlineEventViewModel(
     @OptIn(ExperimentalTime::class)
     val action = OnlineEventAction(
         saveCurrentLocation = {location -> currentLocation = location},
-        onSearchEvent = { query ->
+        onSearchEvent = {
             viewModelScope.launch {
                 isLoading = true
                 try {
                     _state.update {
-                        it.copy(listEvent = repository.getAllEvents(query))
+                        it.copy(listEvent = repository.getAllEvents())
                     }
                 } catch (e: Exception) {
                     Log.e("OnlineEvent" , e.toString())
