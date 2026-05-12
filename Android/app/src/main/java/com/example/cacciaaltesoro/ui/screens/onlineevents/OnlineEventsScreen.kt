@@ -73,6 +73,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
     }
 
 
+
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
@@ -107,6 +108,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
 
 
     LaunchedEffect(Unit) {
+        viewModel.action.onSearchEvent()
         try {
             getLocationOrRequestPermission()
         }catch (e: Exception){

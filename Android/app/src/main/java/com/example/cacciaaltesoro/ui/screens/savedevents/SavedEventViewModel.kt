@@ -25,7 +25,7 @@ data class SavedEventState(
 
 data class SavedEventAction(
     val saveCurrentLocation: (Location) -> Unit,
-    val onSearchEvent: (String) -> Unit,
+    val onSearchEvent: () -> Unit,
     val onOrderChanged: (String) -> Unit
 )
 

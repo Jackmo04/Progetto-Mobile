@@ -87,6 +87,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
 
 
     LaunchedEffect(Unit) {
+        viewModel.action.onSearchEvent()
         try {
             getLocationOrRequestPermission()
         }catch (e: Exception){
