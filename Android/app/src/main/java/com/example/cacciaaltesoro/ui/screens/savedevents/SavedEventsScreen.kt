@@ -23,8 +23,10 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.platform.LocalContext
@@ -38,7 +40,6 @@ import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.EventListCard
 import com.example.cacciaaltesoro.ui.composables.OrderComboBox
-import com.example.cacciaaltesoro.ui.screens.onlineevents.toastDistancePermission
 import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
@@ -50,6 +51,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
     val ctx = LocalContext.current
 
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val snackbarHostState = remember { SnackbarHostState() }
 
 
 
@@ -106,7 +108,8 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
     Scaffold(
         topBar = {
             AppBar(stringResource(R.string.saved_event_title), navController)
-        }
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -135,7 +138,12 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                         val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
 
                         if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
-                            toastDistancePermission(ctx)
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Permesso di posizione necessario per trovare eventi vicini.",
+                                    duration = SnackbarDuration.Long
+                                )
+                            }
                         }
                     }
 

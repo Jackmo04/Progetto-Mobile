@@ -29,7 +29,8 @@ data class OnlineEventAction(
     val saveIdEventCodeSearched:(String) -> Unit,
     val resetIdEventCodeSearched: () -> Unit,
     val onSearchEvent: () -> Unit,
-    val onOrderChanged: (String) -> Unit
+    val onOrderChanged: (String) -> Unit,
+    val clearErrorMessage: () -> Unit
 )
 
 class OnlineEventViewModel(
@@ -121,6 +122,9 @@ class OnlineEventViewModel(
                 isLoading = false
             }
         }
+        },
+        clearErrorMessage = {
+            errorMessage = null
         }
     )
 }

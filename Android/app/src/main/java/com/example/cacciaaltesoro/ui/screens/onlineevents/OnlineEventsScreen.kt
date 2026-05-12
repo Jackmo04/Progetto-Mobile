@@ -1,10 +1,8 @@
 package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import android.Manifest
-import android.content.Context
 import android.location.Location
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.border
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -36,6 +34,9 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.SnackbarDuration
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.rememberCoroutineScope
@@ -61,6 +62,7 @@ import kotlinx.coroutines.launch
 fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel ) {
     val ctx = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
+    val snackbarHostState = remember { SnackbarHostState() }
     val state by viewModel.state.collectAsState()
     val list = state.listEvent
 
@@ -69,6 +71,15 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
             viewModel.action.resetIdEventCodeSearched()
             navController.navigate(NavigationRoute.EventDetails(id))
 
+        }
+    }
+    LaunchedEffect(viewModel.errorMessage) {
+        viewModel.errorMessage?.let { message ->
+            snackbarHostState.showSnackbar(
+                message = message,
+                duration = SnackbarDuration.Short
+            )
+            viewModel.action.clearErrorMessage()
         }
     }
 
@@ -128,8 +139,11 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
     Scaffold(
         topBar = {
             AppBar(stringResource(id = R.string.online_event_title), navController)
-        }
+
+        },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
+
         Box(
             modifier = Modifier
                 .padding(innerPadding)
@@ -141,8 +155,6 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     .fillMaxSize()
                     .padding(16.dp)
             ) {
-
-
                 Row(
                     modifier = Modifier
                         .fillMaxWidth()
@@ -197,7 +209,12 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                         val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
 
                         if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
-                            toastDistancePermission(ctx)
+                            scope.launch {
+                                snackbarHostState.showSnackbar(
+                                    message = "Permesso di posizione necessario per trovare eventi vicini.",
+                                    duration = SnackbarDuration.Long
+                                )
+                            }
                         }
                     }
 
@@ -235,14 +252,6 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
 
 
 }}
-
-fun toastDistancePermission(ctx: Context){
-    Toast.makeText(
-        ctx,
-        "Location permission is needed to find nearby events.",
-        Toast.LENGTH_LONG
-    ).show()
-}
 
 
 
