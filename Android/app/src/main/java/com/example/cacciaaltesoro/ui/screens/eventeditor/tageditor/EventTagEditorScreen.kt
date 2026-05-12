@@ -22,6 +22,7 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.rounded.Edit
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -88,7 +89,7 @@ fun EventTagEditorScreen(
     val nfcState by viewModel.nfcState.collectAsStateWithLifecycle()
 
     NfcReaderLifecycle(
-        isActive = nfcState is NfcState.WaitingForTag,
+        isActive = nfcState is NfcState.WaitingForTag || nfcState is NfcState.Done, // TODO improve logic
         onTagDiscovered = { nfcTag ->
             viewModel.nfcActions.onNfcTagDiscovered(nfcTag)
         }
@@ -220,7 +221,17 @@ fun EventTagEditorScreen(
         }
 
         if (nfcState is NfcState.WaitingForTag) {
-            // TODO show ui
+            AlertDialog(
+                onDismissRequest = { viewModel.nfcActions.resetState() },
+                icon = { Icon(Icons.Default.Nfc, contentDescription = null) },
+                title = { Text("Scrittura Tag NFC") },
+                text = { Text("Avvicina il tag NFC al retro del dispositivo per completare l'associazione.") },
+                confirmButton = {
+                    Button(onClick = { viewModel.nfcActions.resetState() }) {
+                        Text("Annulla")
+                    }
+                }
+            )
         }
     }
 }

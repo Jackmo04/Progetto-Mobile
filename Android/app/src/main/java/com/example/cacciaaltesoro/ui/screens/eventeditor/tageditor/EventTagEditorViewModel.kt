@@ -7,6 +7,7 @@ import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.utils.nfc.NfcUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.receiveAsFlow
@@ -22,8 +23,7 @@ sealed class SheetContentState {
 sealed class NfcState {
     object Idle : NfcState()
     object WaitingForTag : NfcState()
-//    object Success : NfcState()
-//    data class Error(val message: String) : NfcState()
+    object Done : NfcState()
 }
 
 data class EditingTagActions(
@@ -33,7 +33,8 @@ data class EditingTagActions(
 
 data class NfcActions(
     val onNfcTagDiscovered: (android.nfc.Tag) -> Unit,
-    val prepareForWrite: () -> Unit
+    val prepareForWrite: () -> Unit,
+    val resetState: () -> Unit
 )
 
 class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
@@ -68,14 +69,19 @@ class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
                 if (result) {
                     _uiEvent.trySend("Tag NFC scritto correttamente!")
                 } else {
-                    _uiEvent.trySend("Errore durante la scrittura del tag NFC")
+                    _uiEvent.trySend("Errore! Riprova per favore!")
                 }
+                _nfcState.value = NfcState.Done // TODO improve logic if there's time
+                delay(2000L)
                 _nfcState.value = NfcState.Idle
             }
         },
         prepareForWrite = {
             _nfcState.value = NfcState.WaitingForTag
-            _uiEvent.trySend("Avvicina il tag NFC")
+            //_uiEvent.trySend("Avvicina il tag NFC") // TODO change in ui
+        },
+        resetState = {
+            _nfcState.value = NfcState.Idle
         }
     )
 
