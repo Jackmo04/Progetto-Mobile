@@ -219,3 +219,25 @@ CREATE POLICY "Permetti lettura foto"
 ON storage.objects FOR SELECT 
 TO public 
 USING (bucket_id = 'Upload');
+
+-- ==========================================
+-- AGGIORNAMENTO VINCOLI PER ON DELETE CASCADE
+-- ==========================================
+
+-- 1. Aggiornamento per la tabella partecipazioni
+ALTER TABLE partecipazioni
+  DROP CONSTRAINT partecipazioni_pkey,
+  ADD CONSTRAINT partecipazioni_pkey 
+  FOREIGN KEY (prt_partita) REFERENCES partite(par_id) ON DELETE CASCADE;
+
+-- 2. Aggiornamento per la tabella tags
+ALTER TABLE tags
+  DROP CONSTRAINT tags_tag_partita_fkey,
+  ADD CONSTRAINT tags_tag_partita_fkey 
+  FOREIGN KEY (tag_partita) REFERENCES partite(par_id) ON DELETE CASCADE;
+
+-- 3. Aggiornamento per la tabella tagraccolti (necessario perché dipende da tags)
+ALTER TABLE tagraccolti
+  DROP CONSTRAINT tagraccolti_tgr_tag_fkey,
+  ADD CONSTRAINT tagraccolti_tgr_tag_fkey 
+  FOREIGN KEY (tgr_tag) REFERENCES tags(tag_id) ON DELETE CASCADE;
