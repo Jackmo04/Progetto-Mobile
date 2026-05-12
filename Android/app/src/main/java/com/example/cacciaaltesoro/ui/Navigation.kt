@@ -8,7 +8,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navDeepLink
 import androidx.navigation.toRoute
-import com.example.cacciaaltesoro.data.Coordinates
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsScreen
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorScreen

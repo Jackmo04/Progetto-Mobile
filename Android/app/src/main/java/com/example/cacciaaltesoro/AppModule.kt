@@ -14,6 +14,7 @@ import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
+import com.example.cacciaaltesoro.utils.nfc.NfcUtils
 import io.github.jan.supabase.SupabaseClient
 import org.koin.core.module.dsl.viewModel
 import org.koin.dsl.module
@@ -30,6 +31,8 @@ val appModule = module {
 
     single<SupabaseClient> { Supabase().supabase }
 
+    single { NfcUtils() }
+
     viewModel { LoginScreenViewModel(get() ) }
     viewModel { OnlineEventViewModel(get(), get ()) }
     viewModel { SavedEventsViewModel(get(), get ()) }
@@ -40,6 +43,6 @@ val appModule = module {
             loginRepository = get()
         )
     }
-    viewModel { EventTagEditorViewModel() }
+    viewModel { EventTagEditorViewModel(get()) }
     viewModel { EventDetailsViewModel(get(), get()) }
 }
