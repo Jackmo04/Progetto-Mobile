@@ -208,7 +208,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 ?: throw IllegalStateException("utente non loggato")
 
             val userSaved = supabase.from(SupabaseTables.USERS.tableName).select(
-                columns = Columns.raw("*, partite!partecipazioni(*)")) {
+                columns = Columns.raw("*,  partite!partecipazioni(*)")) {
                 filter {
                     UserDTO::uuid eq uuidC
                 }
@@ -222,10 +222,10 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
 
             val listEvent = userSaved + createdEvent
 
-            Log.d("SavedEventRepository", "Fetched events: ${listEvent.size}")
+            Log.d("SavedEventRepository", "Fetched events: ${listEvent.toString()}")
             return listEvent.distinct().sortedBy { eventDTO -> eventDTO.name }
         } catch (e: Exception) {
-            Log.e("EventRepository", "Error searching events", e)
+            Log.e("SavedEventRepository", "Error searching events", e)
 
         }
         return emptyList()
