@@ -56,10 +56,11 @@ import java.time.format.DateTimeFormatter
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 import androidx.core.net.toUri
+import com.example.cacciaaltesoro.data.domain.Event
 
 @Composable
 fun EventCard(
-    event: EventDTO,
+    event: Event,
     viewModel: EventDetailsViewModel,
     navController: NavHostController
 ) {
@@ -185,7 +186,7 @@ fun EventCard(
                     modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
-                    text = "Organizer: ${event.userDTO?.username ?: "Unknown"}",
+                    text = "Organizer: ${event.organizer?.username ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     modifier = Modifier.padding(bottom = 16.dp)
@@ -331,7 +332,7 @@ fun EventCard(
 
 }
 
-fun getImageUrl(event: EventDTO) : String{
+fun getImageUrl(event: Event) : String{
    return "https://maps.googleapis.com/maps/api/staticmap?" +
             "center=${event.lat},${event.lon}" +
             "&zoom=15" +
@@ -341,7 +342,7 @@ fun getImageUrl(event: EventDTO) : String{
 }
 
 @OptIn(ExperimentalTime::class)
-fun shareTextBuilder(event: EventDTO, resolvedAddress: String): String {
+fun shareTextBuilder(event: Event, resolvedAddress: String): String {
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", java.util.Locale.ITALY)
     val dateTime = java.time.Instant.ofEpochSecond(event.startTime.epochSeconds)
         .atZone(ZoneId.systemDefault())
@@ -390,7 +391,7 @@ fun getAddressFromCoords(lat: Double, lng: Double): String {
         context.shutdown()
     }
 }
-fun openInMaps(event: EventDTO , ctx: Context) {
+fun openInMaps(event: Event , ctx: Context) {
     try {
         val uri = "https://maps.google.com/?q=${event.lat},${event.lon}".toUri()
         val mapIntent = Intent(Intent.ACTION_VIEW, uri)

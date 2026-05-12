@@ -159,7 +159,7 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
                         items(state.listEvent) { event ->
                             Log.i("uuid" , event.organizerUUID + " " +state.uuid)
                             EventListCard(event, event.organizerUUID == state.uuid) {
-                                navController.navigate(NavigationRoute.EventDetails(event.id))
+                                navController.navigate(NavigationRoute.EventDetails(event.id!!))
                             }
                     }
                 }

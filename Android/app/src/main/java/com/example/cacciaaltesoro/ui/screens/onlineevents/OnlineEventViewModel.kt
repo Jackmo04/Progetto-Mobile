@@ -8,6 +8,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -18,7 +19,7 @@ import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
 data class OnlineEventState(
-    val listEvent: List<EventDTO> = emptyList(),
+    val listEvent: List<Event> = emptyList(),
     val uuid: String = "",
     val idEventCodeSearched: Int? = null
 )

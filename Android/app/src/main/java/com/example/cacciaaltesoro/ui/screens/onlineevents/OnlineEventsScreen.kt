@@ -222,7 +222,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                         EventListCard(event, event.organizerUUID == state.uuid) {
                             Log.i("CardLog" , event.id.toString())
                             event.id.let { id ->
-                                navController.navigate(NavigationRoute.EventDetails(id))
+                                navController.navigate(NavigationRoute.EventDetails(id!!))
                             }
                         }
                 }

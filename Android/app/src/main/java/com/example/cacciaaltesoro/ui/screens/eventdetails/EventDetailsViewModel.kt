@@ -7,6 +7,7 @@ import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.domain.User
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
@@ -19,7 +20,7 @@ import kotlin.time.ExperimentalTime
 
 data class EventDetailsEventState(
     val idEvent: Int = 0,
-    val event: EventDTO? = null,
+    val event: Event? = null,
     val userId: String? = null,
     val imSubscribe: Boolean = false,
     val isLoadingSubscription: Boolean = true

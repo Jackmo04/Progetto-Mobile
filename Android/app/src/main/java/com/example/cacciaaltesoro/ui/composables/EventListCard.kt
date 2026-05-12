@@ -28,10 +28,11 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.cacciaaltesoro.data.database.dto.EventDTO
+import com.example.cacciaaltesoro.data.domain.Event
 
 @Composable
 fun EventListCard(
-    events: EventDTO,
+    events: Event,
     isMyEvent: Boolean,
     onClick: () -> Unit
 ) {
