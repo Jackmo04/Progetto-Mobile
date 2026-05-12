@@ -204,7 +204,14 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
 
                 }
                 if (viewModel.isLoading) {
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
                 else{
                 LazyColumn(

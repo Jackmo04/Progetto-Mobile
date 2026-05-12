@@ -142,7 +142,14 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
 
                 }
                 if (viewModel.isLoading) {
-                    CircularProgressIndicator()
+                    Box(
+                        modifier = Modifier
+                            .padding(innerPadding)
+                            .fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
                 }
                 else{
                     LazyColumn(

@@ -257,18 +257,13 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
 
     override suspend fun deleteEvent(idEvent: Int) {
         try {
-            supabase.from("partecipazioni").delete {
-                filter {
-                    eq("prt_partita", idEvent)
-                }
-            }
             supabase.from(SupabaseTables.EVENTS.tableName).delete {
                 filter {
                     eq("par_id", idEvent)
                 }
             }
         }catch (e: Exception){
-            Log.e("JoinEvent",e.toString())
+            Log.e("DeleteEvent",e.toString())
         }
     }
 
