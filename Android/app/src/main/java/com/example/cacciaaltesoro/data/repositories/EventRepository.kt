@@ -35,7 +35,7 @@ interface EventRepository {
     suspend fun getAllEvents(query: String): List<EventDTO>
     suspend fun getEventsByCode(code: String): EventDTO?
     suspend fun getOrderedEvent (type : String , location: Location?) : List<EventDTO>
-    suspend fun getAllMyEvents( uuid:String): List<EventDTO>
+    suspend fun getAllMyEvents(): List<EventDTO>
     suspend fun joinToEvent(idEvent: Int , idUser: String)
 
     suspend fun unscribeFromEvent(idEvent: Int , idUser: String)
@@ -207,18 +207,23 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         return result
     }
 
-    override suspend fun getAllMyEvents( uuid: String): List<EventDTO> {
+    override suspend fun getAllMyEvents(): List<EventDTO> {
+
+
         try {
+            val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
+                ?: throw IllegalStateException("utente non loggato")
+
             val userSaved = supabase.from(SupabaseTables.USERS.tableName).select(
                 columns = Columns.raw("*, partite!partecipazioni(*)")) {
                 filter {
-                    UserDTO::uuid eq uuid
+                    UserDTO::uuid eq uuidC
                 }
             }.decodeSingle<UserDTO>().eventDTOS
 
             val createdEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
-                    EventDTO::organizerUUID eq uuid
+                    EventDTO::organizerUUID eq uuidC
                 }
             }.decodeList<EventDTO>()
 
