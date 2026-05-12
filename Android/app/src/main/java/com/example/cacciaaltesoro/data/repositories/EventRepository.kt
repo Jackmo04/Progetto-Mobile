@@ -36,8 +36,6 @@ interface EventRepository {
     suspend fun getEventsByCode(code: String): EventDTO?
     suspend fun getOrderedEvent (type : String , location: Location?) : List<EventDTO>
     suspend fun getAllMyEvents( uuid:String): List<EventDTO>
-    suspend fun getOrderedMyEvent (type : String , location: Location?) : List<EventDTO>
-
     suspend fun joinToEvent(idEvent: Int , idUser: String)
 
     suspend fun unscribeFromEvent(idEvent: Int , idUser: String)
@@ -235,39 +233,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         return _listEvent.distinct().sortedBy { eventDTO -> eventDTO.name }
     }
 
-    @OptIn(ExperimentalTime::class)
-    override suspend fun getOrderedMyEvent(type: String , location: Location?): List<EventDTO> {
-        var result = emptyList<EventDTO>()
-        try {
-            when (type) {
-                EventOrderType.NAME.type -> {
-                    result = listEvent.sortedBy{ it.name }
-                }
-                EventOrderType.NAME_DESC.type -> {
-                    result = listEvent.sortedByDescending{ it.name }
-                }
-
-                EventOrderType.START_DATE.type -> {
-                    result = listEvent.sortedBy { it.startTime.epochSeconds }
-                }
-
-                EventOrderType.EVENT_DURATION.type -> {
-                    result =  listEvent.sortedBy { it.endTime.nanosecondsOfSecond - it.startTime.nanosecondsOfSecond }
-                }
-
-                EventOrderType.DISTANCE.type ->{
-                    result = try {
-                        orderLocationByDistance(listEvent , location)
-                    } catch (e: Exception){
-                        listEvent
-                    }
-                }
-            }
-        } catch (e: Exception) {
-            Log.e("EventRepository", "Error fetching ordered events", e)
-        }
-        return result
-    }
 
     override suspend fun joinToEvent(idEvent: Int, idUser: String) {
         try {

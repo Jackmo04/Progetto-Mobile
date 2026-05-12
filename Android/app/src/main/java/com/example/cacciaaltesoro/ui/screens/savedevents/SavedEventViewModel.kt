@@ -87,7 +87,7 @@ class SavedEventsViewModel(
             isLoading = true
             try {
                 _state.update {
-                    it.copy(listEvent = repository.getOrderedMyEvent(selected, currentLocation))
+                    it.copy(listEvent = repository.getOrderedEvent(selected, currentLocation))
                 }
             } finally {
                 isLoading = false

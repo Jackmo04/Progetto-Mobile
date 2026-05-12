@@ -219,3 +219,18 @@ CREATE POLICY "Permetti lettura foto"
 ON storage.objects FOR SELECT 
 TO public 
 USING (bucket_id = 'Upload');
+
+--Drop FOREIGN KEY
+ALTER TABLE partecipazioni
+DROP CONSTRAINT IF EXISTS fk_partecipazioni_partita,
+ADD CONSTRAINT fk_partecipazioni_partita
+  FOREIGN KEY (prt_partita) 
+  REFERENCES partite(par_id) 
+  ON DELETE CASCADE;
+
+ALTER TABLE tags
+DROP CONSTRAINT IF EXISTS fk_tags_partita,
+ADD CONSTRAINT fk_tags_partita
+  FOREIGN KEY (tag_partita) 
+  REFERENCES partite(par_id) 
+  ON DELETE CASCADE;
