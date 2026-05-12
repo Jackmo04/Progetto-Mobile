@@ -36,9 +36,9 @@ interface EventRepository {
     suspend fun getEventsByCode(code: String): EventDTO?
     suspend fun getOrderedEvent (type : String , location: Location?, listEvent: List<EventDTO>) : List<EventDTO>
     suspend fun getAllMyEvents(): List<EventDTO>
-    suspend fun joinToEvent(idEvent: Int , idUser: String)
+    suspend fun joinToEvent(idEvent: Int )
 
-    suspend fun unscribeFromEvent(idEvent: Int , idUser: String)
+    suspend fun unscribeFromEvent(idEvent: Int)
 
     suspend fun deleteEvent(idEvent: Int)
 
@@ -232,22 +232,22 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     }
 
 
-    override suspend fun joinToEvent(idEvent: Int, idUser: String) {
+    override suspend fun joinToEvent(idEvent: Int) {
         try {
-            val link = UserEvent(idEvent,idUser)
+            val link = UserEvent(idEvent,supabase.auth.currentSessionOrNull()?.user!!.id)
             supabase.postgrest["partecipazioni"].insert(link)
         }catch (e: Exception){
             Log.e("JoinEvent",e.toString())
         }
     }
 
-    override suspend fun unscribeFromEvent(idEvent: Int, idUser: String) {
+    override suspend fun unscribeFromEvent(idEvent: Int) {
 
         try {
             supabase.from("partecipazioni").delete {
                 filter {
                     eq("prt_partita", idEvent)
-                    eq("prt_utente", idUser)
+                    eq("prt_utente", supabase.auth.currentSessionOrNull()?.user!!.id)
                 }
             }
         }catch (e: Exception){

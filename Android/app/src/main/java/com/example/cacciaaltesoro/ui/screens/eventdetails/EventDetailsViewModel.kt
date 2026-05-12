@@ -80,23 +80,23 @@ class EventDetailsViewModel(
         },
         joinToEvent = {
             viewModelScope.launch {
-                _state.update { it.copy(isLoadingSubscription = true) } // Inizio azione
+                _state.update { it.copy(isLoadingSubscription = true) }
                 try {
-                    repository.joinToEvent(_state.value.idEvent, _state.value.userId!!)
+                    repository.joinToEvent(_state.value.idEvent)
                     _state.update { it.copy(imSubscribe = true) }
                 } finally {
-                    _state.update { it.copy(isLoadingSubscription = false) } // Fine azione
+                    _state.update { it.copy(isLoadingSubscription = false) }
                 }
             }
         },
         unscribeFromEvent = {
             viewModelScope.launch {
-                _state.update { it.copy(isLoadingSubscription = true) } // Inizio azione
+                _state.update { it.copy(isLoadingSubscription = true) }
                 try {
-                    repository.unscribeFromEvent(_state.value.idEvent, _state.value.userId!!)
+                    repository.unscribeFromEvent(_state.value.idEvent)
                     _state.update { it.copy(imSubscribe = false) }
                 } finally {
-                    _state.update { it.copy(isLoadingSubscription = false) } // Fine azione
+                    _state.update { it.copy(isLoadingSubscription = false) }
                 }
             }
         },
