@@ -2,6 +2,7 @@
 
 package com.example.cacciaaltesoro.ui.screens.eventeditor
 
+import android.Manifest
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
 import androidx.compose.foundation.BorderStroke
@@ -55,6 +56,7 @@ import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -75,13 +77,21 @@ import com.example.cacciaaltesoro.data.mappers.toLatLng
 import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.ClickableBox
+import com.example.cacciaaltesoro.utils.Coordinates
+import com.example.cacciaaltesoro.utils.LocationService
+import com.example.cacciaaltesoro.utils.PermissionStatus
+import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
+import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
+import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
 @Composable
@@ -98,7 +108,33 @@ fun EventEditorScreen(
 
     val snackbarHostState = remember { SnackbarHostState() }
 
+    val ctx = LocalContext.current
+    val locationService = remember { LocationService(ctx) }
 
+    val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
+    val scope = rememberCoroutineScope()
+    fun getCurrentLocation() = scope.launch {
+        try {
+            locationService.getCurrentLocation()
+        } catch (_: Exception) {}
+    }
+
+    val locationPermissions = rememberMultiplePermissions(
+        listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
+    ) { permissionResults ->
+        val isGrantedNow = permissionResults.values.any { it.isGranted }
+        if (isGrantedNow) {
+            getCurrentLocation()
+        }
+    }
+
+    fun getLocationOrRequestPermission() {
+        if (locationPermissions.statuses.any { it.value.isGranted }) {
+            getCurrentLocation()
+        } else {
+            locationPermissions.launchPermissionRequest()
+        }
+    }
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
@@ -158,7 +194,9 @@ fun EventEditorScreen(
 
             // Location
             ClickableBox(
-                onClick = { showMapDialog = true }
+                onClick = {
+                    showMapDialog = true
+                }
             ) {
                 OutlinedTextField(
                     value = eventState.fLocation,
@@ -266,8 +304,11 @@ fun EventEditorScreen(
         }
 
         if (showMapDialog) {
+            getLocationOrRequestPermission()
             MapPickerDialog (
                 startingMarkerPosition = eventState.location?.toLatLng(),
+                startingCameraPosition = eventState.location?.toLatLng() ?: coordinates?.toLatLng(),
+                showCurrentLocation = locationPermissions.statuses.any { it.value.isGranted },
                 onDismiss = { showMapDialog = false },
                 onLocationSelected = { latLng ->
                     viewModel.eventActions.onLocationChange(latLng.toCoordinates())
@@ -458,6 +499,8 @@ fun DateTimeInputs2(
 @Composable
 fun MapPickerDialog(
     startingMarkerPosition: LatLng? = null,
+    startingCameraPosition: LatLng?,
+    showCurrentLocation: Boolean,
     onDismiss: () -> Unit,
     onLocationSelected: (LatLng) -> Unit
 ) {
@@ -474,10 +517,17 @@ fun MapPickerDialog(
             Column {
                 val cameraPositionState = rememberCameraPositionState {
                     position = CameraPosition.fromLatLngZoom(
-                        startingMarkerPosition ?: LatLng(44.148, 12.236),
-                        13f
+                        startingCameraPosition ?: LatLng(44.148, 12.236),
+                        16f
                     )
                 }
+
+                LaunchedEffect(startingCameraPosition) {
+                    startingCameraPosition?.let {
+                        cameraPositionState.position = CameraPosition.fromLatLngZoom(it, 16f)
+                    }
+                }
+
                 var isMapLoaded by remember { mutableStateOf(false) }
                 var markerPosition by remember { mutableStateOf(startingMarkerPosition) }
                 var hasSelectedLocation by remember { mutableStateOf(startingMarkerPosition != null) }
@@ -492,8 +542,11 @@ fun MapPickerDialog(
                         cameraPositionState = cameraPositionState,
                         uiSettings = MapUiSettings(
                             zoomControlsEnabled = false,
-                            mapToolbarEnabled = false
-                            //myLocationButtonEnabled = true // TODO get permissions
+                            mapToolbarEnabled = false,
+                            myLocationButtonEnabled = showCurrentLocation
+                        ),
+                        properties = MapProperties(
+                            isMyLocationEnabled = showCurrentLocation
                         ),
                         onMapLoaded = { isMapLoaded = true },
                         onMapClick = { latLng ->
@@ -503,7 +556,8 @@ fun MapPickerDialog(
                     ) {
                         markerPosition?.let { latLng ->
                             Marker(
-                                state = MarkerState(position = latLng)
+                                state = MarkerState(position = latLng),
+                                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
                             )
                         }
                     }

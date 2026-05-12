@@ -15,7 +15,6 @@
         <intent>
             <action android:name="android.settings.APPLICATION_DETAILS_SETTINGS" />
         </intent>
-
     </queries>
 
     <application

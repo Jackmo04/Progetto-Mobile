@@ -1,4 +1,4 @@
-package com.example.cacciaaltesoro.data
+package com.example.cacciaaltesoro.utils
 
 import android.Manifest
 import android.content.Context
@@ -8,12 +8,17 @@ import android.location.LocationManager
 import androidx.core.content.ContextCompat
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
+import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.tasks.await
 
-data class Coordinates(val latitude: Double, val longitude: Double)
+data class Coordinates(val latitude: Double, val longitude: Double) {
+    fun toLatLng(): LatLng {
+        return LatLng(latitude, longitude)
+    }
+}
 
 class LocationService(private val ctx: Context) {
     private val fusedLocationClient = LocationServices.getFusedLocationProviderClient(ctx)
