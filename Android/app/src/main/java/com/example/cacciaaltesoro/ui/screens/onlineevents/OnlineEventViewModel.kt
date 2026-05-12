@@ -111,7 +111,7 @@ class OnlineEventViewModel(
             isLoading = true
             try {
                 _state.update {
-                    it.copy(listEvent = repository.getOrderedEvent(selected , currentLocation))
+                    it.copy(listEvent = repository.getOrderedEvent(selected , currentLocation , state.value.listEvent))
                 }
             } catch (e: Exception) {
                 Log.e("OnlineEvent" , e.toString())

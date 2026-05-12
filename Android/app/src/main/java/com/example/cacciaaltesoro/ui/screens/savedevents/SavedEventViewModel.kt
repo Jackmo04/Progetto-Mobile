@@ -24,7 +24,6 @@ data class SavedEventState(
 data class SavedEventAction(
     val saveCurrentLocation: (Location) -> Unit,
     val onSearchEvent: (String) -> Unit,
-    val onViewEvent: (String) -> Unit,
     val onOrderChanged: (String) -> Unit
 )
 
@@ -79,15 +78,12 @@ class SavedEventsViewModel(
                 }
             }
         },
-        onViewEvent = {
-
-        },
         onOrderChanged = { selected ->
             viewModelScope.launch {
             isLoading = true
             try {
                 _state.update {
-                    it.copy(listEvent = repository.getOrderedEvent(selected, currentLocation))
+                    it.copy(listEvent = repository.getOrderedEvent(selected, currentLocation , _state.value.listEvent))
                 }
             } finally {
                 isLoading = false
