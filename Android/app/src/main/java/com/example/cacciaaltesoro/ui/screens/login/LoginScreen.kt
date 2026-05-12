@@ -21,8 +21,10 @@ import androidx.compose.foundation.layout.heightIn
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.PhotoLibrary
@@ -165,6 +167,7 @@ fun LoginScreen(
                 .padding(contentPadding)
                 .padding(12.dp)
                 .fillMaxSize()
+            .verticalScroll(rememberScrollState()),
         ) {
 
 
@@ -308,6 +311,10 @@ fun LoginScreen(
                                 }
                             }
                             Spacer(Modifier.size(8.dp))
+                            Row(
+                                modifier = Modifier.fillMaxWidth(),
+                                horizontalArrangement = Arrangement.SpaceEvenly
+                            ) {
                             AsyncImage(
                                 model = state.imageUri,
                                 contentDescription = "Foto del profilo",
@@ -317,7 +324,7 @@ fun LoginScreen(
                                     .clip(CircleShape)
                                     .background(MaterialTheme.colorScheme.surfaceVariant),
                                 contentScale = ContentScale.Crop
-                            )
+                            )}
                         }
                         }
                     }

@@ -35,6 +35,9 @@ import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.rememberLazyListState
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -133,7 +136,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
-                .border(2.dp, Color(0x1AFFFFFF), RoundedCornerShape(2.dp))
+                .border(2.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(2.dp))
         ) {
             Column(
                 modifier = Modifier
@@ -154,16 +157,16 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                         value = searchQuery,
                         onValueChange = { searchQuery = it },
                         modifier = Modifier.weight(1f),
-                        placeholder = { Text(stringResource(R.string.event_code), color = Color.LightGray) },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = Color.White) },
+                        placeholder = { Text(stringResource(R.string.event_code), color = MaterialTheme.colorScheme.primary) },
+                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
                         shape = RoundedCornerShape(12.dp),
                         maxLines = 1,
                         colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = Color.White,
-                            unfocusedTextColor = Color.White,
-                            focusedBorderColor = Color.White,
-                            unfocusedBorderColor = Color.LightGray,
-                            cursorColor = Color.White
+                            focusedTextColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedTextColor = MaterialTheme.colorScheme.secondary,
+                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
+                            unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
+                            cursorColor = MaterialTheme.colorScheme.secondary
                         )
                     )
 
@@ -209,7 +212,8 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp)
+                    contentPadding = PaddingValues(vertical = 8.dp),
+                    state = (rememberLazyListState())
                 ) {
                     items(state.listEvent) { event ->
                         EventListCard(event, event.organizerUUID == state.uuid) {
