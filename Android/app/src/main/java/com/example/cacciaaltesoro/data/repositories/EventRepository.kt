@@ -144,11 +144,22 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     }
 
     override suspend fun getAllEvents(): List<Event> {
+        val uuid = supabase.auth.currentUserOrNull()?.id
+        if (uuid == null){
+            val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
+                filter {
+                    EventDTO::isPrivate eq false
+                }
+            }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
+            Log.i("Event", listEvent.toString())
+            return  listEvent.map{e -> e.toDomain()}
+
+        } else {
         try {
             val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::isPrivate eq false
-                    EventDTO::organizerUUID neq supabase.auth.currentUserOrNull()?.id
+                    EventDTO::organizerUUID neq uuid
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())
@@ -157,7 +168,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         } catch (e: Exception) {
             Log.e("EventRepository", "Error searching events", e)
 
-        }
+        }}
         return emptyList()
     }
 
