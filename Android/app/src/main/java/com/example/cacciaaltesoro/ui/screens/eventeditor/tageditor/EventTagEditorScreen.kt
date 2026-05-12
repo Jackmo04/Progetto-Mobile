@@ -22,7 +22,6 @@ import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.rounded.Edit
-import androidx.compose.material3.BottomSheetDefaults
 import androidx.compose.material3.BottomSheetScaffold
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -47,7 +46,6 @@ import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -84,7 +82,7 @@ fun EventTagEditorScreen(
 
     val editingTag by viewModel.editingTag.collectAsStateWithLifecycle()
 
-    BackHandler(enabled = screenState !is TagScreenState.ViewingList) {
+    BackHandler(enabled = screenState !is ScaffoldState.ViewingList) {
         // TODO logica per rimuovere il tag se non salvato
         viewModel.toViewingList()
     }
@@ -109,7 +107,7 @@ fun EventTagEditorScreen(
         sheetContent = {
             Crossfade(targetState = screenState, label = "sheet_content") { state ->
                 when (state) {
-                    is TagScreenState.ViewingList -> {
+                    is ScaffoldState.ViewingList -> {
                         TagListContent(
                             tags = eventState.tags,
                             onTagClick = { tag ->
@@ -126,7 +124,7 @@ fun EventTagEditorScreen(
                             }
                         )
                     }
-                    is TagScreenState.Editing -> {
+                    is ScaffoldState.Editing -> {
                         TagEditor(
                             tag = editingTag,
                             onChangeHint = { newHint ->
@@ -154,7 +152,7 @@ fun EventTagEditorScreen(
                 cameraPositionState = cameraPositionState,
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
-                    if (screenState is TagScreenState.ViewingList) {
+                    if (screenState is ScaffoldState.ViewingList) {
                         val newTag = sharedViewModel.tagActions.onNewTag(latLng.toCoordinates())
                         viewModel.toEditing(newTag)
                         coroutineScope.launch {

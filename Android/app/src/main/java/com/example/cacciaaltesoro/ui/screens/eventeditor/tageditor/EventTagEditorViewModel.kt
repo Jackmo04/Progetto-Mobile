@@ -7,9 +7,9 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
 
-sealed class TagScreenState {
-    object ViewingList : TagScreenState()
-    object Editing : TagScreenState()
+sealed class ScaffoldState {
+    object ViewingList : ScaffoldState()
+    object Editing : ScaffoldState()
 }
 
 data class EditingTagActions(
@@ -18,7 +18,7 @@ data class EditingTagActions(
 )
 
 class EventTagEditorViewModel : ViewModel() {
-    private val _screenState = MutableStateFlow<TagScreenState>(TagScreenState.ViewingList)
+    private val _screenState = MutableStateFlow<ScaffoldState>(ScaffoldState.ViewingList)
     val screenState = _screenState.asStateFlow()
 
     private val _editingTag = MutableStateFlow(Tag(
@@ -37,11 +37,11 @@ class EventTagEditorViewModel : ViewModel() {
     )
 
     fun toViewingList() {
-        _screenState.value = TagScreenState.ViewingList
+        _screenState.value = ScaffoldState.ViewingList
     }
 
     fun toEditing(tag: Tag) {
         _editingTag.value = tag
-        _screenState.value = TagScreenState.Editing
+        _screenState.value = ScaffoldState.Editing
     }
 }
