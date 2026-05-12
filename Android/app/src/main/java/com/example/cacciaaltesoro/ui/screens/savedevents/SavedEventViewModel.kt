@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.ui.screens.savedevents
 
 import android.location.Location
+import android.util.Log
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
@@ -48,13 +49,17 @@ class SavedEventsViewModel(
             try {
                 isLoading = true
                 _state.update {
-                    it.copy(listEvent = repository.getAllMyEvents(),
-                            uuid = loginRepositoryImpl.userId.first())
+                    it.copy(listEvent = repository.getAllMyEvents())
                 }
-            }finally {
+                _state.update {
+                    it.copy(uuid = loginRepositoryImpl.getLoggedUser()!!.id)
+                }
+                Log.i("myevent", _state.value.listEvent.toString())
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
                 isLoading = false
             }
-
 
         }
     }
