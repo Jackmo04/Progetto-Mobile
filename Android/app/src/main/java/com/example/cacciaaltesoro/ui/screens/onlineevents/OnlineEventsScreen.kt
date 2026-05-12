@@ -65,6 +65,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
     val ctx = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val state by viewModel.state.collectAsState()
+    val list = state.listEvent
 
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
@@ -215,7 +216,7 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
                     contentPadding = PaddingValues(vertical = 8.dp),
                     state = (rememberLazyListState())
                 ) {
-                    items(state.listEvent) { event ->
+                    items(list) { event ->
                         EventListCard(event, event.organizerUUID == state.uuid) {
                             Log.i("CardLog" , event.id.toString())
                             event.id.let { id ->
