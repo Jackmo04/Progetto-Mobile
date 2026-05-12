@@ -111,9 +111,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
 
-    private var _event: EventDTO? = null
-    val event: EventDTO?
-        get() = _event
 
 
     override suspend fun getEvent(id: Int): EventDTO? {
@@ -126,7 +123,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 }
             }.decodeSingle<EventDTO>()
             Log.i("CardLog", fetchedEvent.toString())
-            _event = fetchedEvent
             fetchedEvent
         } catch (e: Exception) {
             Log.e("CardLog", "Error fetching event details for id: $id", e)
