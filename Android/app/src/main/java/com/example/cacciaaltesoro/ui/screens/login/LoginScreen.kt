@@ -357,8 +357,8 @@ fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
         Spacer(modifier = Modifier.size(4.dp))
         Text(
             text = if (!isSignUp) stringResource(R.string.signup_title) else stringResource(R.string.login_title),
-            color = Color.Green,
-            modifier = Modifier.clickable { onToggle() }
+            color = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.clickable { onToggle() }.padding(4.dp)
         )
         Text(text = ".")
     }
@@ -370,7 +370,7 @@ fun SendEmail(email: String, onToggle: (String) -> Unit) {
         Text(text = "Vuoi cambiare password? ")
         Text(
             text = "E-mail",
-            color = Color.Green,
+            color = MaterialTheme.colorScheme.primary,
             modifier = Modifier.clickable { onToggle(email) }
         )
         Text(text = ".")
