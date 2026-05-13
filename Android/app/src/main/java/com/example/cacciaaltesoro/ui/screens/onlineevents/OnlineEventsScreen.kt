@@ -3,47 +3,25 @@ package com.example.cacciaaltesoro.ui.screens.onlineevents
 import android.Manifest
 import android.location.Location
 import android.util.Log
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Search
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.Modifier
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardActions
+import androidx.compose.foundation.text.KeyboardOptions
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.filled.EventBusy
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -57,22 +35,23 @@ import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
 
-
 @Composable
-fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEventViewModel ) {
+fun OnlineEventsScreen(navController: NavHostController, viewModel: OnlineEventViewModel) {
     val ctx = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
-    val state by viewModel.state.collectAsState()
+
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val list = state.listEvent
+    val keyboardController = LocalSoftwareKeyboardController.current
 
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
             navController.navigate(NavigationRoute.EventDetails(id))
-
         }
     }
+
     LaunchedEffect(viewModel.errorMessage) {
         viewModel.errorMessage?.let { message ->
             snackbarHostState.showSnackbar(
@@ -83,33 +62,30 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
         }
     }
 
-
-
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+
     fun getCurrentLocation() = scope.launch {
         try {
             locationService.getCurrentLocation()
         } catch (e: SecurityException) {
-            e.printStackTrace()
-        } catch (e: IllegalStateException) {
-            e.printStackTrace()
+            Log.e("Position", "Permesso negato", e)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("Position", "Errore generico location", e)
         }
     }
 
     val locationPermissions = rememberMultiplePermissions(
         listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
     ) { permissionResults ->
-        val grantedNow = permissionResults.values.any { it.isGranted }
-        if (grantedNow) {
+        if (permissionResults.values.any { it.isGranted }) {
             getCurrentLocation()
         }
     }
 
-    fun getLocationOrRequestPermission() {
+    LaunchedEffect(Unit) {
+        viewModel.action.onSearchEvent()
         if (locationPermissions.statuses.any { it.value.isGranted }) {
             getCurrentLocation()
         } else {
@@ -117,143 +93,133 @@ fun OnlineEventsScreen(navController: NavHostController , viewModel: OnlineEvent
         }
     }
 
-
-    LaunchedEffect(Unit) {
-        viewModel.action.onSearchEvent()
-        try {
-            getLocationOrRequestPermission()
-        }catch (e: Exception){
-            Log.e("Position", e.toString())
-
-        }
-    }
     LaunchedEffect(coordinates) {
         coordinates?.let {
             viewModel.action.saveCurrentLocation(Location("custom_provider").apply {
-                latitude = coordinates!!.latitude
-                longitude = coordinates!!.longitude
+                latitude = it.latitude
+                longitude = it.longitude
             })
         }
     }
 
     Scaffold(
-        topBar = {
-            AppBar(stringResource(id = R.string.online_event_title), navController)
-
-        },
+        topBar = { AppBar(stringResource(id = R.string.online_event_title), navController) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-
-        Box(
+        Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
-                .border(2.dp, MaterialTheme.colorScheme.outlineVariant, RoundedCornerShape(2.dp))
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Column(
+            Row(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .padding(bottom = 8.dp),
+                verticalAlignment = Alignment.CenterVertically,
+                horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.spacedBy(8.dp)
-                ) {
-
-                    OutlinedTextField(
-                        value = searchQuery,
-                        onValueChange = { searchQuery = it },
-                        modifier = Modifier.weight(1f),
-                        placeholder = { Text(stringResource(R.string.event_code), color = MaterialTheme.colorScheme.primary) },
-                        leadingIcon = { Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.secondary) },
-                        shape = RoundedCornerShape(12.dp),
-                        maxLines = 1,
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedTextColor = MaterialTheme.colorScheme.secondary,
-                            unfocusedTextColor = MaterialTheme.colorScheme.secondary,
-                            focusedBorderColor = MaterialTheme.colorScheme.secondary,
-                            unfocusedBorderColor = MaterialTheme.colorScheme.secondary,
-                            cursorColor = MaterialTheme.colorScheme.secondary
-                        )
+                OutlinedTextField(
+                    value = searchQuery,
+                    onValueChange = { searchQuery = it },
+                    modifier = Modifier.weight(1f),
+                    placeholder = {
+                        Text(stringResource(R.string.event_code), color = MaterialTheme.colorScheme.primary)
+                    },
+                    leadingIcon = {
+                        Icon(Icons.Default.Search, contentDescription = null, tint = MaterialTheme.colorScheme.secondary)
+                    },
+                    shape = RoundedCornerShape(12.dp),
+                    singleLine = true,
+                    keyboardOptions = KeyboardOptions(imeAction = ImeAction.Search),
+                    keyboardActions = KeyboardActions(
+                        onSearch = {
+                            keyboardController?.hide()
+                            viewModel.action.saveIdEventCodeSearched(searchQuery)
+                        }
+                    ),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        unfocusedTextColor = MaterialTheme.colorScheme.onSurface,
+                        focusedBorderColor = MaterialTheme.colorScheme.primary,
+                        unfocusedBorderColor = MaterialTheme.colorScheme.outline
                     )
+                )
 
-                    Button(
-                        onClick = {
-                           viewModel.action.saveIdEventCodeSearched(searchQuery)},
-                        modifier = Modifier.height(56.dp),
-                        shape = RoundedCornerShape(12.dp),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = MaterialTheme.colorScheme.primaryContainer,
-                            contentColor = MaterialTheme.colorScheme.onPrimaryContainer
-                        )
-                    ) {
-                        Text(stringResource(R.string.find))
-                    }
-                }
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-
+                Button(
+                    onClick = {
+                        keyboardController?.hide()
+                        viewModel.action.saveIdEventCodeSearched(searchQuery)
+                    },
+                    modifier = Modifier.height(56.dp),
+                    shape = RoundedCornerShape(12.dp)
                 ) {
+                    Text(stringResource(R.string.find))
+                }
+            }
 
-                    OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
-                        viewModel.action.onOrderChanged(selected)
-
-                        val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
-
-                        if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "Permesso di posizione necessario per trovare eventi vicini.",
-                                    duration = SnackbarDuration.Long
-                                )
-                            }
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
+                    viewModel.action.onOrderChanged(selected)
+                    val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
+                    if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar("Permesso di posizione necessario per trovare eventi vicini.")
                         }
                     }
-
-
                 }
-                if (viewModel.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            }
+
+            if (viewModel.isLoading) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
                 }
-                else{
+            } else if (list.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.EventBusy,
+                        contentDescription = "Nessun evento",
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Nessun evento trovato",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+            } else {
                 LazyColumn(
                     modifier = Modifier.fillMaxSize(),
                     verticalArrangement = Arrangement.spacedBy(8.dp),
-                    contentPadding = PaddingValues(vertical = 8.dp),
-                    state = (rememberLazyListState())
+                    contentPadding = PaddingValues(bottom = 16.dp)
                 ) {
-                    items(list) { event ->
-                        EventListCard(event, event.organizerUUID == state.uuid) {
-                            Log.i("CardLog" , event.id.toString())
-                            event.id.let { id ->
-                                navController.navigate(NavigationRoute.EventDetails(id!!))
+                    items(
+                        items = list,
+                        key = { event -> event.id ?: event.hashCode() }
+                    ) { event ->
+                        EventListCard(
+                            events = event,
+                            isMyEvent = event.organizerUUID == state.uuid,
+                            onClick = {
+                                event.id?.let { id ->
+                                    navController.navigate(NavigationRoute.EventDetails(id))
+                                }
                             }
-                        }
+                        )
+                    }
                 }
             }
-            }
-            }
         }
-
-
-}}
-
-
-
-
-
+    }
+}

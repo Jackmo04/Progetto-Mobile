@@ -3,32 +3,15 @@ package com.example.cacciaaltesoro.ui.screens.savedevents
 import android.Manifest
 import android.location.Location
 import android.util.Log
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.material3.Scaffold
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.remember
-import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.lazy.rememberLazyListState
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.SnackbarDuration
-import androidx.compose.material3.SnackbarHost
-import androidx.compose.material3.SnackbarHostState
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.BookmarkBorder
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -45,41 +28,35 @@ import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
 
 @Composable
-fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsViewModel) {
-
-
+fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsViewModel) {
     val ctx = LocalContext.current
-
     val state by viewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
-
-
 
     val locationService = remember { LocationService(ctx) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
     val scope = rememberCoroutineScope()
+
     fun getCurrentLocation() = scope.launch {
         try {
             locationService.getCurrentLocation()
         } catch (e: SecurityException) {
-            e.printStackTrace()
-        } catch (e: IllegalStateException) {
-            e.printStackTrace()
+            Log.e("SavedEvent", "Permesso negato", e)
         } catch (e: Exception) {
-            e.printStackTrace()
+            Log.e("SavedEvent", "Errore location", e)
         }
     }
 
     val locationPermissions = rememberMultiplePermissions(
         listOf(Manifest.permission.ACCESS_COARSE_LOCATION, Manifest.permission.ACCESS_FINE_LOCATION)
     ) { permissionResults ->
-        val isGrantedNow = permissionResults.values.any { it.isGranted }
-        if (isGrantedNow) {
+        if (permissionResults.values.any { it.isGranted }) {
             getCurrentLocation()
         }
     }
 
-    fun getLocationOrRequestPermission() {
+    LaunchedEffect(Unit) {
+        viewModel.action.onSearchEvent()
         if (locationPermissions.statuses.any { it.value.isGranted }) {
             getCurrentLocation()
         } else {
@@ -87,99 +64,95 @@ fun SavedEventsScreen(navController: NavHostController , viewModel: SavedEventsV
         }
     }
 
-
-    LaunchedEffect(Unit) {
-        viewModel.action.onSearchEvent()
-        try {
-            getLocationOrRequestPermission()
-        }catch (e: Exception){
-            Log.e("SavedEvent" , e.toString())
-        }
-    }
     LaunchedEffect(coordinates) {
         coordinates?.let {
             viewModel.action.saveCurrentLocation(Location("custom_provider").apply {
-                latitude = coordinates!!.latitude
-                longitude = coordinates!!.longitude
+                latitude = it.latitude
+                longitude = it.longitude
             })
         }
     }
 
     Scaffold(
-        topBar = {
-            AppBar(stringResource(R.string.saved_event_title), navController)
-        },
+        topBar = { AppBar(stringResource(R.string.saved_event_title), navController) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
-        Box(
+        Column(
             modifier = Modifier
-                .padding(innerPadding)
                 .fillMaxSize()
-                .border(2.dp, Color(0x1AFFFFFF), RoundedCornerShape(2.dp))
+                .padding(innerPadding)
+                .padding(horizontal = 16.dp, vertical = 8.dp)
         ) {
-            Column(
+
+            Box(
                 modifier = Modifier
-                    .fillMaxSize()
-                    .padding(16.dp)
+                    .fillMaxWidth()
+                    .padding(bottom = 16.dp),
+                contentAlignment = Alignment.Center
             ) {
+                OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
+                    viewModel.action.onOrderChanged(selected)
+                    val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
 
-
-                Row(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(bottom = 8.dp),
-                    verticalAlignment = Alignment.CenterVertically,
-                    horizontalArrangement = Arrangement.Center
-
-                ) {
-
-                    OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
-                        viewModel.action.onOrderChanged(selected)
-                        val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
-
-                        if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
-                            scope.launch {
-                                snackbarHostState.showSnackbar(
-                                    message = "Permesso di posizione necessario per trovare eventi vicini.",
-                                    duration = SnackbarDuration.Long
-                                )
-                            }
+                    if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
+                        scope.launch {
+                            snackbarHostState.showSnackbar(
+                                message = "Permesso di posizione necessario per trovare eventi vicini.",
+                                duration = SnackbarDuration.Long
+                            )
                         }
                     }
+                }
+            }
 
+            if (viewModel.isLoading) {
+                Box(
+                    modifier = Modifier.fillMaxSize(),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
                 }
-                if (viewModel.isLoading) {
-                    Box(
-                        modifier = Modifier
-                            .padding(innerPadding)
-                            .fillMaxSize(),
-                        contentAlignment = Alignment.Center
-                    ) {
-                        CircularProgressIndicator()
-                    }
+            } else if (state.listEvent.isEmpty()) {
+                Column(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.Center,
+                    horizontalAlignment = Alignment.CenterHorizontally
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.BookmarkBorder,
+                        contentDescription = "Nessun evento salvato",
+                        modifier = Modifier.size(64.dp),
+                        tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f)
+                    )
+                    Spacer(modifier = Modifier.height(16.dp))
+                    Text(
+                        text = "Non hai salvato nessun evento",
+                        style = MaterialTheme.typography.titleMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
                 }
-                else{
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(vertical = 8.dp),
-                        state = (rememberLazyListState())
-                    ) {
-                        items(state.listEvent) { event ->
-                            Log.i("uuid" , event.organizerUUID + " " +state.uuid)
-                            EventListCard(event, event.organizerUUID == state.uuid) {
-                                navController.navigate(NavigationRoute.EventDetails(event.id!!))
+            } else {
+                LazyColumn(
+                    modifier = Modifier.fillMaxSize(),
+                    verticalArrangement = Arrangement.spacedBy(8.dp),
+                    contentPadding = PaddingValues(bottom = 16.dp)
+                ) {
+                    items(
+                        items = state.listEvent,
+                        key = { event -> event.id ?: event.hashCode() }
+                    ) { event ->
+                        EventListCard(
+                            events = event,
+                            isMyEvent = event.organizerUUID == state.uuid,
+                            onClick = {
+                                event.id?.let { id ->
+                                    navController.navigate(NavigationRoute.EventDetails(id))
+                                }
                             }
+                        )
                     }
                 }
             }
         }
-
     }
-
-
-}}
-
-
-
-
+}
