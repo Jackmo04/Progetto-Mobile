@@ -25,11 +25,9 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.navigation.NavHostController
@@ -79,7 +77,7 @@ fun EventCard(
 
     LaunchedEffect(event.lat, event.lon) {
         val address = withContext(Dispatchers.IO) {
-            getAddressFromCoords(event.lat, event.lon)
+            getAddressFromCords(event.lat, event.lon)
         }
         addressText = address
     }
@@ -335,15 +333,13 @@ fun shareTextBuilder(event: Event, resolvedAddress: String): String {
     """.trimIndent()
 }
 
-fun getAddressFromCoords(lat: Double, lng: Double): String {
+fun getAddressFromCords(lat: Double, lng: Double): String {
     val context = GeoApiContext.Builder()
         .apiKey(BuildConfig.MAPS_KEY)
         .build()
 
-    val location = LatLng(lat, lng)
-
     return try {
-        val results = GeocodingApi.reverseGeocode(context, location)
+        val results = GeocodingApi.reverseGeocode(context, LatLng(lat, lng))
             .language("it")
             .await()
 
