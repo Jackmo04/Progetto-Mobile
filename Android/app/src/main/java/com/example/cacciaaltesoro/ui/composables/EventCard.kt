@@ -2,15 +2,16 @@ package com.example.cacciaaltesoro.ui.composables
 
 import android.content.Context
 import android.content.Intent
-import android.net.Uri
+import android.provider.CalendarContract
 import android.util.Log
 import android.widget.Toast
 import androidx.compose.foundation.background
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.CalendarMonth
 import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
@@ -28,33 +29,24 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.SolidColor
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
-import androidx.compose.ui.text.SpanStyle
-import androidx.compose.ui.text.buildAnnotatedString
 import androidx.compose.ui.text.font.FontWeight
-import androidx.compose.ui.text.style.TextDecoration
 import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.text.withStyle
 import androidx.compose.ui.unit.dp
-import androidx.navigation.NavController
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import coil.request.ImageRequest
 import com.example.cacciaaltesoro.BuildConfig
-import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.google.maps.GeoApiContext
 import com.google.maps.GeocodingApi
 import com.google.maps.model.LatLng
-import io.github.jan.supabase.auth.api.AuthenticatedApiConfig
 import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.coroutineScope
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import java.time.ZoneId
 import java.time.format.DateTimeFormatter
 import kotlin.time.ExperimentalTime
-import kotlin.time.Instant
 import androidx.core.net.toUri
 import com.example.cacciaaltesoro.data.domain.Event
 
@@ -171,7 +163,8 @@ fun EventCard(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(188.dp)
-                    .background(MaterialTheme.colorScheme.surfaceVariant),
+                    .background(MaterialTheme.colorScheme.surfaceVariant)
+                    .clickable( onClick = {openInMaps(event, ctx)}),
                 contentScale = ContentScale.Crop
             )
             Column(
@@ -219,11 +212,12 @@ fun EventCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
 
-                IconButton(onClick = { openInMaps(event, ctx) }) {
+                IconButton(onClick = {  addToCalendar(event, addressText, ctx)},
+                    enabled = state.imSubscribe) {
                     Icon(
-                        imageVector = Icons.Default.LocationOn,
-                        contentDescription = "Apri in Google Maps",
-                        tint = MaterialTheme.colorScheme.primary
+                        imageVector = Icons.Default.CalendarMonth,
+                        contentDescription = "Aggiungi a calendario",
+                        tint = if (state.imSubscribe) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
                     )
                 }
                 IconButton(onClick = { shareDetails() }) {
@@ -269,8 +263,10 @@ fun EventCard(
                             }
                         }
 
-                    Button(
-                        onClick = { }
+                    Button(enabled = state.imSubscribe,
+                        onClick = { },
+                         colors = ButtonDefaults.buttonColors(if (state.imSubscribe) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f))
+
                     ) {
                         Text("Avvia gioco")
                     }
@@ -278,7 +274,7 @@ fun EventCard(
                     Button(
                         onClick = { showDeleteDialog = true },
                         modifier = Modifier.padding(end = 8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xC8B24843))
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
                     ) {
                         Text("Cancella")
                     }
@@ -318,7 +314,7 @@ fun EventCard(
                     }
                     Button(
                         onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) },
-                        colors = ButtonDefaults.buttonColors(containerColor = Color(0xC8B24843))
+                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
                     ) {
                         Text("Modifica")
                     }
@@ -398,5 +394,28 @@ fun openInMaps(event: Event , ctx: Context) {
         ctx.startActivity(mapIntent)
     } catch (e: Exception) {
         Toast.makeText(ctx, "Impossibile aprire le mappe", Toast.LENGTH_SHORT).show()
+    }
+}
+
+
+@OptIn(ExperimentalTime::class)
+fun addToCalendar(event: Event, address: String, ctx: Context) {
+    try {
+        val startTimeMillis = event.startTime.epochSeconds * 1000L
+        val endTimeMillis = event.endTime.epochSeconds * 1000L
+
+        val intent = Intent(Intent.ACTION_INSERT).apply {
+            data = CalendarContract.Events.CONTENT_URI
+            putExtra(CalendarContract.EXTRA_EVENT_BEGIN_TIME, startTimeMillis)
+            putExtra(CalendarContract.EXTRA_EVENT_END_TIME, endTimeMillis)
+            putExtra(CalendarContract.Events.TITLE, event.name)
+            putExtra(CalendarContract.Events.DESCRIPTION, event.description ?: "Caccia al Tesoro!")
+            putExtra(CalendarContract.Events.EVENT_LOCATION, address)
+        }
+
+        ctx.startActivity(intent)
+    } catch (e: Exception) {
+        Toast.makeText(ctx, "Nessuna app calendario trovata", Toast.LENGTH_SHORT).show()
+        Log.e("CalendarError", "Errore durante l'apertura del calendario", e)
     }
 }
