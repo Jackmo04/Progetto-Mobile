@@ -56,6 +56,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.maps.model.AddressComponentType
+import kotlin.time.Clock
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -238,9 +239,9 @@ fun EventCard(
 
                     Button(
                         onClick = { },
-                        enabled = state.imSubscribe
+                        enabled = state.imSubscribe && isAvailableTheEvent(event)
                     ) {
-                        Text("Avvia gioco")
+                        Text("Avvia")
                     }
                 } else {
                     OutlinedButton(
@@ -420,4 +421,10 @@ fun getGameDuration(event: Event): String {
     } else {
         "$minutes minuti"
     }
+}
+
+@OptIn(ExperimentalTime::class)
+fun isAvailableTheEvent(event: Event): Boolean {
+    val now = Clock.System.now().toEpochMilliseconds()
+    return (event.startTime.epochSeconds * 1000L - now) <= 0 && (event.endTime.epochSeconds *1000L - now)>=0
 }
