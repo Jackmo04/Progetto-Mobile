@@ -55,6 +55,7 @@ import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.ui.graphics.vector.ImageVector
+import com.google.maps.model.AddressComponentType
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -333,7 +334,7 @@ fun shareTextBuilder(event: Event, resolvedAddress: String): String {
     """.trimIndent()
 }
 
-fun getAddressFromCords(lat: Double, lng: Double): String {
+fun getAddressFromCords(lat: Double, lng: Double, onlyCity: Boolean = false): String {
     val context = GeoApiContext.Builder()
         .apiKey(BuildConfig.MAPS_KEY)
         .build()
@@ -344,7 +345,17 @@ fun getAddressFromCords(lat: Double, lng: Double): String {
             .await()
 
         if (results.isNotEmpty()) {
-            results[0].formattedAddress
+            if (onlyCity) {
+                val cityComponent = results[0].addressComponents.find { component ->
+                    component.types.contains(AddressComponentType.LOCALITY)
+                } ?: results[0].addressComponents.find { component ->
+                    component.types.contains(AddressComponentType.ADMINISTRATIVE_AREA_LEVEL_3)
+                }
+
+                cityComponent?.longName ?: "Città non trovata"
+            } else {
+                results[0].formattedAddress
+            }
         } else {
             "Nessun risultato"
         }
