@@ -2,6 +2,7 @@ package com.example.cacciaaltesoro.ui.screens.login
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
@@ -9,40 +10,18 @@ import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Box
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.aspectRatio
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.heightIn
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
-import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.PhotoLibrary
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Icon
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -50,14 +29,21 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.ImeAction
+import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.rememberCameraLauncher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.launch
+import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
 
 @Composable
@@ -67,9 +53,9 @@ fun LoginScreen(
 ) {
     val context = LocalContext.current
     val contentResolver = context.contentResolver
+    val scope = rememberCoroutineScope()
 
-
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
     val isUpdatePassword = state.isUpdatePassword
     val isSignUp = state.isSignUp
 
@@ -93,32 +79,29 @@ fun LoginScreen(
         stringResource(R.string.signup_title)
     }
 
-    val (_, takePicture) = rememberCameraLauncher (
-        onPictureTaken = { imageUri ->
-
-            val inputStream = contentResolver.openInputStream(imageUri)
-
-            val bytes = inputStream?.readBytes()
-            inputStream?.close()
-
-            bytes?.let {
-                viewModel.action.uploadImage(imageUri, it)
+    fun processAndUploadImage(imageUri: android.net.Uri) {
+        scope.launch(Dispatchers.IO) {
+            try {
+                contentResolver.openInputStream(imageUri)?.use { inputStream ->
+                    val bytes = inputStream.readBytes()
+                    withContext(Dispatchers.Main) {
+                        viewModel.action.uploadImage(imageUri, bytes)
+                    }
+                }
+            } catch (e: Exception) {
+                Log.e("ImageProcessing", "Errore nel caricamento dell'immagine", e)
             }
         }
+    }
+
+    val (_, takePicture) = rememberCameraLauncher(
+        onPictureTaken = { imageUri -> processAndUploadImage(imageUri) }
     )
 
     val galleryLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri ->
-        uri?.let { imageUri ->
-            val inputStream = contentResolver.openInputStream(imageUri)
-            val bytes = inputStream?.readBytes()
-            inputStream?.close()
-
-            bytes?.let {
-                viewModel.action.uploadImage(imageUri, it)
-            }
-        }
+        uri?.let { processAndUploadImage(it) }
     }
 
     val cameraPermissionLauncher = rememberLauncherForActivityResult(
@@ -133,22 +116,15 @@ fun LoginScreen(
     }
 
     fun checkAndRequestCameraPermission() {
-        val permissionCheckResult = ContextCompat.checkSelfPermission(
-            context,
-            Manifest.permission.CAMERA
-        )
-        if (permissionCheckResult == PackageManager.PERMISSION_GRANTED) {
+        if (ContextCompat.checkSelfPermission(context, Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
             takePicture()
         } else {
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
 
-
     Scaffold(
-        topBar = {
-            AppBar(title, navController)
-        }
+        topBar = { AppBar(title, navController) }
     ) { contentPadding ->
 
         if (state.isInitializing) {
@@ -161,189 +137,204 @@ fun LoginScreen(
                 CircularProgressIndicator()
             }
         } else {
-        Column(
-            horizontalAlignment = Alignment.CenterHorizontally,
-            modifier = Modifier
-                .padding(contentPadding)
-                .padding(12.dp)
-                .fillMaxSize()
-            .verticalScroll(rememberScrollState()),
-        ) {
+            Column(
+                horizontalAlignment = Alignment.CenterHorizontally,
+                modifier = Modifier
+                    .padding(contentPadding)
+                    .padding(16.dp)
+                    .fillMaxSize()
+                    .verticalScroll(rememberScrollState()),
+            ) {
 
+                if (!isUpdatePassword) {
+                    OutlinedTextField(
+                        value = username,
+                        onValueChange = { text -> username = text },
+                        label = { Text("E-mail") },
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading,
+                        readOnly = state.isLogin,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Email,
+                            imeAction = if (state.isLogin) ImeAction.Done else ImeAction.Next
+                        )
+                    )
 
-            if (!isUpdatePassword) {
-                OutlinedTextField(
-                    value = username,
-                    onValueChange = { text -> username = text },
-                    label = { Text("E-mail") },
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isLoading,
-                    readOnly = state.isLogin
-                )
+                    if (!state.isLogin) {
+                        Spacer(modifier = Modifier.size(8.dp))
+                        OutlinedTextField(
+                            value = password,
+                            onValueChange = { password = it },
+                            label = { Text("Password") },
+                            visualTransformation = PasswordVisualTransformation(),
+                            modifier = Modifier.fillMaxWidth(),
+                            enabled = !state.isLoading,
+                            singleLine = true,
+                            keyboardOptions = KeyboardOptions(
+                                keyboardType = KeyboardType.Password,
+                                imeAction = if (isSignUp) ImeAction.Next else ImeAction.Done
+                            )
+                        )
 
-                if (!state.isLogin) {
-                    Spacer(modifier = Modifier.size(8.dp))
+                        if (isSignUp) {
+                            Spacer(modifier = Modifier.size(8.dp))
+                            OutlinedTextField(
+                                value = passwordConfirm,
+                                onValueChange = { passwordConfirm = it },
+                                label = { Text(stringResource(R.string.password_confirm)) },
+                                visualTransformation = PasswordVisualTransformation(),
+                                modifier = Modifier.fillMaxWidth(),
+                                enabled = !state.isLoading,
+                                singleLine = true,
+                                keyboardOptions = KeyboardOptions(
+                                    keyboardType = KeyboardType.Password,
+                                    imeAction = ImeAction.Done
+                                )
+                            )
+                        }
+                    }
+                } else {
                     OutlinedTextField(
                         value = password,
                         onValueChange = { password = it },
-                        label = { Text("Password") },
+                        label = { Text(stringResource(R.string.new_password)) },
                         visualTransformation = PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isLoading,
-                    )
-
-
-                    if (isSignUp) {
-                        Spacer(modifier = Modifier.size(8.dp))
-                        OutlinedTextField(
-                            value = passwordConfirm,
-                            onValueChange = { passwordConfirm = it },
-                            label = { Text(stringResource(R.string.password_confirm)) },
-                            visualTransformation = PasswordVisualTransformation(),
-                            modifier = Modifier.fillMaxWidth(),
-                            enabled = !state.isLoading
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Next
                         )
-                    }
+                    )
+                    Spacer(modifier = Modifier.size(8.dp))
+                    OutlinedTextField(
+                        value = passwordConfirm,
+                        onValueChange = { passwordConfirm = it },
+                        label = { Text(stringResource(R.string.password_confirm)) },
+                        visualTransformation = PasswordVisualTransformation(),
+                        modifier = Modifier.fillMaxWidth(),
+                        enabled = !state.isLoading,
+                        singleLine = true,
+                        keyboardOptions = KeyboardOptions(
+                            keyboardType = KeyboardType.Password,
+                            imeAction = ImeAction.Done
+                        )
+                    )
                 }
-            } else {
-                OutlinedTextField(
-                    value = password,
-                    onValueChange = { password = it },
-                    label = { Text(stringResource(R.string.new_password)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isLoading,
-                )
+
+                Spacer(modifier = Modifier.size(16.dp))
+                ErrorText(viewModel)
+                SuccessText(viewModel)
                 Spacer(modifier = Modifier.size(8.dp))
-                OutlinedTextField(
-                    value = passwordConfirm,
-                    onValueChange = { passwordConfirm = it },
-                    label = { Text(stringResource(R.string.password_confirm)) },
-                    visualTransformation = PasswordVisualTransformation(),
-                    modifier = Modifier.fillMaxWidth(),
-                    enabled = !state.isLoading
-                )
-            }
 
-            Spacer(modifier = Modifier.size(16.dp))
-            ErrorText(viewModel)
-            SuccessText(viewModel)
-            Spacer(modifier = Modifier.size(8.dp))
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .heightIn(min = 200.dp)
+                        .animateContentSize(),
+                    contentAlignment = Alignment.TopCenter
+                ) {
+                    if (state.isLoading) {
+                        CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            if (isUpdatePassword) {
+                                MyButton(stringResource(R.string.update_password_title), onClick = {
+                                    viewModel.action.changePassword(password, passwordConfirm)
+                                })
+                                Spacer(modifier = Modifier.size(8.dp))
+                                MyButton(stringResource(R.string.cancel), onClick = { viewModel.action.toggleUpdatePassword(false) })
 
+                            } else if (!isSignUp && !state.isLogin) {
+                                MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
+                                Spacer(modifier = Modifier.size(36.dp))
+                                LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen() })
+                                Spacer(modifier = Modifier.size(8.dp))
+                                SendEmail(username, viewModel.action.callResetPasswordEmail)
 
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .heightIn(min = 200.dp)
-                    .animateContentSize(),
-                contentAlignment = Alignment.TopCenter
-            ) {
-                if (state.isLoading) {
-                    CircularProgressIndicator(modifier = Modifier.padding(top = 16.dp))
-                } else {
-                    Column(horizontalAlignment = Alignment.CenterHorizontally) {
-                        if (isUpdatePassword) {
-                            MyButton(stringResource(R.string.update_password_title), onClick = {
-                                viewModel.action.changePassword(password, passwordConfirm)
-                            })
-                            Spacer(modifier = Modifier.size(8.dp))
-                            MyButton(stringResource(R.string.cancel), onClick = { viewModel.action.toggleUpdatePassword(false) })
+                            } else if (isSignUp && !state.isLogin) {
+                                MyButton(stringResource(R.string.signup_title), onClick = {
+                                    viewModel.action.onSignOn(username, password, passwordConfirm)
+                                })
+                                Spacer(modifier = Modifier.size(36.dp))
+                                LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen() })
 
-                        } else if (!isSignUp && !state.isLogin) {
-                            MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
-                            Spacer(modifier = Modifier.size(36.dp))
-                            LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen() })
-                            Spacer(modifier = Modifier.size(8.dp))
-                            SendEmail(username, viewModel.action.callResetPasswordEmail)
-
-                        } else if (isSignUp && !state.isLogin) {
-                            MyButton(stringResource(R.string.signup_title), onClick = {
-                                viewModel.action.onSignOn(username, password, passwordConfirm)
-                            })
-                            Spacer(modifier = Modifier.size(36.dp))
-                            LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen() })
-
-                        } else {
-                            MyButton("Log Out", onClick = {
-                                viewModel.action.onLogOut()
-                                username = ""
-                                password = ""
-                            })
-                            Spacer(modifier = Modifier.size(8.dp))
-                            MyButton(stringResource(R.string.change_password), onClick = {
-                                viewModel.action.toggleUpdatePassword(true)
-                                password = ""
-                                passwordConfirm = ""
-                            })
-                            Spacer(Modifier.size(24.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                                Button(
-                                onClick = { checkAndRequestCameraPermission() },
-                                contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
-                            ) {
-                                Icon(
-                                    Icons.Outlined.PhotoCamera,
-                                    contentDescription = "Camera icon",
-                                    modifier = Modifier.size(ButtonDefaults.IconSize)
-                                )
-                                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                    Text("Fotocamera")
-                            }
-
-                                Button(
-                                    onClick = {
-                                        galleryLauncher.launch(
-                                            PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                                        )
-                                    },
-                                    contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                            } else {
+                                MyButton("Log Out", onClick = {
+                                    viewModel.action.onLogOut()
+                                    username = ""
+                                    password = ""
+                                })
+                                Spacer(modifier = Modifier.size(8.dp))
+                                MyButton(stringResource(R.string.change_password), onClick = {
+                                    viewModel.action.toggleUpdatePassword(true)
+                                    password = ""
+                                    passwordConfirm = ""
+                                })
+                                Spacer(Modifier.size(24.dp))
+                                Text("Aggiorna la tua foto", style = MaterialTheme.typography.titleMedium)
+                                Spacer(Modifier.size(16.dp))
+                                Row(
+                                    modifier = Modifier.fillMaxWidth(),
+                                    horizontalArrangement = Arrangement.SpaceEvenly
                                 ) {
-                                    Icon(
-                                        Icons.Outlined.PhotoLibrary,
-                                        contentDescription = "Gallery icon",
-                                        modifier = Modifier.size(ButtonDefaults.IconSize)
-                                    )
-                                    Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                    Text("Galleria")
+                                    Button(
+                                        onClick = { checkAndRequestCameraPermission() },
+                                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.PhotoCamera,
+                                            contentDescription = "Fotocamera",
+                                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                                        )
+                                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                        Text("Fotocamera")
+                                    }
+
+                                    Button(
+                                        onClick = {
+                                            galleryLauncher.launch(
+                                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                                            )
+                                        },
+                                        contentPadding = ButtonDefaults.ButtonWithIconContentPadding,
+                                    ) {
+                                        Icon(
+                                            Icons.Outlined.PhotoLibrary,
+                                            contentDescription = "Galleria",
+                                            modifier = Modifier.size(ButtonDefaults.IconSize)
+                                        )
+                                        Spacer(Modifier.size(ButtonDefaults.IconSpacing))
+                                        Text("Galleria")
+                                    }
                                 }
+                                Spacer(Modifier.size(16.dp))
+                                AsyncImage(
+                                    model = state.imageUri,
+                                    contentDescription = "Foto del profilo",
+                                    modifier = Modifier
+                                        .size(140.dp)
+                                        .aspectRatio(1f)
+                                        .clip(CircleShape)
+                                        .background(MaterialTheme.colorScheme.surfaceVariant),
+                                    contentScale = ContentScale.Crop
+                                )
                             }
-                            Spacer(Modifier.size(8.dp))
-                            Row(
-                                modifier = Modifier.fillMaxWidth(),
-                                horizontalArrangement = Arrangement.SpaceEvenly
-                            ) {
-                            AsyncImage(
-                                model = state.imageUri,
-                                contentDescription = "Foto del profilo",
-                                modifier = Modifier
-                                    .size(140.dp)
-                                    .aspectRatio(1f)
-                                    .clip(CircleShape)
-                                    .background(MaterialTheme.colorScheme.surfaceVariant),
-                                contentScale = ContentScale.Crop
-                            )}
-                        }
                         }
                     }
                 }
             }
-    }
         }
     }
-
+}
 
 @Composable
 fun MyButton(label: String, onClick: () -> Unit) {
     Button(
         modifier = Modifier.requiredSize(200.dp, 50.dp),
         shape = RoundedCornerShape(16.dp),
-        colors = ButtonDefaults.buttonColors(
-            containerColor = MaterialTheme.colorScheme.primaryContainer,
-            contentColor = MaterialTheme.colorScheme.onPrimaryContainer,
-        ),
         onClick = onClick
     ) {
         Text(label)
@@ -358,6 +349,7 @@ fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
         Text(
             text = if (!isSignUp) stringResource(R.string.signup_title) else stringResource(R.string.login_title),
             color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold,
             modifier = Modifier.clickable { onToggle() }.padding(4.dp)
         )
         Text(text = ".")
@@ -371,7 +363,8 @@ fun SendEmail(email: String, onToggle: (String) -> Unit) {
         Text(
             text = "E-mail",
             color = MaterialTheme.colorScheme.primary,
-            modifier = Modifier.clickable { onToggle(email) }
+            fontWeight = FontWeight.Bold,
+            modifier = Modifier.clickable { onToggle(email) }.padding(4.dp)
         )
         Text(text = ".")
     }
@@ -383,6 +376,7 @@ fun ErrorText(viewModel: LoginScreenViewModel) {
         Text(
             text = it,
             color = MaterialTheme.colorScheme.error,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 8.dp)
         )
     }
@@ -394,6 +388,7 @@ fun SuccessText(viewModel: LoginScreenViewModel) {
         Text(
             text = it,
             color = MaterialTheme.colorScheme.primary,
+            style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 8.dp)
         )
     }
