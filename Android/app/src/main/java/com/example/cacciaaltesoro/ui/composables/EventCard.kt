@@ -51,6 +51,13 @@ import androidx.core.net.toUri
 import com.example.cacciaaltesoro.data.domain.Event
 import java.time.Instant
 
+import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.material.icons.filled.AccessTime
+import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Timer
+import androidx.compose.ui.graphics.vector.ImageVector
+
 @OptIn(ExperimentalTime::class)
 @Composable
 fun EventCard(
@@ -65,14 +72,10 @@ fun EventCard(
     }
 
     val isMineEvent: Boolean = state.userId == event.organizerUUID
-    Log.i("CardEvent", state.userId + " Organizzatore: " + event.organizerUUID)
     val ctx = LocalContext.current
-
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var addressText by remember { mutableStateOf("Caricamento indirizzo...") }
-    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
-        .withZone(ZoneId.systemDefault())
 
     LaunchedEffect(event.lat, event.lon) {
         val address = withContext(Dispatchers.IO) {
@@ -81,20 +84,19 @@ fun EventCard(
         addressText = address
     }
 
-
     val mapImageUrl = getImageUrl(event)
-
     val backgroundColor = if (isMineEvent) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
+
     fun shareDetails() {
         coroutineScope.launch(Dispatchers.IO) {
             try {
-                val textToShare = shareTextBuilder(event ,addressText)
+                val textToShare = shareTextBuilder(event, addressText)
                 withContext(Dispatchers.Main) {
                     val sendIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, textToShare)
                     }
-                    val shareIntent = Intent.createChooser(sendIntent, "Share Travel")
+                    val shareIntent = Intent.createChooser(sendIntent, "Condividi Evento")
                     ctx.startActivity(shareIntent)
                 }
             } catch (e: Exception) {
@@ -102,38 +104,36 @@ fun EventCard(
             }
         }
     }
+
     OutlinedCard(
         modifier = Modifier
-            .width(412.dp)
+            .fillMaxWidth()
             .wrapContentHeight(),
-        shape = RoundedCornerShape(12.dp),
-        colors = CardDefaults.outlinedCardColors(
-            containerColor = backgroundColor
-        ),
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.outlinedCardColors(containerColor = backgroundColor),
         border = CardDefaults.outlinedCardBorder().copy(
             brush = SolidColor(MaterialTheme.colorScheme.outlineVariant)
         )
     ) {
-        Column(
-            modifier = Modifier.fillMaxWidth()
-        ) {
+        Column(modifier = Modifier.fillMaxWidth()) {
+
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, top = 12.dp, end = 4.dp, bottom = 12.dp),
+                    .padding(16.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 Box(
                     modifier = Modifier
-                        .size(40.dp)
+                        .size(48.dp)
                         .clip(CircleShape)
-                        .background(backgroundColor), // M3/sys/light/primary-container
+                        .background(if (isMineEvent) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primaryContainer),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
                         text = event.name.take(1).uppercase(),
-                        style = MaterialTheme.typography.titleMedium,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                        style = MaterialTheme.typography.titleLarge,
+                        color = MaterialTheme.colorScheme.onSurface
                     )
                 }
 
@@ -148,200 +148,159 @@ fun EventCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "Code: ${event.code} • ${if (event.isPrivate) "Private" else "Public"}",
+                        text = "Codice: ${event.code} • ${if (event.isPrivate) "Privato" else "Pubblico"}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis
                     )
                 }
-
-
             }
+
             AsyncImage(
                 model = ImageRequest.Builder(LocalContext.current)
                     .data(mapImageUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = "Map location for ${event.name}",
+                contentDescription = "Posizione mappa per ${event.name}",
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(188.dp)
+                    .height(160.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable( onClick = {openInMaps(event, ctx)}),
+                    .clickable { openInMaps(event, ctx) },
                 contentScale = ContentScale.Crop
             )
+
             Column(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(16.dp)
+                    .padding(16.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp)
             ) {
-                Text(
-                    text = "Organizer: ${event.organizer?.username ?: "Unknown"}",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Text(
-                    text = event.description ?: "No description provided.",
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
+                if (!event.description.isNullOrBlank()) {
+                    Text(
+                        text = event.description,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant,
+                        maxLines = 3,
+                        overflow = TextOverflow.Ellipsis
+                    )
+                }
 
-                Text(
-                    text = addressText,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 2,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Text(
-                    text = "Inizio gioco: " + getStartTime(event),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Text(
-                    text = "Durata gioco: " + getGameDuration(event),
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-
-
+                InfoRow(icon = Icons.Default.Person, text = "Organizzatore: ${event.organizer?.username ?: "Sconosciuto"}")
+                InfoRow(icon = Icons.Default.LocationOn, text = addressText)
+                InfoRow(icon = Icons.Default.AccessTime, text = "Inizio: ${getStartTime(event)}")
+                InfoRow(icon = Icons.Default.Timer, text = "Durata: ${getGameDuration(event)}")
             }
 
+            HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
 
             Row(
                 modifier = Modifier
                     .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                horizontalArrangement = Arrangement.End,
+                    .padding(horizontal = 8.dp, vertical = 8.dp),
                 verticalAlignment = Alignment.CenterVertically
             ) {
-
-                IconButton(onClick = {  addToCalendar(event, addressText, ctx)},
-                    enabled = state.imSubscribe) {
+                IconButton(
+                    onClick = { addToCalendar(event, addressText, ctx) },
+                    enabled = state.imSubscribe
+                ) {
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
                         contentDescription = "Aggiungi a calendario",
-                        tint = if (state.imSubscribe) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f),
+                        tint = if (state.imSubscribe) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                     )
                 }
                 IconButton(onClick = { shareDetails() }) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "Share Event",
+                        contentDescription = "Condividi Evento",
                         tint = MaterialTheme.colorScheme.primary
                     )
-                }}
-            Row(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .padding(start = 16.dp, end = 16.dp, bottom = 16.dp),
-                horizontalArrangement = Arrangement.End,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
+                }
 
+                Spacer(modifier = Modifier.weight(1f))
 
-            if (!isMineEvent) {
-
-                        Button(
-                            onClick = {
-                                if (!state.imSubscribe){
-                                    viewModel.action.joinToEvent()
-                                }
-                                else{
-                                    viewModel.action.unscribeFromEvent()
-                                }
-                            },
-                            enabled = !state.isLoadingSubscription,
-                            modifier = Modifier
-                                .padding(end = 8.dp)
-                                .width(130.dp)
-                        ) {
-                            if (state.isLoadingSubscription) {
-                                CircularProgressIndicator(
-                                    modifier = Modifier.size(20.dp),
-                                    color = MaterialTheme.colorScheme.onPrimary,
-                                    strokeWidth = 2.dp
-                                )
-                            } else {
-                                Text(if (!state.imSubscribe) "Inscriviti" else "Disiscriviti")
-                            }
+                if (!isMineEvent) {
+                    OutlinedButton(
+                        onClick = {
+                            if (!state.imSubscribe) viewModel.action.joinToEvent()
+                            else viewModel.action.unscribeFromEvent()
+                        },
+                        enabled = !state.isLoadingSubscription,
+                        modifier = Modifier.padding(end = 8.dp)
+                    ) {
+                        if (state.isLoadingSubscription) {
+                            CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
+                        } else {
+                            Text(if (!state.imSubscribe) "Iscriviti" else "Disiscriviti")
                         }
+                    }
 
-                    Button(enabled = state.imSubscribe,
+                    Button(
                         onClick = { },
-                         colors = ButtonDefaults.buttonColors(if (state.imSubscribe) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f))
-
+                        enabled = state.imSubscribe
                     ) {
                         Text("Avvia gioco")
                     }
                 } else {
-                    Button(
+                    OutlinedButton(
                         onClick = { showDeleteDialog = true },
                         modifier = Modifier.padding(end = 8.dp),
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                        colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                     ) {
                         Text("Cancella")
                     }
-                    if (showDeleteDialog) {
-                        AlertDialog(
-                            onDismissRequest = {
-                                showDeleteDialog = false
-                            },
-                            title = {
-                                Text(text = "Conferma eliminazione")
-                            },
-                            text = {
-                                Text(text = "Sei sicuro di voler cancellare questo evento? Questa azione non può essere annullata.")
-                            },
-                            confirmButton = {
-                                TextButton(
-                                    onClick = {
-                                        viewModel.action.deleteEvent()
-                                        showDeleteDialog = false
-                                        navController.navigateUp()
 
-                                    }
-                                ) {
-                                    Text("OK", color = Color(0xC8B24843))
-                                }
-                            },
-                            dismissButton = {
-                                TextButton(
-                                    onClick = {
-                                        showDeleteDialog = false
-                                    }
-                                ) {
-                                    Text("Annulla")
-                                }
-                            }
-                        )
-                    }
                     Button(
-                        onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) },
-                        colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.tertiaryContainer)
+                        onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) }
                     ) {
                         Text("Modifica")
                     }
                 }
             }
-
         }
-
-
     }
 
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { showDeleteDialog = false },
+            title = { Text(text = "Conferma eliminazione") },
+            text = { Text(text = "Sei sicuro di voler cancellare questo evento? Questa azione non può essere annullata.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.action.deleteEvent()
+                        showDeleteDialog = false
+                        navController.navigateUp()
+                    }
+                ) {
+                    Text("Elimina", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { showDeleteDialog = false }) { Text("Annulla") }
+            }
+        )
+    }
+}
+
+@Composable
+fun InfoRow(icon: ImageVector, text: String) {
+    Row(verticalAlignment = Alignment.Top) {
+        Icon(
+            imageVector = icon,
+            contentDescription = null,
+            tint = MaterialTheme.colorScheme.primary,
+            modifier = Modifier.size(20.dp)
+        )
+        Spacer(modifier = Modifier.width(8.dp))
+        Text(
+            text = text,
+            style = MaterialTheme.typography.bodyMedium,
+            color = MaterialTheme.colorScheme.onSurfaceVariant
+        )
+    }
 }
 
 fun getImageUrl(event: Event) : String{
@@ -443,7 +402,15 @@ fun getStartTime(event: Event): String{
 }
 
 @OptIn(ExperimentalTime::class)
-fun getGameDuration(event: Event): String{
-    val duration = event.endTime.nanosecondsOfSecond - event.startTime.nanosecondsOfSecond
-    return duration.toString() + "minuti"
+fun getGameDuration(event: Event): String {
+    val diffInSeconds = event.endTime.epochSeconds - event.startTime.epochSeconds
+    val minutes = diffInSeconds / 60
+
+    return if (minutes >= 60) {
+        val hours = minutes / 60
+        val remainingMinutes = minutes % 60
+        if (remainingMinutes > 0) "$hours h e $remainingMinutes min" else "$hours h"
+    } else {
+        "$minutes minuti"
+    }
 }
