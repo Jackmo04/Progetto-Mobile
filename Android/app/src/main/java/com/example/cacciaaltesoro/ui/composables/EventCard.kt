@@ -49,7 +49,9 @@ import java.time.format.DateTimeFormatter
 import kotlin.time.ExperimentalTime
 import androidx.core.net.toUri
 import com.example.cacciaaltesoro.data.domain.Event
+import java.time.Instant
 
+@OptIn(ExperimentalTime::class)
 @Composable
 fun EventCard(
     event: Event,
@@ -69,6 +71,8 @@ fun EventCard(
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     var addressText by remember { mutableStateOf("Caricamento indirizzo...") }
+    val formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy HH:mm:ss")
+        .withZone(ZoneId.systemDefault())
 
     LaunchedEffect(event.lat, event.lon) {
         val address = withContext(Dispatchers.IO) {
@@ -173,23 +177,18 @@ fun EventCard(
                     .padding(16.dp)
             ) {
                 Text(
-                    text = event.name,
-                    style = MaterialTheme.typography.bodyLarge.copy(fontWeight = FontWeight.Normal),
-                    color = MaterialTheme.colorScheme.onSurface,
-                    modifier = Modifier.padding(bottom = 4.dp)
-                )
-                Text(
                     text = "Organizer: ${event.organizer?.username ?: "Unknown"}",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
-                    modifier = Modifier.padding(bottom = 16.dp)
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
                 Text(
                     text = event.description ?: "No description provided.",
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
 
                 Text(
@@ -197,7 +196,24 @@ fun EventCard(
                     style = MaterialTheme.typography.bodyMedium,
                     color = MaterialTheme.colorScheme.onSurfaceVariant,
                     maxLines = 2,
-                    overflow = TextOverflow.Ellipsis
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = "Inizio gioco: " + getStartTime(event),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(bottom = 4.dp)
+                )
+                Text(
+                    text = "Durata gioco: " + getGameDuration(event),
+                    style = MaterialTheme.typography.bodyMedium,
+                    color = MaterialTheme.colorScheme.onSurfaceVariant,
+                    maxLines = 1,
+                    overflow = TextOverflow.Ellipsis,
+                    modifier = Modifier.padding(bottom = 4.dp)
                 )
 
 
@@ -339,11 +355,7 @@ fun getImageUrl(event: Event) : String{
 
 @OptIn(ExperimentalTime::class)
 fun shareTextBuilder(event: Event, resolvedAddress: String): String {
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", java.util.Locale.ITALY)
-    val dateTime = java.time.Instant.ofEpochSecond(event.startTime.epochSeconds)
-        .atZone(ZoneId.systemDefault())
-        .format(formatter)
-
+    val dateTime = getStartTime(event)
     return """
         *📍 NUOVA CACCIA AL TESORO!*
         
@@ -418,4 +430,20 @@ fun addToCalendar(event: Event, address: String, ctx: Context) {
         Toast.makeText(ctx, "Nessuna app calendario trovata", Toast.LENGTH_SHORT).show()
         Log.e("CalendarError", "Errore durante l'apertura del calendario", e)
     }
+}
+
+@OptIn(ExperimentalTime::class)
+fun getStartTime(event: Event): String{
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", java.util.Locale.ITALY)
+    val dateTime = Instant.ofEpochSecond(event.startTime.epochSeconds)
+        .atZone(ZoneId.systemDefault())
+        .format(formatter)
+
+    return dateTime
+}
+
+@OptIn(ExperimentalTime::class)
+fun getGameDuration(event: Event): String{
+    val duration = event.endTime.nanosecondsOfSecond - event.startTime.nanosecondsOfSecond
+    return duration.toString() + "minuti"
 }
