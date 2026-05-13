@@ -89,4 +89,7 @@ dependencies {
     implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.coil.compose)
+
+    //Compressione immagini
+    implementation(libs.compressor)
 }

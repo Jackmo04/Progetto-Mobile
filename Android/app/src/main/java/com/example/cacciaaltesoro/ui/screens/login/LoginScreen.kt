@@ -2,6 +2,7 @@ package com.example.cacciaaltesoro.ui.screens.login
 
 import android.Manifest
 import android.content.pm.PackageManager
+import android.net.Uri
 import android.util.Log
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -79,13 +80,13 @@ fun LoginScreen(
         stringResource(R.string.signup_title)
     }
 
-    fun processAndUploadImage(imageUri: android.net.Uri) {
+    fun processAndUploadImage(imageUri: Uri) {
         scope.launch(Dispatchers.IO) {
             try {
                 contentResolver.openInputStream(imageUri)?.use { inputStream ->
                     val bytes = inputStream.readBytes()
                     withContext(Dispatchers.Main) {
-                        viewModel.action.uploadImage(imageUri, bytes)
+                        viewModel.action.uploadImage(context, imageUri, bytes)
                     }
                 }
             } catch (e: Exception) {

@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
+import android.content.Context
 import android.net.Uri
 import android.util.Log
 import androidx.compose.runtime.getValue
@@ -40,7 +41,7 @@ data class LoginAction(
     val changePassword: (String, String) -> Unit,
     val toggleUpdatePassword: (Boolean) -> Unit,
     val getImageFromCloud:() -> Unit,
-    val uploadImage: (Uri, ByteArray) -> Unit,
+    val uploadImage: (Context ,Uri, ByteArray) -> Unit,
 
     val setShowLocationDisabledAlert: (Boolean) -> Unit,
     val setShowPermissionDeniedAlert: (Boolean) -> Unit,
@@ -183,7 +184,7 @@ class LoginScreenViewModel(
             }
         },
 
-        uploadImage = { uri, imageBytes ->
+        uploadImage = { ctx,uri, imageBytes ->
             viewModelScope.launch {
                 enableLoading()
                 try {
@@ -191,10 +192,8 @@ class LoginScreenViewModel(
                     if (uid.isNotEmpty()) {
                         val fileName = "profile_${uid}.jpg"
 
-                        // Chiama il DB
-                        repository.uploadProfileImage(uid, imageBytes, fileName)
+                        repository.uploadProfileImage(ctx,uid, imageBytes, fileName)
 
-                        // Aggiorna la UI
                         _state.update { it.copy(imageUri = uri) }
                         successMessage = "Immagine del profilo aggiornata!"
                     }

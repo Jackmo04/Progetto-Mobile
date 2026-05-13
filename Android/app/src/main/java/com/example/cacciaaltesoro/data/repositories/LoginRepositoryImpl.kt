@@ -1,5 +1,7 @@
 package com.example.cacciaaltesoro.data.repositories
 
+import android.content.Context
+import android.graphics.Bitmap
 import android.util.Log
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
@@ -8,6 +10,10 @@ import androidx.datastore.preferences.core.edit
 import androidx.datastore.preferences.core.stringPreferencesKey
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
+import id.zelory.compressor.Compressor
+import id.zelory.compressor.constraint.format
+import id.zelory.compressor.constraint.quality
+import id.zelory.compressor.constraint.resolution
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.providers.builtin.Email
@@ -18,6 +24,7 @@ import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.map
 import kotlin.time.Duration.Companion.minutes
 import io.github.jan.supabase.storage.storage
+import java.io.File
 
 interface LoginRepository {
     suspend fun setUsername(username: String) : Preferences
@@ -29,7 +36,7 @@ interface LoginRepository {
     suspend fun logOut()
     suspend fun getLoggedUser() : UserInfo?
     suspend fun getImageFromBucket(uid: String): String?
-    suspend fun uploadProfileImage(uid: String, imageBytes: ByteArray, fileName: String)
+    suspend fun uploadProfileImage(context: Context, uid: String, imageBytes: ByteArray, fileName: String)
 }
 class LoginRepositoryImpl (
     private val dataStore: DataStore<Preferences>,
@@ -167,9 +174,20 @@ class LoginRepositoryImpl (
         }
     }
 
-    override suspend fun uploadProfileImage(uid: String, imageBytes: ByteArray, fileName: String) {
+    override suspend fun uploadProfileImage(context: Context, uid: String, imageBytes: ByteArray, fileName: String) {
         try {
-            supabase.storage.from("Upload").upload(path = fileName, data = imageBytes) {
+            val tempFile = File(context.cacheDir, "temp_original.jpg")
+            tempFile.writeBytes(imageBytes)
+
+            val compressedFile = Compressor.compress(context, tempFile) {
+                resolution(800, 800)
+                quality(75)
+                format(Bitmap.CompressFormat.JPEG)
+            }
+
+            val compressedBytes = compressedFile.readBytes()
+
+            supabase.storage.from("Upload").upload(path = fileName, data = compressedBytes) {
                 upsert = true
             }
 
@@ -182,9 +200,12 @@ class LoginRepositoryImpl (
                     UserDTO::uuid eq uid
                 }
             }
+
+            tempFile.delete()
+            compressedFile.delete()
+
         } catch (e: Exception) {
             Log.e("UploadError", "Errore durante l'upload dell'immagine", e)
             throw e
         }
-    }
-}
+    }}
