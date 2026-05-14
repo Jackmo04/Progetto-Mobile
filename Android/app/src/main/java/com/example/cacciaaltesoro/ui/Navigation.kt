@@ -44,7 +44,7 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         startDestination = NavigationRoute.Home
     ) {
         composable<NavigationRoute.Home> {
-            HomeScreen(navController)
+            HomeScreen(navController,koinViewModel<LoginScreenViewModel>())
         }
         composable<NavigationRoute.Login>(
             deepLinks = listOf(
@@ -67,10 +67,9 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         composable<NavigationRoute.EventDetails> { backStackEntry ->
 
             val eventDetailsViewModel = koinViewModel<EventDetailsViewModel>()
-            Log.i("CardLog" , eventDetailsViewModel.toString())
+            val newLoginEvent = koinViewModel<LoginScreenViewModel>()
             val route = backStackEntry.toRoute<NavigationRoute.EventDetails>()
-            Log.i("CardLog" , route.toString())
-            EventDetailsScreen(navController, route.eventId ,eventDetailsViewModel)
+            EventDetailsScreen(navController, route.eventId ,eventDetailsViewModel,newLoginEvent)
         }
         composable<NavigationRoute.Game> { backStackEntry ->
             val route = backStackEntry.toRoute<NavigationRoute.Game>()
@@ -78,7 +77,8 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         }
         composable<NavigationRoute.SavedEvents> {
             val savedEventViewModel = koinViewModel<SavedEventsViewModel>()
-            SavedEventsScreen(navController, savedEventViewModel)
+            val newLoginEvent = koinViewModel<LoginScreenViewModel>()
+            SavedEventsScreen(navController, savedEventViewModel,newLoginEvent)
         }
         composable<NavigationRoute.EventEditor> { backStackEntry ->
             val route = backStackEntry.toRoute<NavigationRoute.EventEditor>()

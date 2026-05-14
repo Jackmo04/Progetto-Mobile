@@ -23,14 +23,16 @@ import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.EventListCard
 import com.example.cacciaaltesoro.ui.composables.OrderComboBox
+import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
 
 @Composable
-fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsViewModel) {
+fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsViewModel,loginViewModel: LoginScreenViewModel) {
     val ctx = LocalContext.current
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val stateLogin by loginViewModel.state.collectAsStateWithLifecycle()
     val snackbarHostState = remember { SnackbarHostState() }
 
     val locationService = remember { LocationService(ctx) }
@@ -74,7 +76,7 @@ fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsVi
     }
 
     Scaffold(
-        topBar = { AppBar(stringResource(R.string.saved_event_title), navController) },
+        topBar = { AppBar(stringResource(R.string.saved_event_title), navController,true,stateLogin.imageUri) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(

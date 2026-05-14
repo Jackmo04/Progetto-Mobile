@@ -20,16 +20,20 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
+import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController) {
+fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewModel ) {
+
+    val stateLogin by loginViewModel.state.collectAsStateWithLifecycle()
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(stringResource(R.string.home), navController) }
+        topBar = { AppBar(stringResource(R.string.home), navController,true,stateLogin.imageUri) }
     ) { innerPadding ->
         var eventId by remember { mutableStateOf("") }
 
@@ -43,13 +47,12 @@ fun HomeScreen(navController: NavHostController) {
             Column(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
-                // Test buttons
-                Text("Bottoni di test")
-                MyButton("Login") { navController.navigate(NavigationRoute.Login) }
+             //   MyButton("Login") { navController.navigate(NavigationRoute.Login) }
                 MyButton("Online Events") { navController.navigate(NavigationRoute.OnlineEvents) }
+                if(stateLogin.isLogin){
                 MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
                 MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
-            }
+            }}
         }
     }
 }
