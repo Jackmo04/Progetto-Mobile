@@ -31,17 +31,19 @@ import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.EventListCard
 import com.example.cacciaaltesoro.ui.composables.OrderComboBox
+import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
 
 @Composable
-fun OnlineEventsScreen(navController: NavHostController, viewModel: OnlineEventViewModel) {
+fun OnlineEventsScreen(navController: NavHostController, viewModel: OnlineEventViewModel,loginViewModel: LoginScreenViewModel) {
     val ctx = LocalContext.current
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
 
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val stateLogin by loginViewModel.state.collectAsStateWithLifecycle()
     val list = state.listEvent
     val keyboardController = LocalSoftwareKeyboardController.current
 
@@ -103,7 +105,7 @@ fun OnlineEventsScreen(navController: NavHostController, viewModel: OnlineEventV
     }
 
     Scaffold(
-        topBar = { AppBar(stringResource(id = R.string.online_event_title), navController) },
+        topBar = { AppBar(stringResource(id = R.string.online_event_title), navController,true,stateLogin.imageUri) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(

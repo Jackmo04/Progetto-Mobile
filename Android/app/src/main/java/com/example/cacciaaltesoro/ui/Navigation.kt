@@ -61,7 +61,8 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         }
         composable<NavigationRoute.OnlineEvents> {
             val newOnlineEvent = koinViewModel<OnlineEventViewModel>()
-            OnlineEventsScreen(navController, newOnlineEvent)
+            val newLoginEvent = koinViewModel<LoginScreenViewModel>()
+            OnlineEventsScreen(navController, newOnlineEvent, newLoginEvent)
         }
         composable<NavigationRoute.EventDetails> { backStackEntry ->
 

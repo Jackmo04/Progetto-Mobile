@@ -179,6 +179,8 @@ class LoginScreenViewModel(
                     val url = repository.getImageFromBucket(uid)
                     if (url != null) {
                         _state.update { it.copy(imageUri = url.toUri()) }
+                    }else{
+                        _state.update { it.copy(imageUri = null) }
                     }
                 }
             }

@@ -163,12 +163,13 @@ class LoginRepositoryImpl (
             }.decodeSingleOrNull<UserDTO>()
 
             val imgName = userDto?.image
+            if (imgName.isNullOrEmpty()) return null
 
-            if (imgName.isNullOrEmpty()) return  supabase.storage.from(bucketName)
-                .createSignedUrl(path = "default.png", expiresIn = 60.minutes)
             supabase.storage.from(bucketName)
                 .createSignedUrl(path = imgName, expiresIn = 60.minutes)
-        }catch (e: Exception) {
+
+        } catch (e: Exception) {
+            Log.e("Image2", e.toString())
             e.printStackTrace()
             null
         }
