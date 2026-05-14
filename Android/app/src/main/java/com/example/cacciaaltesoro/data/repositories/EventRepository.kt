@@ -26,6 +26,7 @@ import kotlinx.serialization.Serializable
 import java.util.UUID
 import kotlin.time.ExperimentalTime
 import io.github.jan.supabase.postgrest.query.Columns
+import io.github.jan.supabase.postgrest.query.Count
 import kotlinx.datetime.TimeZone
 import kotlinx.datetime.toLocalDateTime
 import kotlin.collections.plus
@@ -40,6 +41,7 @@ interface EventRepository {
     suspend fun getEventsByCode(code: String): Event?
     suspend fun getOrderedEvent (type : String , location: Location?, listEvent: List<Event>) : List<Event>
     suspend fun getAllMyEvents(): List<Event>
+    suspend fun getRegisteredAtEventNumber(idEvent: Int): Int?
     suspend fun joinToEvent(idEvent: Int )
 
     suspend fun unscribeFromEvent(idEvent: Int)
@@ -250,11 +252,28 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         return emptyList()
     }
 
+    override suspend fun getRegisteredAtEventNumber(idEvent: Int): Int? {
+        try {
+            val result = supabase.from(SupabaseTables.SUBSCRIPTION.tableName).select {
+                filter {
+                    eq("prt_partita", idEvent)
+                }
+                count(Count.EXACT)
+                head = true
+            }.countOrNull()
+            Log.i("CountR", result.toString())
+            return result?.toInt()
+        } catch (e: Exception) {
+            Log.e("Count registered", e.toString())
+        }
+        return null
+    }
+
 
     override suspend fun joinToEvent(idEvent: Int) {
         try {
             val link = UserEvent(idEvent,supabase.auth.currentSessionOrNull()?.user!!.id)
-            supabase.postgrest["partecipazioni"].insert(link)
+            supabase.postgrest[SupabaseTables.SUBSCRIPTION.tableName].insert(link)
         }catch (e: Exception){
             Log.e("JoinEvent",e.toString())
         }
@@ -263,7 +282,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     override suspend fun unscribeFromEvent(idEvent: Int) {
 
         try {
-            supabase.from("partecipazioni").delete {
+            supabase.from(SupabaseTables.SUBSCRIPTION.tableName).delete {
                 filter {
                     eq("prt_partita", idEvent)
                     eq("prt_utente", supabase.auth.currentSessionOrNull()?.user!!.id)

@@ -53,6 +53,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.ui.graphics.vector.ImageVector
@@ -194,6 +195,8 @@ fun EventCard(
                 InfoRow(icon = Icons.Default.Timer, text = "Durata: ${getGameDuration(event)}")
                 if(!isMineEvent && state.imSubscribe)
                     InfoRow(icon = Icons.Default.Tag, text = "Tag raccolti: ${state.userTagCached}")
+                else
+                    InfoRow(icon = Icons.Default.PersonAdd, text = "Inscritti: ${state.registeredUser}")
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))

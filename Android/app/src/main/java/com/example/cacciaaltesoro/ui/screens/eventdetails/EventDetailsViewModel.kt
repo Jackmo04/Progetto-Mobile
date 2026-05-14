@@ -24,7 +24,8 @@ data class EventDetailsEventState(
     val userId: String? = null,
     val imSubscribe: Boolean = false,
     val isLoadingSubscription: Boolean = true,
-    val userTagCached: Int = 0
+    val userTagCached: Int = 0,
+    val registeredUser: Int = 0,
 )
 
 data class EventDetailsEventAction(
@@ -53,7 +54,8 @@ class EventDetailsViewModel(
                         it.copy(
                             idEvent = id,
                             event = repository.getEvent(id),
-                            userTagCached = repository.getTagCachedByMe(id).size
+                            userTagCached = repository.getTagCachedByMe(id).size,
+                            registeredUser = repository.getRegisteredAtEventNumber(id)?:0
                         )
                     }
                 } catch (e: Exception){
