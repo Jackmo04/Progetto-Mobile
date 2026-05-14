@@ -154,6 +154,7 @@ class LoginRepositoryImpl (
 
 
     override suspend fun getImageFromBucket(uid: String): String? {
+        val bucketName = "Upload"
         return try {
             val userDto = supabase.from(SupabaseTables.USERS.tableName).select {
                 filter {
@@ -163,12 +164,11 @@ class LoginRepositoryImpl (
 
             val imgName = userDto?.image
 
-            if (imgName.isNullOrEmpty()) return null
-
-
-            supabase.storage.from("Upload")
+            if (imgName.isNullOrEmpty()) return  supabase.storage.from(bucketName)
+                .createSignedUrl(path = "default.png", expiresIn = 60.minutes)
+            supabase.storage.from(bucketName)
                 .createSignedUrl(path = imgName, expiresIn = 60.minutes)
-        } catch (e: Exception) {
+        }catch (e: Exception) {
             e.printStackTrace()
             null
         }
