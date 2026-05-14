@@ -9,6 +9,7 @@ import com.example.cacciaaltesoro.data.database.dto.EventDTO
 import com.example.cacciaaltesoro.data.database.dto.TagDTO
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import com.example.cacciaaltesoro.data.domain.Event
+import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.mappers.toDomain
 import com.example.cacciaaltesoro.data.mappers.toDto
 import com.example.cacciaaltesoro.data.mappers.toInsertDto
@@ -25,7 +26,10 @@ import kotlinx.serialization.Serializable
 import java.util.UUID
 import kotlin.time.ExperimentalTime
 import io.github.jan.supabase.postgrest.query.Columns
+import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toLocalDateTime
 import kotlin.collections.plus
+import kotlin.time.Clock
 
 interface EventRepository {
     suspend fun insertEvent(event: Event)
@@ -41,6 +45,8 @@ interface EventRepository {
     suspend fun unscribeFromEvent(idEvent: Int)
 
     suspend fun deleteEvent(idEvent: Int)
+
+    suspend fun getTagCachedByMe(idEvent: Int): List<Tag>
 
 }
 
@@ -145,10 +151,12 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
 
     override suspend fun getAllEvents(): List<Event> {
         val uuid = supabase.auth.currentUserOrNull()?.id
+        val localTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
         if (uuid == null){
             val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::isPrivate eq false
+                    EventDTO::startTime gt localTime
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())
@@ -160,6 +168,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 filter {
                     EventDTO::isPrivate eq false
                     EventDTO::organizerUUID neq uuid
+                    EventDTO::startTime gt localTime
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())
@@ -275,6 +284,20 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }catch (e: Exception){
             Log.e("DeleteEvent",e.toString())
         }
+    }
+
+    override suspend fun getTagCachedByMe(idEvent: Int): List<Tag> {
+        val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
+            ?: throw IllegalStateException("utente non loggato")
+
+        val  tags = supabase.from(SupabaseTables.USERS.tableName).select(
+            columns = Columns.raw("*,  tags!tagraccolti(*)")) {
+            filter {
+                UserDTO::uuid eq uuidC
+            }
+        }.decodeSingle<UserDTO>().tagDTOS.filter { t -> t.eventId == idEvent }.map { t -> t.toDomain() }
+        Log.i("tagc", tags.toString())
+        return tags
     }
 
     private  fun orderLocationByDistance(

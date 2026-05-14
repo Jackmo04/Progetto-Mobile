@@ -53,6 +53,7 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.filled.AccessTime
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.ui.graphics.vector.ImageVector
 import com.google.maps.model.AddressComponentType
@@ -188,9 +189,11 @@ fun EventCard(
                 }
 
                 InfoRow(icon = Icons.Default.Person, text = "Organizzatore: ${event.organizer?.username ?: "Sconosciuto"}")
-                InfoRow(icon = Icons.Default.LocationOn, text = addressText)
+                InfoRow(icon = Icons.Default.LocationOn, text = "Indirizzo: ${addressText}")
                 InfoRow(icon = Icons.Default.AccessTime, text = "Inizio: ${getStartTime(event)}")
                 InfoRow(icon = Icons.Default.Timer, text = "Durata: ${getGameDuration(event)}")
+                if(!isMineEvent && state.imSubscribe)
+                    InfoRow(icon = Icons.Default.Tag, text = "Tag raccolti: ${state.userTagCached}")
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
