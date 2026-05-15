@@ -15,6 +15,7 @@ import kotlinx.coroutines.flow.combine
 import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
+import io.github.jan.supabase.auth.status.SessionStatus
 
 data class LoginState(
     val username: String = "",
@@ -202,14 +203,15 @@ class LoginScreenViewModel(
     init {
         viewModelScope.launch {
             combine(
-                repository.isLogin,
+                repository.authStatus,
                 repository.username,
                 repository.userId,
                 repository.isSignUp,
                 repository.isPasswordUpdateRequested
-            ) { isLogin, username, userId, isSignUp, isRequested ->
+            ) { authStatus, username, userId, isSignUp, isRequested ->
+                val isUserActuallyLoggedIn = authStatus is SessionStatus.Authenticated
                 _state.value.copy(
-                    isLogin = isLogin,
+                    isLogin = isUserActuallyLoggedIn,
                     username = username,
                     userId = userId,
                     isSignUp = isSignUp,
