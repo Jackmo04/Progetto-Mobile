@@ -24,12 +24,7 @@ data class LoginState(
     val isUpdatePassword: Boolean = false,
     val isLoading: Boolean = false,
     val isInitializing: Boolean = true,
-    val imageUri: Uri? = null,
-
-    val showLocationDisabledAlert: Boolean = false,
-    val showPermissionDeniedAlert: Boolean = false,
-    val showPermissionPermanentlyDeniedSnackbar: Boolean = false,
-    val showNoConnectivitySnackbar: Boolean = false
+    val imageUri: Uri? = null
 )
 
 data class LoginAction(
@@ -41,12 +36,7 @@ data class LoginAction(
     val changePassword: (String, String) -> Unit,
     val toggleUpdatePassword: (Boolean) -> Unit,
     val getImageFromCloud:() -> Unit,
-    val uploadImage: (Context ,Uri, ByteArray) -> Unit,
-
-    val setShowLocationDisabledAlert: (Boolean) -> Unit,
-    val setShowPermissionDeniedAlert: (Boolean) -> Unit,
-    val setShowPermissionPermanentlyDeniedSnackbar: (Boolean) -> Unit,
-    val setShowNoConnectivitySnackbar: (Boolean) -> Unit
+    val uploadImage: (Context ,Uri, ByteArray) -> Unit
 )
 
 class LoginScreenViewModel(
@@ -206,16 +196,7 @@ class LoginScreenViewModel(
                     disableLoading()
                 }
             }
-        },
-
-        setShowLocationDisabledAlert ={ show ->
-            _state.update { it.copy(showLocationDisabledAlert = show) } },
-        setShowPermissionDeniedAlert ={ show ->
-            _state.update { it.copy(showPermissionDeniedAlert = show) } },
-        setShowPermissionPermanentlyDeniedSnackbar={ show ->
-            _state.update { it.copy(showPermissionPermanentlyDeniedSnackbar = show) } },
-        setShowNoConnectivitySnackbar={ show ->
-            _state.update { it.copy(showNoConnectivitySnackbar = show) } },
+        }
     )
 
     init {

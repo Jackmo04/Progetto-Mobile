@@ -111,7 +111,6 @@ fun LoginScreen(
         if (isGranted) {
             takePicture()
         } else {
-            viewModel.action.setShowPermissionDeniedAlert(true)
             Toast.makeText(context, "Permesso fotocamera negato", Toast.LENGTH_SHORT).show()
         }
     }
