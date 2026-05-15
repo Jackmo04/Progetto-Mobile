@@ -28,40 +28,28 @@ import org.koin.compose.koinInject
 @Composable
 fun SplashScreen(
     navController: NavHostController,
-    // Usiamo Koin per iniettare direttamente Supabase (o passalo dai parametri se non usi Koin qui)
     supabase: SupabaseClient = koinInject()
 ) {
-    // Ascoltiamo lo stato IN TEMPO REALE di Supabase
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
 
-    // Reagiamo ai cambiamenti di stato
     LaunchedEffect(sessionStatus) {
         when (sessionStatus) {
-            is SessionStatus.Authenticated -> {
-                // Utente loggato! Vai alla Home (o agli Eventi) e DISTRUGGI la Splash dalla cronologia
-                navController.navigate(NavigationRoute.Home) { // Sostituisci con la tua rotta
-                    popUpTo(NavigationRoute.Splash) { inclusive = true }
-                }
-            }
-            is SessionStatus.NotAuthenticated -> {
-                // Non loggato o errore! Vai al Login e DISTRUGGI la Splash dalla cronologia
-                navController.navigate(NavigationRoute.Login) {
+            is SessionStatus.Authenticated,is SessionStatus.NotAuthenticated -> {
+                navController.navigate(NavigationRoute.Home) {
                     popUpTo(NavigationRoute.Splash) { inclusive = true }
                 }
             }
             else -> {
-                // SessionStatus.LoadingFromStorage -> Stiamo ancora caricando, non fare nulla (mostra la UI)
+
             }
         }
     }
 
-    // --- UI della Splash Screen ---
     Box(
         modifier = Modifier.fillMaxSize(),
         contentAlignment = Alignment.Center
     ) {
         Column(horizontalAlignment = Alignment.CenterHorizontally) {
-            // Sostituisci con il logo della tua app!
             Icon(
                 imageVector = Icons.Default.Explore,
                 contentDescription = "Logo Caccia al Tesoro",
