@@ -22,11 +22,13 @@ import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
+import com.example.cacciaaltesoro.ui.screens.splash.SplashScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
 import org.koin.core.parameter.parametersOf
 
 sealed interface NavigationRoute {
+    @Serializable data object Splash : NavigationRoute
     @Serializable data object Home : NavigationRoute
     @Serializable data object OnlineEvents : NavigationRoute
     @Serializable data class EventDetails(val eventId: Int) : NavigationRoute
@@ -41,8 +43,11 @@ sealed interface NavigationRoute {
 fun CacciaAlTesoroNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = NavigationRoute.Home
+        startDestination = NavigationRoute.Splash
     ) {
+        composable<NavigationRoute.Splash> {
+            SplashScreen(navController = navController)
+        }
         composable<NavigationRoute.Home> {
             HomeScreen(navController,koinViewModel<LoginScreenViewModel>())
         }
