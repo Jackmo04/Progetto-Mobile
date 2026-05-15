@@ -2,7 +2,9 @@ package com.example.cacciaaltesoro.ui.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -50,9 +52,14 @@ fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewM
              //   MyButton("Login") { navController.navigate(NavigationRoute.Login) }
                 MyButton("Online Events") { navController.navigate(NavigationRoute.OnlineEvents) }
                 if(stateLogin.isLogin){
-                MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
-                MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
-            }}
+                    MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
+                    MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
+
+                    // TODO delete following lines
+                    Spacer(modifier = Modifier.height(24.dp))
+                    MyButton("Test Game (id:33)") { navController.navigate(NavigationRoute.Game(33)) }
+                }
+            }
         }
     }
 }

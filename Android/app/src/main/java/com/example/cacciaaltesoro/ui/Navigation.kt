@@ -18,6 +18,7 @@ import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorScreen
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorViewModel
+import com.example.cacciaaltesoro.ui.screens.game.GameViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
@@ -32,7 +33,7 @@ sealed interface NavigationRoute {
     @Serializable data object Home : NavigationRoute
     @Serializable data object OnlineEvents : NavigationRoute
     @Serializable data class EventDetails(val eventId: Int) : NavigationRoute
-    @Serializable data class Game(val eventId: String) : NavigationRoute
+    @Serializable data class Game(val eventId: Int) : NavigationRoute
     @Serializable data object SavedEvents : NavigationRoute
     @Serializable data object Login : NavigationRoute
     @Serializable data class EventEditor(val eventId: Int? = null) : NavigationRoute
@@ -78,7 +79,10 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
         }
         composable<NavigationRoute.Game> { backStackEntry ->
             val route = backStackEntry.toRoute<NavigationRoute.Game>()
-            GameScreen(navController, route.eventId)
+            val gameViewModel = koinViewModel<GameViewModel>(
+                parameters = { parametersOf(route.eventId) }
+            )
+            GameScreen(navController, gameViewModel)
         }
         composable<NavigationRoute.SavedEvents> {
             val savedEventViewModel = koinViewModel<SavedEventsViewModel>()

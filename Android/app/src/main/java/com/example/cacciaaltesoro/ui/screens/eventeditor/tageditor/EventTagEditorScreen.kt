@@ -205,9 +205,8 @@ fun EventTagEditorScreen(
                 eventState.tags.forEach { tag ->
                     Marker(
                         MarkerState(position = tag.coordinates.toLatLng()),
-                        tag = tag,
-                        onClick = { marker ->
-                            viewModel.toEditing(marker.tag as Tag)
+                        onClick = {
+                            viewModel.toEditing(tag)
                             coroutineScope.launch {
                                 cameraPositionState.animate(
                                     CameraUpdateFactory.newLatLng(tag.coordinates.toLatLng())

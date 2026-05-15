@@ -10,6 +10,7 @@ import com.example.cacciaaltesoro.data.database.dto.TagDTO
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.domain.Tag
+import com.example.cacciaaltesoro.data.domain.User
 import com.example.cacciaaltesoro.data.mappers.toDomain
 import com.example.cacciaaltesoro.data.mappers.toDto
 import com.example.cacciaaltesoro.data.mappers.toInsertDto
@@ -36,6 +37,7 @@ interface EventRepository {
     suspend fun insertEvent(event: Event)
     suspend fun updateEvent(event: Event)
     suspend fun getEventWithTags(eventId: Int): Event?
+    suspend fun setFoundTag(tag: Tag)
     suspend fun getEvent(id: Int): Event?
     suspend fun getAllEvents(): List<Event>
     suspend fun getEventsByCode(code: String): Event?
@@ -64,6 +66,11 @@ data class UserEvent(
     @SerialName("prt_utente") val idUser: String
 )
 
+@Serializable
+data class UserTag(
+    @SerialName("tgr_utente") val userId: String,
+    @SerialName("tgr_tag") val tagId: String
+)
 
 class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepository {
     override suspend fun insertEvent(event: Event) {
@@ -119,7 +126,19 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
 
+    override suspend fun setFoundTag(tag: Tag) {
+        withContext(Dispatchers.IO) {
+            val currentUser =
+                supabase.auth.currentSessionOrNull()?.user?.id ?: throw IllegalStateException()
 
+            supabase.from(SupabaseTables.TAG_CACHED.tableName).insert(
+                UserTag(
+                    userId = currentUser,
+                    tagId = tag.id
+                )
+            )
+        }
+    }
 
     override suspend fun getEvent(id: Int): Event? {
         return try {
