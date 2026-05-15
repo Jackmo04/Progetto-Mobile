@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.screens.game
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.domain.Event
@@ -74,7 +75,11 @@ class GameViewModel(
                 if (foundTag != null) {
                     _uiEvent.trySend("Tag ${foundTag.number} trovato!")
                     _tagsToFind.value -= foundTag
-                    // TODO update DB
+                    try {
+                        eventRepository.setFoundTag(foundTag)
+                    } catch (e: Exception) {
+                        Log.e("DATABASE", "Error while trying to update found tag", e)
+                    }
                 } else {
                     _uiEvent.trySend("Tag non valido!")
                 }
