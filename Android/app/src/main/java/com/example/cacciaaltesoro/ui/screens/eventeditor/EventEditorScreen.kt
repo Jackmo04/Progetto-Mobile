@@ -294,6 +294,7 @@ fun EventEditorScreen(
                         && eventState.name.isNotBlank()
                         && !eventState.isImpossibleStartDateTime
                         && !eventState.isImpossibleEndDateTime
+                        && eventState.tags.isNotEmpty()
                         && !uiState.isLoading
             ) {
                 Text(

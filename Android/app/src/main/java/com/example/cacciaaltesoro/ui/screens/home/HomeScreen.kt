@@ -50,9 +50,13 @@ fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewM
              //   MyButton("Login") { navController.navigate(NavigationRoute.Login) }
                 MyButton("Online Events") { navController.navigate(NavigationRoute.OnlineEvents) }
                 if(stateLogin.isLogin){
-                MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
-                MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
-            }}
+                    MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
+                    MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
+
+                    // TODO delete following line
+                    MyButton("Test Game") { navController.navigate(NavigationRoute.Game(33)) }
+                }
+            }
         }
     }
 }

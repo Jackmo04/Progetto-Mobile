@@ -12,6 +12,7 @@ import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEditorViewModel
+import com.example.cacciaaltesoro.ui.screens.game.GameViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventViewModel
 import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
 import com.example.cacciaaltesoro.utils.nfc.NfcUtils
@@ -45,4 +46,11 @@ val appModule = module {
     }
     viewModel { EventTagEditorViewModel(get()) }
     viewModel { EventDetailsViewModel(get(), get()) }
+    viewModel { (eventId: Int) ->
+        GameViewModel(
+            eventId = eventId,
+            eventRepository = get(),
+            nfcUtils = get()
+        )
+    }
 }

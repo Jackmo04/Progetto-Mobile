@@ -44,7 +44,7 @@ class NfcUtils {
             e.printStackTrace()
             false
         } finally {
-            try { ndef.close() } catch (e: Exception) { /* Ignore */ }
+            try { ndef.close() } catch (e: Exception) {}
         }
     }
 
