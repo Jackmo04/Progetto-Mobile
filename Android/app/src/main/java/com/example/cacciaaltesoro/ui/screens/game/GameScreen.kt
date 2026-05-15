@@ -28,6 +28,7 @@ import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.SheetValue
+import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
@@ -152,14 +153,14 @@ fun GameScreen(
             Spacer(modifier = Modifier.padding(24.dp))
         }
     ) { innerPadding ->
-//        LaunchedEffect(Unit) {
-//            viewModel.uiEvent.collect { message ->
-//                snackbarHostState.showSnackbar(
-//                    message = message,
-//                    duration = SnackbarDuration.Short
-//                )
-//            }
-//        }
+        LaunchedEffect(Unit) {
+            viewModel.uiEvent.collect { message ->
+                snackbarHostState.showSnackbar(
+                    message = message,
+                    duration = SnackbarDuration.Short
+                )
+            }
+        }
 
         val cameraPositionState = rememberCameraPositionState {
             position = CameraPosition.fromLatLngZoom(

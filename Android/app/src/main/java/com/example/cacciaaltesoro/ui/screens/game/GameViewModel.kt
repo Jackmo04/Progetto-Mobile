@@ -7,8 +7,12 @@ import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.utils.nfc.NfcUtils
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.filter
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 
 sealed class SheetContentState {
@@ -38,6 +42,9 @@ class GameViewModel(
 
     var event : Event? = null
 
+    private val _uiEvent = Channel<String>()
+    val uiEvent = _uiEvent.receiveAsFlow()
+
     private val _tagsToFind = MutableStateFlow<List<Tag>>(emptyList())
     val tagsToFind = _tagsToFind.asStateFlow()
 
@@ -57,7 +64,21 @@ class GameViewModel(
 
     val nfcActions = NfcActions(
         onNfcTagDiscovered = { nfcTag ->
-
+            viewModelScope.launch(Dispatchers.IO) {
+                val readUUID = nfcUtils.readUuidFromNdef(nfcTag)
+                if (readUUID == null) {
+                    _uiEvent.trySend("Tag non valido!")
+                    return@launch
+                }
+                val foundTag = tagsToFind.value.firstOrNull { it.id == readUUID.toString() }
+                if (foundTag != null) {
+                    _uiEvent.trySend("Tag ${foundTag.number} trovato!")
+                    _tagsToFind.value -= foundTag
+                    // TODO update DB
+                } else {
+                    _uiEvent.trySend("Tag non valido!")
+                }
+            }
         }
     )
 
