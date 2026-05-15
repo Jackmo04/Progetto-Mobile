@@ -2,8 +2,10 @@ package com.example.cacciaaltesoro.ui.screens.home
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.requiredSize
@@ -11,6 +13,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -47,7 +50,8 @@ fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewM
             verticalArrangement = Arrangement.Center
         ) {
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp)
+                verticalArrangement = Arrangement.spacedBy(4.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
             ) {
              //   MyButton("Login") { navController.navigate(NavigationRoute.Login) }
                 MyButton("Online Events") { navController.navigate(NavigationRoute.OnlineEvents) }
@@ -57,7 +61,21 @@ fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewM
 
                     // TODO delete following lines
                     Spacer(modifier = Modifier.height(24.dp))
-                    MyButton("Test Game (id:33)") { navController.navigate(NavigationRoute.Game(33)) }
+                    //MyButton("Test Game (id:33)") { navController.navigate(NavigationRoute.Game(33)) }
+
+                    var gameID by remember { mutableStateOf("") }
+                    Text("Test schermata di gioco")
+                    OutlinedTextField(
+                        value = gameID,
+                        label = { Text("ID partita (non codice)") },
+                        onValueChange = { gameID = it }
+                    )
+                    Button(
+                        onClick = { navController.navigate(NavigationRoute.Game(gameID.toInt())) }
+                    ) {
+                        Text("Partecipa")
+                    }
+
                 }
             }
         }

@@ -244,7 +244,10 @@ fun EventCard(
                     }
 
                     Button(
-                        onClick = { },
+                        // TODO quando event id sarà UUID, togliere elvis
+                        onClick = { navController.navigate(NavigationRoute.Game(
+                            event.id ?: throw IllegalArgumentException())
+                        ) },
                         enabled = state.imSubscribe && isAvailableTheEvent(event)
                     ) {
                         Text("Avvia")
