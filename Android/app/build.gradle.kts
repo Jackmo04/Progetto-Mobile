@@ -73,6 +73,7 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.tooling)
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.google.maps.services)
+    implementation(libs.androidx.core.splashscreen)
 
     //Supbase dependence
     implementation(platform(libs.bom.v300))

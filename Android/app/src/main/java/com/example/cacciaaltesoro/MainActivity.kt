@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.core.splashscreen.SplashScreen.Companion.installSplashScreen
 import androidx.lifecycle.lifecycleScope
 import androidx.navigation.compose.rememberNavController
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
@@ -19,7 +20,9 @@ class MainActivity : ComponentActivity() {
     private val loginRepositoryImpl: LoginRepositoryImpl by inject ()
 
     override fun onCreate(savedInstanceState: Bundle?) {
+        installSplashScreen()
         super.onCreate(savedInstanceState)
+
 
         handleIntent(intent)
 
@@ -29,7 +32,8 @@ class MainActivity : ComponentActivity() {
                 val navController = rememberNavController()
                 CacciaAlTesoroNavGraph(navController)
             }
-        }}
+        }
+    }
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
         handleIntent(intent)
@@ -78,4 +82,5 @@ class MainActivity : ComponentActivity() {
             }
             loginRepositoryImpl.setPasswordUpdateRequested(true)
         }
-    }}
+    }
+}
