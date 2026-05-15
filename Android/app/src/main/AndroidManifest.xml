@@ -9,7 +9,9 @@
     <uses-permission android:name="android.permission.NFC" />
 
     <uses-feature android:name="android.hardware.camera" android:required="false" />
-    <uses-feature android:name="android.hardware.nfc" android:required="false" />
+
+    <!-- Change to false if we decide to enable proximity detection instead of requiring NFC -->
+    <uses-feature android:name="android.hardware.nfc" android:required="true" />
 
     <queries>
         <intent>
