@@ -23,6 +23,7 @@ import com.example.cacciaaltesoro.ui.NavigationRoute
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
 import io.github.jan.supabase.auth.status.SessionStatus
+import kotlinx.coroutines.delay
 import org.koin.compose.koinInject
 
 @Composable
@@ -33,6 +34,7 @@ fun SplashScreen(
     val sessionStatus by supabase.auth.sessionStatus.collectAsState()
 
     LaunchedEffect(sessionStatus) {
+        delay(1000)
         when (sessionStatus) {
             is SessionStatus.Authenticated,is SessionStatus.NotAuthenticated -> {
                 navController.navigate(NavigationRoute.Home) {

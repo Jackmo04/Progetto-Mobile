@@ -54,15 +54,10 @@ fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsVi
     ) { permissionResults ->
         if (permissionResults.values.any { it.isGranted }) {
             getCurrentLocation()
-        }
-    }
-
-    LaunchedEffect(Unit) {
-        viewModel.action.onSearchEvent()
-        if (locationPermissions.statuses.any { it.value.isGranted }) {
-            getCurrentLocation()
         } else {
-            locationPermissions.launchPermissionRequest()
+            scope.launch {
+                snackbarHostState.showSnackbar("Permesso di posizione necessario per trovare eventi vicini.")
+            }
         }
     }
 
@@ -72,6 +67,8 @@ fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsVi
                 latitude = it.latitude
                 longitude = it.longitude
             })
+
+            viewModel.action.onOrderChanged(EventOrderType.DISTANCE.type)
         }
     }
 
@@ -93,16 +90,17 @@ fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsVi
                 contentAlignment = Alignment.Center
             ) {
                 OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
-                    viewModel.action.onOrderChanged(selected)
-                    val hasPermission = locationPermissions.statuses.any { it.value.isGranted }
-
-                    if (selected == EventOrderType.DISTANCE.type && !hasPermission) {
-                        scope.launch {
-                            snackbarHostState.showSnackbar(
-                                message = "Permesso di posizione necessario per trovare eventi vicini.",
-                                duration = SnackbarDuration.Long
-                            )
+                    when (selected){
+                        EventOrderType.DISTANCE.type -> {
+                            if (locationPermissions.statuses.any { it.value.isGranted }) {
+                                getCurrentLocation()
+                                viewModel.action.onOrderChanged(selected)
+                            } else {
+                                locationPermissions.launchPermissionRequest()
+                            }
+                            viewModel.action.onOrderChanged(selected)
                         }
+                        else -> viewModel.action.onOrderChanged(selected)
                     }
                 }
             }
