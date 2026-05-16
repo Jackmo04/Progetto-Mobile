@@ -28,7 +28,6 @@ import java.io.File
 
 interface LoginRepository {
     suspend fun setUsername(username: String) : Preferences
-    suspend fun setUserId(userId: String) : Preferences
     suspend fun setIsSignUp(isSignUp: Boolean) : Preferences
     suspend fun clearSession():Preferences
     suspend fun onLogIn(username: String, password: String)
@@ -44,25 +43,19 @@ class LoginRepositoryImpl (
     val authStatus = supabase.auth.sessionStatus
     companion object {
         private val USERNAME_KEY = stringPreferencesKey("username")
-        private val USERNAME_UUID = stringPreferencesKey("idUser")
-        private val PASSWORD = stringPreferencesKey("password")
         private val IS_SIGN_UP = booleanPreferencesKey("isSignUp")
     }
 
     val username = dataStore.data.map { it[USERNAME_KEY] ?: "" }
-    val userId = dataStore.data.map { it[USERNAME_UUID] ?: "" }
     val isSignUp = dataStore.data.map { it[IS_SIGN_UP] ?: false }
     private val _isPasswordUpdateRequested = MutableStateFlow(false)
 
 
     override suspend fun setUsername(username: String) = dataStore.edit { it[USERNAME_KEY] = username }
-    override suspend fun setUserId(userId: String) = dataStore.edit { it[USERNAME_UUID] = userId }
     override suspend fun setIsSignUp(isSignUp: Boolean) = dataStore.edit { it[IS_SIGN_UP] = isSignUp }
 
     override suspend fun clearSession() = dataStore.edit {
         it.remove(USERNAME_KEY)
-        it.remove(USERNAME_UUID)
-        it.remove(PASSWORD)
         it.remove(IS_SIGN_UP)
 
     }
@@ -75,7 +68,6 @@ class LoginRepositoryImpl (
             }
             val userId = supabase.auth.currentUserOrNull()?.id
             if (userId != null) {
-                setUserId(userId)
                 setUsername(username)
                 setIsSignUp(false)
             }
@@ -93,7 +85,6 @@ class LoginRepositoryImpl (
             }
             val userId = supabase.auth.currentUserOrNull()?.id
             if (userId != null) {
-                setUserId(userId)
                 setUsername(username)
                 setIsSignUp(false)
             }

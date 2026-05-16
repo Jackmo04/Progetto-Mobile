@@ -72,7 +72,7 @@ class SavedEventsViewModel(
             viewModelScope.launch {
                 isLoading = true
                 _state.update {
-                    it.copy(uuid = loginRepositoryImpl.userId.first())
+                    it.copy(uuid = loginRepositoryImpl.getLoggedUser()?.id?:"")
                 }
                 try {
                     _state.update {

@@ -56,7 +56,7 @@ class OnlineEventViewModel(
                 isLoading = true
                 _state.update {
                     it.copy(listEvent = repository.getAllEvents(),
-                        uuid = loginRepositoryImpl.userId.first())
+                        uuid = loginRepositoryImpl.getLoggedUser()?.id ?: "")
                 }
             }finally {
                 isLoading = false

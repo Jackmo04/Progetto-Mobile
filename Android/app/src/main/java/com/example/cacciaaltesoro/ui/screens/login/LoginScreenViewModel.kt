@@ -205,11 +205,11 @@ class LoginScreenViewModel(
             combine(
                 repository.authStatus,
                 repository.username,
-                repository.userId,
                 repository.isSignUp,
                 repository.isPasswordUpdateRequested
-            ) { authStatus, username, userId, isSignUp, isRequested ->
+            ) { authStatus, username, isSignUp, isRequested ->
                 val isUserActuallyLoggedIn = authStatus is SessionStatus.Authenticated
+                val userId = repository.getLoggedUser()?.id ?: ""
                 _state.value.copy(
                     isLogin = isUserActuallyLoggedIn,
                     username = username,

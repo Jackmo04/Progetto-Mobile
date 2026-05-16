@@ -65,8 +65,10 @@ class EventDetailsViewModel(
         },
         saveIdUser = {
             viewModelScope.launch {
-                loginRepositoryImpl.userId.collect { userId ->
-                    _state.update { it.copy(userId = userId, isLoadingSubscription = true) }
+                    _state.update {
+                        it.copy(
+                            userId = loginRepositoryImpl.getLoggedUser()?.id, isLoadingSubscription = true)
+                    }
                     try {
                         val myEvents = repository.getAllMyEvents()
                         val isSubscribed = myEvents.any { it.id == _state.value.idEvent }
@@ -82,7 +84,7 @@ class EventDetailsViewModel(
                     }
                 }
             }
-        },
+        ,
         joinToEvent = {
             viewModelScope.launch {
                 _state.update { it.copy(isLoadingSubscription = true) }
