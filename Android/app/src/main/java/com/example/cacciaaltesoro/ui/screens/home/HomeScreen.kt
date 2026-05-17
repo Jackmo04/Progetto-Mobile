@@ -80,7 +80,7 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
                     //MyButton("Test Game (id:33)") { navController.navigate(NavigationRoute.Game(33)) }
 
                     var gameID by remember { mutableStateOf("") }
-                    Text("Test schermata di gioco")
+                   // Text("Test schermata di gioco")
                     OutlinedTextField(
                         value = gameID,
                         label = { Text("ID partita (non codice)") },
