@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">Treasure Hunt</string>
+    <string name="app_name">GeoTag</string>
     <string name="event_details">Event details</string>
     <string name="home">Home</string>
     <string name="new_event">New event</string>
