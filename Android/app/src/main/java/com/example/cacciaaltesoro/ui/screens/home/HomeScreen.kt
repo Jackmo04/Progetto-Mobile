@@ -1,14 +1,14 @@
 package com.example.cacciaaltesoro.ui.screens.home
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.requiredSize
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
@@ -23,7 +23,9 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
@@ -33,29 +35,43 @@ import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 
 @Composable
-fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewModel ) {
+fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenViewModel) {
 
     val stateLogin by loginViewModel.state.collectAsStateWithLifecycle()
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(stringResource(R.string.home), navController,true,stateLogin.imageUri) }
+        topBar = { AppBar(stringResource(R.string.home), navController, true, stateLogin.imageUri) }
     ) { innerPadding ->
-        var eventId by remember { mutableStateOf("") }
-
         Column(
             modifier = Modifier
                 .fillMaxSize()
-                .padding(innerPadding),
-            horizontalAlignment = Alignment.CenterHorizontally,
-            verticalArrangement = Arrangement.Center
+                .padding(innerPadding)
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
         ) {
+
+            Spacer(modifier = Modifier.height(48.dp))
+
+            Image(
+                painter = painterResource(id = R.drawable.home_logo),
+                contentDescription = "Logo Caccia al Tesoro",
+                modifier = Modifier.size(160.dp)
+            )
+
+            Spacer(modifier = Modifier.height(40.dp))
+
+
+            Spacer(modifier = Modifier.height(32.dp))
+
             Column(
-                verticalArrangement = Arrangement.spacedBy(4.dp),
+                modifier = Modifier.fillMaxWidth(),
+                verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-             //   MyButton("Login") { navController.navigate(NavigationRoute.Login) }
                 MyButton("Online Events") { navController.navigate(NavigationRoute.OnlineEvents) }
-                if(stateLogin.isLogin){
+
+                if (stateLogin.isLogin) {
                     MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
                     MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
 
@@ -77,6 +93,7 @@ fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewM
                     }
 
                 }
+
             }
         }
     }
@@ -85,7 +102,9 @@ fun HomeScreen(navController: NavHostController,loginViewModel: LoginScreenViewM
 @Composable
 fun MyButton(label: String, onClick: () -> Unit) {
     Button(
-        modifier = Modifier.requiredSize(200.dp, 50.dp),
+        modifier = Modifier
+            .fillMaxWidth(0.8f)
+            .height(56.dp),
         shape = RoundedCornerShape(16.dp),
         colors = ButtonDefaults.buttonColors(
             containerColor = MaterialTheme.colorScheme.primaryContainer,
@@ -93,6 +112,9 @@ fun MyButton(label: String, onClick: () -> Unit) {
         ),
         onClick = onClick
     ) {
-        Text(label)
+        Text(
+            text = label,
+            style = MaterialTheme.typography.titleMedium
+        )
     }
 }
