@@ -265,7 +265,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     }
 
     override suspend fun getAllMySubscribedEvents(): List<Event> {
-        try {
+
             val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
                 ?: throw IllegalStateException("utente non loggato")
 
@@ -277,14 +277,9 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 }
             }.decodeSingle<UserDTO>().eventDTOS
             return userSaved.map{e -> e.toDomain()}
-        }catch (e: Exception){
-            Log.e("SavedEventRepository", "Error searching events", e)
-        }
-        return emptyList()
     }
 
     override suspend fun getRegisteredAtEventNumber(idEvent: Int): Int? {
-        try {
             val result = supabase.from(SupabaseTables.SUBSCRIPTION.tableName).select {
                 filter {
                     eq("prt_partita", idEvent)
@@ -294,33 +289,20 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             }.countOrNull()
             Log.i("CountR", result.toString())
             return result?.toInt()
-        } catch (e: Exception) {
-            Log.e("Count registered", e.toString())
-        }
-        return null
     }
 
 
     override suspend fun joinToEvent(idEvent: Int) {
-        try {
-            val link = UserEvent(idEvent,supabase.auth.currentSessionOrNull()?.user!!.id)
-            supabase.postgrest[SupabaseTables.SUBSCRIPTION.tableName].insert(link)
-        }catch (e: Exception){
-            Log.e("JoinEvent",e.toString())
-        }
+        val link = UserEvent(idEvent, supabase.auth.currentSessionOrNull()?.user!!.id)
+        supabase.from(SupabaseTables.SUBSCRIPTION.tableName).insert(link)
     }
 
     override suspend fun unscribeFromEvent(idEvent: Int) {
-
-        try {
-            supabase.from(SupabaseTables.SUBSCRIPTION.tableName).delete {
-                filter {
-                    eq("prt_partita", idEvent)
-                    eq("prt_utente", supabase.auth.currentSessionOrNull()?.user!!.id)
-                }
+        supabase.from(SupabaseTables.SUBSCRIPTION.tableName).delete {
+            filter {
+                eq("prt_partita", idEvent)
+                eq("prt_utente", supabase.auth.currentSessionOrNull()?.user!!.id)
             }
-        }catch (e: Exception){
-            Log.e("JoinEvent",e.toString())
         }
     }
 

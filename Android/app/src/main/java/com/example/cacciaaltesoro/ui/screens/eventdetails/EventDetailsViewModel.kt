@@ -65,32 +65,41 @@ class EventDetailsViewModel(
         },
         saveIdUser = {
             viewModelScope.launch {
+                _state.update {
+                    it.copy(
+                        userId = loginRepositoryImpl.getLoggedUser()?.id,
+                        isLoadingSubscription = true
+                    )
+                }
+                try {
+                    val myEvents = repository.getAllMySubscribedEvents()
+                    val isSubscribed = myEvents.any { it.id == _state.value.idEvent }
                     _state.update {
                         it.copy(
-                            userId = loginRepositoryImpl.getLoggedUser()?.id, isLoadingSubscription = true)
+                            imSubscribe = isSubscribed,
+                            isLoadingSubscription = false
+                        )
                     }
-                    try {
-                        val myEvents = repository.getAllMyEvents()
-                        val isSubscribed = myEvents.any { it.id == _state.value.idEvent }
-                        _state.update {
-                            it.copy(
-                                imSubscribe = isSubscribed,
-                                isLoadingSubscription = false
-                            )
-                        }
-                    } catch (e: Exception) {
-                        Log.e("EventDetailsViewModel", "Error checking subscription: ${e.message}")
-                        _state.update { it.copy(isLoadingSubscription = false) }
-                    }
+                } catch (e: Exception) {
+                    Log.e("EventDetailsViewModel", "Error checking subscription: ${e.message}")
+                    _state.update { it.copy(isLoadingSubscription = false) }
                 }
             }
-        ,
+        },
         joinToEvent = {
             viewModelScope.launch {
                 _state.update { it.copy(isLoadingSubscription = true) }
                 try {
                     repository.joinToEvent(_state.value.idEvent)
-                    _state.update { it.copy(imSubscribe = true) }
+                    _state.update { state ->
+                        state.copy(
+                            imSubscribe = true,
+                            registeredUser = state.registeredUser + 1 // Aggiorna il counter per la UI!
+                        )
+                    }
+                } catch (e: Exception) {
+                    // Ora se fallisce il database, il tasto non diventa "Disiscriviti" per finta
+                    Log.e("EventDetailsViewModel", "Errore durante l'iscrizione", e)
                 } finally {
                     _state.update { it.copy(isLoadingSubscription = false) }
                 }
@@ -101,7 +110,14 @@ class EventDetailsViewModel(
                 _state.update { it.copy(isLoadingSubscription = true) }
                 try {
                     repository.unscribeFromEvent(_state.value.idEvent)
-                    _state.update { it.copy(imSubscribe = false) }
+                    _state.update { state ->
+                        state.copy(
+                            imSubscribe = false,
+                            registeredUser = if (state.registeredUser > 0) state.registeredUser - 1 else 0
+                        )
+                    }
+                } catch (e: Exception) {
+                    Log.e("EventDetailsViewModel", "Errore durante la disiscrizione", e)
                 } finally {
                     _state.update { it.copy(isLoadingSubscription = false) }
                 }
