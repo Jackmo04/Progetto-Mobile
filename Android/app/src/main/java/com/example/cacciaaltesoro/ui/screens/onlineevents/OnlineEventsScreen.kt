@@ -59,6 +59,10 @@ fun OnlineEventsScreen(
         }
     }
 
+    LaunchedEffect(state.orderString) {
+        viewModel.action.loadEvents(state.currentFilter)
+    }
+
     LaunchedEffect(viewModel.errorMessage) {
         viewModel.errorMessage?.let { message ->
             snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Short)
@@ -118,13 +122,15 @@ fun OnlineEventsScreen(
             TabRow(selectedTabIndex = state.currentFilter.ordinal) {
                 Tab(
                     selected = state.currentFilter == EventFilterType.ONLINE,
-                    onClick = { viewModel.action.loadEvents(EventFilterType.ONLINE) },
+                    onClick = {
+                        viewModel.action.loadEvents(EventFilterType.ONLINE)},
                     text = { Text("Tutti") }
                 )
                 if (stateLogin.isLogin) {
                     Tab(
                         selected = state.currentFilter == EventFilterType.SAVED,
-                        onClick = { viewModel.action.loadEvents(EventFilterType.SAVED) },
+                        onClick = { viewModel.action.loadEvents(EventFilterType.SAVED)
+                            },
                         text = { Text("Salvati") }
                     )
                 }

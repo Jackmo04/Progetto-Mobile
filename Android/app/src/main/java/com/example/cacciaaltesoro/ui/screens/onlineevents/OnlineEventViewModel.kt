@@ -10,6 +10,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
+import com.example.cacciaaltesoro.utils.EventOrderType
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.update
@@ -19,7 +20,8 @@ data class OnlineEventsState(
     val listEvent: List<Event> = emptyList(),
     val uuid: String = "",
     val idEventCodeSearched: Int? = null,
-    val currentFilter: EventFilterType = EventFilterType.ONLINE
+    val currentFilter: EventFilterType = EventFilterType.ONLINE,
+    val orderString: String = EventOrderType.NAME.type
 )
 
 data class OnlineEventsAction(
@@ -60,9 +62,9 @@ class OnlineEventsViewModel(
                             currentFilter = filterType,
                             uuid = loginRepositoryImpl.getLoggedUser()?.id ?: "",
                             listEvent = if (filterType == EventFilterType.ONLINE) {
-                                repository.getAllEvents()
+                                repository.getOrderedEvent(state.value.orderString, currentLocation, repository.getAllEvents())
                             } else {
-                                repository.getAllMyEvents()
+                                repository.getOrderedEvent(state.value.orderString, currentLocation, repository.getAllMyEvents())
                             }
                         )
                     }
@@ -100,15 +102,10 @@ class OnlineEventsViewModel(
 
         onOrderChanged = { selected ->
             viewModelScope.launch {
-                isLoading = true
-                try {
-                    _state.update {
-                        it.copy(listEvent = repository.getOrderedEvent(selected, currentLocation, _state.value.listEvent))
-                    }
-                } catch (e: Exception) {
-                    Log.e("EventsViewModel", "Errore ordinamento", e)
-                } finally {
-                    isLoading = false
+                _state.update {
+                    it.copy(
+                        orderString = selected
+                    )
                 }
             }
         },
