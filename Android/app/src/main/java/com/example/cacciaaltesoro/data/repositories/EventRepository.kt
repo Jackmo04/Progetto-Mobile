@@ -43,6 +43,7 @@ interface EventRepository {
     suspend fun getEventsByCode(code: String): Event?
     suspend fun getOrderedEvent (type : String , location: Location?, listEvent: List<Event>) : List<Event>
     suspend fun getAllMyEvents(): List<Event>
+    suspend fun getAllMySubscribedEvents(): List<Event>
     suspend fun getRegisteredAtEventNumber(idEvent: Int): Int?
     suspend fun joinToEvent(idEvent: Int )
 
@@ -248,27 +249,36 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         try {
             val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
                 ?: throw IllegalStateException("utente non loggato")
-
-            val userSaved = supabase.from(SupabaseTables.USERS.tableName).select(
-                columns = Columns.raw("*,  partite!partecipazioni(*)")) {
-                filter {
-                    UserDTO::uuid eq uuidC
-                }
-            }.decodeSingle<UserDTO>().eventDTOS
-
             val createdEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::organizerUUID eq uuidC
                 }
             }.decodeList<EventDTO>()
 
-            val listEvent = userSaved + createdEvent
-
-            Log.d("SavedEventRepository", "Fetched events: ${listEvent.toString()}")
-            return listEvent.distinct().map{e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
+            Log.d("SavedEventRepository", "Fetched events: ${createdEvent.toString()}")
+            return createdEvent.distinct().map{e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
         } catch (e: Exception) {
             Log.e("SavedEventRepository", "Error searching events", e)
 
+        }
+        return emptyList()
+    }
+
+    override suspend fun getAllMySubscribedEvents(): List<Event> {
+        try {
+            val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
+                ?: throw IllegalStateException("utente non loggato")
+
+            val userSaved = supabase.from(SupabaseTables.USERS.tableName).select(
+                columns = Columns.raw("*,  partite!partecipazioni(*)")
+            ) {
+                filter {
+                    UserDTO::uuid eq uuidC
+                }
+            }.decodeSingle<UserDTO>().eventDTOS
+            return userSaved.map{e -> e.toDomain()}
+        }catch (e: Exception){
+            Log.e("SavedEventRepository", "Error searching events", e)
         }
         return emptyList()
     }

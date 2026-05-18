@@ -63,8 +63,10 @@ class OnlineEventsViewModel(
                             uuid = loginRepositoryImpl.getLoggedUser()?.id ?: "",
                             listEvent = if (filterType == EventFilterType.ONLINE) {
                                 repository.getOrderedEvent(state.value.orderString, currentLocation, repository.getAllEvents())
-                            } else {
+                            } else if(filterType == EventFilterType.CREATED){
                                 repository.getOrderedEvent(state.value.orderString, currentLocation, repository.getAllMyEvents())
+                            }else {
+                                repository.getOrderedEvent(state.value.orderString, currentLocation, repository.getAllMySubscribedEvents())
                             }
                         )
                     }

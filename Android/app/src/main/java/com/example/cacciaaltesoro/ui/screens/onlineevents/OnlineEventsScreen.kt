@@ -133,6 +133,12 @@ fun OnlineEventsScreen(
                             },
                         text = { Text("Salvati") }
                     )
+                    Tab(
+                        selected = state.currentFilter == EventFilterType.CREATED,
+                        onClick = { viewModel.action.loadEvents(EventFilterType.CREATED)
+                        },
+                        text = { Text("Creati") }
+                    )
                 }
             }
 
