@@ -14,17 +14,12 @@ import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.filter
-import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
 import java.util.Locale
 import kotlin.time.Clock
-import kotlin.time.Duration
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
-import kotlin.time.toJavaInstant
-import kotlin.time.toKotlinInstant
 
 sealed class SheetContentState {
     object ViewingList : SheetContentState()
@@ -34,8 +29,8 @@ sealed class SheetContentState {
 sealed class GameState {
     object Loading : GameState()
     data class WaitingToStart(val countDownTime: String) : GameState()
-    object Playing : GameState() // TODO (forse) Timer tempo rimasto
-    object Finished : GameState()
+    data class Playing(val remainingTime: String) : GameState()
+    data class Finished(val message: String) : GameState()
 }
 
 class NfcActions(
@@ -93,6 +88,10 @@ class GameViewModel(
                     } catch (e: Exception) {
                         Log.e("DATABASE", "Error while trying to update found tag", e)
                     }
+                    if (tagsToFind.value.isEmpty()) {
+                        _gameState.value = GameState.Finished("Hai trovato tutti i tag!")
+                        return@launch
+                    }
                 } else {
                     _uiEvent.trySend("Tag non valido!")
                     Log.d("TAG_SCANNER", "The scanned tag's UUID from in this event")
@@ -112,25 +111,27 @@ class GameViewModel(
     fun startTrackingEvent() {
         viewModelScope.launch {
             while (true) {
-                val now = Clock.System.now() // TODO replace with internet time
+                val now = Clock.System.now() // TODO replace with internet time for security
                 val currentEvent = event ?: break
 
                 when {
+                    _gameState.value is GameState.Finished -> {
+                        // Game finished by finding all tags
+                        break
+                    }
+
                     now >= currentEvent.endTime -> {
-                        _gameState.value = GameState.Finished
+                        _gameState.value = GameState.Finished("Tempo scaduto!")
                         break
                     }
 
                     now >= currentEvent.startTime -> {
-                        _gameState.value = GameState.Playing
+                        val timeString = formatTimeDifference(now, currentEvent.endTime)
+                        _gameState.value = GameState.Playing(timeString)
                     }
 
                     else -> {
-                        val durationToStart = event!!.startTime - now
-                        val minutes = durationToStart.inWholeMinutes
-                        val seconds = durationToStart.inWholeSeconds % 60
-                        val timeString = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
-
+                        val timeString = formatTimeDifference(now, currentEvent.startTime)
                         _gameState.value = GameState.WaitingToStart(timeString)
                     }
                 }
@@ -140,4 +141,19 @@ class GameViewModel(
         }
     }
 
+    private fun formatTimeDifference(startInstant: Instant, endInstant: Instant) : String {
+        val duration = endInstant - startInstant
+        val hours = duration.inWholeHours
+        val minutes = duration.inWholeMinutes % 60
+        val seconds = duration.inWholeSeconds % 60
+
+        return when {
+            hours > 0 -> {
+                String.format(Locale.getDefault(), "%02d:%02d:%02d", hours, minutes, seconds)
+            }
+            else -> {
+                String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+            }
+        }
+    }
 }

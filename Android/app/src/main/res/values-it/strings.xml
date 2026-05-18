@@ -60,4 +60,7 @@
     <string name="tag_number">Numero di Tag</string>
     <string name="good_luck">Buona fortuna!</string>
     <string name="waiting_for_start">Attesa inizio</string>
+    <string name="exit_game_title">Sicuro di voler uscire?</string>
+    <string name="exit_game_message">I progressi sono stati salvati, ma attento al tempo limite!</string>
+    <string name="game_finished">Game Over</string>
 </resources>

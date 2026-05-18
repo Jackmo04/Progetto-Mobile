@@ -1,6 +1,8 @@
 package com.example.cacciaaltesoro.ui
 
 import android.util.Log
+import androidx.compose.animation.EnterTransition
+import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.remember
 import androidx.navigation.NavHostController
@@ -44,7 +46,9 @@ sealed interface NavigationRoute {
 fun CacciaAlTesoroNavGraph(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = NavigationRoute.Splash
+        startDestination = NavigationRoute.Splash,
+        enterTransition = { EnterTransition.None },
+        exitTransition = { ExitTransition.None }
     ) {
         composable<NavigationRoute.Splash> {
             SplashScreen(navController = navController)

@@ -73,7 +73,12 @@ fun SavedEventsScreen(navController: NavHostController, viewModel: SavedEventsVi
     }
 
     Scaffold(
-        topBar = { AppBar(stringResource(R.string.saved_event_title), navController,true,stateLogin.imageUri) },
+        topBar = { AppBar(
+            title = stringResource(R.string.saved_event_title),
+            navController = navController,
+            showProfile = true,
+            imageUri = stateLogin.imageUri
+        ) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(

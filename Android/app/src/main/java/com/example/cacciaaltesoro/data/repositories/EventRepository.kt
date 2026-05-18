@@ -81,7 +81,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
 
             val tagDTOs = event.tags.map { tag ->
                 tag.copy(
-                    id = UUID.randomUUID().toString(),
                     eventId = insertedEventId
                 ).toDto()
             }

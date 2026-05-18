@@ -43,7 +43,12 @@ fun EventDetailsScreen(navController: NavHostController,
     }
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(stringResource(R.string.event_details), navController,true,stateLogin.imageUri) }
+        topBar = { AppBar(
+            title = stringResource(R.string.event_details),
+            navController = navController,
+            showProfile = true,
+            imageUri = stateLogin.imageUri
+        ) }
     ) { innerPadding ->
         Box(
             modifier = Modifier

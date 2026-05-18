@@ -43,8 +43,10 @@ import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
@@ -84,6 +86,7 @@ fun GameScreen(
     val sheetContentState by viewModel.sheetContentState.collectAsStateWithLifecycle()
     val gameState by viewModel.gameState.collectAsStateWithLifecycle()
     val tagsToFind by viewModel.tagsToFind.collectAsStateWithLifecycle()
+    var showExitConfirmation by remember { mutableStateOf(false) }
 
     NfcReaderLifecycle(
         isActive = gameState is GameState.Playing,
@@ -93,8 +96,7 @@ fun GameScreen(
     )
 
     BackHandler(enabled = gameState is GameState.Playing) {
-        // In a real app, you might show a confirmation dialog here
-        navController.navigateUp()
+        showExitConfirmation = true
     }
 
     BackHandler(enabled = sheetContentState is SheetContentState.SingleTagView) {
@@ -138,10 +140,11 @@ fun GameScreen(
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(gameState) {
-        if (gameState is GameState.Playing || gameState is GameState.Finished) {
-            sheetState.partialExpand()
-        } else if (gameState is GameState.WaitingToStart || gameState is GameState.Loading) {
-            sheetState.hide()
+        when (gameState) {
+            is GameState.Playing, is GameState.Finished -> {
+                if (!sheetState.isVisible) sheetState.partialExpand()
+            }
+            else -> sheetState.hide()
         }
     }
 
@@ -158,9 +161,11 @@ fun GameScreen(
         topBar = { AppBar(
             title = when (gameState) {
                 is GameState.WaitingToStart, is GameState.Loading -> stringResource(R.string.waiting_for_start)
-                else -> stringResource(R.string.good_luck)
+                is GameState.Playing -> (gameState as GameState.Playing).remainingTime
+                is GameState.Finished -> stringResource(R.string.game_finished)
             },
-            navController
+            showBackArrow = false,
+            navController = navController
         ) },
         sheetPeekHeight = 160.dp,
         snackbarHost = { SnackbarHost(snackbarHostState) },
@@ -212,7 +217,28 @@ fun GameScreen(
                 }
             }
             if (gameState is GameState.Finished) {
-                GameFinishedAlert(onDismiss = { navController.navigateUp() })
+                GameFinishedAlert(
+                    onDismiss = { navController.navigateUp() },
+                    message = (gameState as GameState.Finished).message
+                )
+            }
+
+            if (showExitConfirmation) {
+                AlertDialog(
+                    onDismissRequest = { showExitConfirmation = false },
+                    title = { Text(stringResource(R.string.exit_game_title)) },
+                    text = { Text(stringResource(R.string.exit_game_message)) },
+                    confirmButton = {
+                        TextButton(onClick = { navController.navigateUp() }) {
+                            Text(stringResource(R.string.confirm))
+                        }
+                    },
+                    dismissButton = {
+                        TextButton(onClick = { showExitConfirmation = false }) {
+                            Text(stringResource(R.string.cancel))
+                        }
+                    }
+                )
             }
         }
     }
@@ -309,18 +335,18 @@ fun GamePlaying(
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(
             LatLng(
-                coordinates?.latitude ?: viewModel.event?.lat ?: 44.148,
-                coordinates?.longitude ?: viewModel.event?.lon ?: 12.236
+                viewModel.event?.lat ?: coordinates?.latitude ?: 44.148,
+                viewModel.event?.lon ?: coordinates?.longitude ?: 12.236
             ),
             18f
         )
     }
 
-    LaunchedEffect(coordinates) {
-        coordinates?.let {
-            cameraPositionState.position = CameraPosition.fromLatLngZoom(it.toLatLng(), 18f)
-        }
-    }
+//    LaunchedEffect(coordinates) {
+//        coordinates?.let {
+//            cameraPositionState.position = CameraPosition.fromLatLngZoom(it.toLatLng(), 18f)
+//        }
+//    }
 
     GoogleMap(
         properties = MapProperties(
@@ -377,11 +403,14 @@ fun GameWaiting(timeRemaining: String) {
 }
 
 @Composable
-fun GameFinishedAlert(onDismiss: () -> Unit) {
+fun GameFinishedAlert(
+    onDismiss: () -> Unit,
+    message: String
+) {
     AlertDialog(
         onDismissRequest = onDismiss,
         title = { Text("Partita terminata!") },
-        text = { Text("Tempo scaduto") },
+        text = { Text(message) },
         confirmButton = {
             TextButton(onClick = onDismiss) {
                 Text("Vai ai risultati")

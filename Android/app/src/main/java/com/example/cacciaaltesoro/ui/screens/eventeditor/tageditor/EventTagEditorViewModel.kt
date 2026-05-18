@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.cacciaaltesoro.data.domain.Tag
@@ -68,6 +69,7 @@ class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
                 val result = nfcUtils.writeUuidToNdef(nfcTag, UUID.fromString(_editingTag.value.id))
                 if (result) {
                     _uiEvent.trySend("Tag NFC scritto correttamente!")
+                    Log.d("NFC_DEBUG", "Scritto: ${_editingTag.value.id}")
                 } else {
                     _uiEvent.trySend("Errore! Riprova per favore!")
                 }

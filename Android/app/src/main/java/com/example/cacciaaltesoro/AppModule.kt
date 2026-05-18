@@ -6,8 +6,6 @@ import com.example.cacciaaltesoro.data.database.Supabase
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.EventRepositoryImpl
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
-import com.example.cacciaaltesoro.data.repositories.TagRepository
-import com.example.cacciaaltesoro.data.repositories.TagRepositoryImpl
 import com.example.cacciaaltesoro.ui.screens.eventdetails.EventDetailsViewModel
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.example.cacciaaltesoro.ui.screens.eventeditor.EventEditorViewModel
@@ -27,7 +25,6 @@ val appModule = module {
     single { get<Context>().dataStore }
 
     single<LoginRepositoryImpl> { LoginRepositoryImpl(get() , get()) }
-    single<TagRepository> { TagRepositoryImpl() }
     single<EventRepository> { EventRepositoryImpl(get()) }
 
     single<SupabaseClient> { Supabase().supabase }

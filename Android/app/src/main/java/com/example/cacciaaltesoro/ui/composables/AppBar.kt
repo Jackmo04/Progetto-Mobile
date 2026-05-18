@@ -32,6 +32,7 @@ import com.example.cacciaaltesoro.ui.NavigationRoute
 fun AppBar(
     title: String,
     navController: NavHostController,
+    showBackArrow: Boolean = true,
     showProfile: Boolean = false,
     imageUri: Any? = null,
     onProfileClick: () -> Unit = {}
@@ -44,7 +45,7 @@ fun AppBar(
             )
         },
         navigationIcon = {
-            if (navController.previousBackStackEntry != null) {
+            if (showBackArrow && navController.previousBackStackEntry != null) {
                 IconButton(onClick = { navController.navigateUp() }) {
                     Icon(
                         Icons.AutoMirrored.Outlined.ArrowBack,

@@ -43,7 +43,12 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
 
     Scaffold(
         modifier = Modifier.fillMaxSize(),
-        topBar = { AppBar(stringResource(R.string.home), navController, true, stateLogin.imageUri) }
+        topBar = { AppBar(
+            title = stringResource(R.string.home),
+            navController = navController,
+            showProfile = true,
+            imageUri = stateLogin.imageUri
+        ) }
     ) { innerPadding ->
         Column(
             modifier = Modifier

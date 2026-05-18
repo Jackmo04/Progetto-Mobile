@@ -102,7 +102,12 @@ fun OnlineEventsScreen(navController: NavHostController, viewModel: OnlineEventV
     }
 
     Scaffold(
-        topBar = { AppBar(stringResource(id = R.string.online_event_title), navController,true,stateLogin.imageUri) },
+        topBar = { AppBar(
+            title = stringResource(id = R.string.online_event_title),
+            navController = navController,
+            showProfile = true,
+            imageUri = stateLogin.imageUri
+        ) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Column(
