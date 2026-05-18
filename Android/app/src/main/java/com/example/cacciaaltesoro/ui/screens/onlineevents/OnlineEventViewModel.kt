@@ -1,4 +1,4 @@
-package com.example.cacciaaltesoro.ui.screens.onlineevents // Scegli un package unificato
+package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import android.location.Location
 import android.util.Log

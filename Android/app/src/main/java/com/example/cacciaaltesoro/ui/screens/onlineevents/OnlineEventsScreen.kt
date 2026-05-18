@@ -1,4 +1,4 @@
-package com.example.cacciaaltesoro.ui.screens.onlineevents // Usa il tuo package
+package com.example.cacciaaltesoro.ui.screens.onlineevents
 
 import android.Manifest
 import android.location.Location
