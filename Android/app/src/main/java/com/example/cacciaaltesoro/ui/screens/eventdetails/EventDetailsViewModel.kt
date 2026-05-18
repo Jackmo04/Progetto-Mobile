@@ -94,11 +94,10 @@ class EventDetailsViewModel(
                     _state.update { state ->
                         state.copy(
                             imSubscribe = true,
-                            registeredUser = state.registeredUser + 1 // Aggiorna il counter per la UI!
+                            registeredUser = state.registeredUser + 1
                         )
                     }
                 } catch (e: Exception) {
-                    // Ora se fallisce il database, il tasto non diventa "Disiscriviti" per finta
                     Log.e("EventDetailsViewModel", "Errore durante l'iscrizione", e)
                 } finally {
                     _state.update { it.copy(isLoadingSubscription = false) }
