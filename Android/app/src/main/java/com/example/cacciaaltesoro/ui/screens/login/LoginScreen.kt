@@ -265,15 +265,15 @@ fun LoginScreen(
 
                             } else {
                                 MyButton("Log Out", onClick = {
-                                    viewModel.action.onLogOut()
-                                    username = ""
-                                    password = ""
-                                    navController.navigate(NavigationRoute.Home) {
+                                    viewModel.action.onLogOut({                              navController.navigate(NavigationRoute.Home) {
                                         popUpTo(0) {
                                             inclusive = true
                                         }
                                         launchSingleTop = true
-                                    }
+                                    }})
+                                    username = ""
+                                    password = ""
+
                                 })
                                 Spacer(modifier = Modifier.size(8.dp))
                                 MyButton(stringResource(R.string.change_password), onClick = {

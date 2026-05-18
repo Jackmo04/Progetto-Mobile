@@ -31,7 +31,7 @@ data class LoginState(
 data class LoginAction(
     val onLogIn: (String, String) -> Unit,
     val onSignOn: (String, String, String) -> Unit,
-    val onLogOut: () -> Unit,
+    val onLogOut: (()-> Unit) -> Unit,
     val changeSignScreen: () -> Unit,
     val callResetPasswordEmail:(String) -> Unit,
     val changePassword: (String, String) -> Unit,
@@ -94,7 +94,7 @@ class LoginScreenViewModel(
                 }
             }
         },
-        onLogOut = {
+        onLogOut = { onComplete ->
             viewModelScope.launch {
                 enableLoading()
                 errorMessage = null
@@ -114,6 +114,8 @@ class LoginScreenViewModel(
                 } finally {
                    disableLoading()
                 }
+                onComplete()
+
             }
         },
         changeSignScreen = {
