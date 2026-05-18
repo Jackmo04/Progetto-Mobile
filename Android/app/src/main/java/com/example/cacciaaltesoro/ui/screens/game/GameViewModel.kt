@@ -32,8 +32,9 @@ sealed class SheetContentState {
 }
 
 sealed class GameState {
+    object Loading : GameState()
     data class WaitingToStart(val countDownTime: String) : GameState()
-    object Playing : GameState()
+    object Playing : GameState() // TODO (forse) Timer tempo rimasto
     object Finished : GameState()
 }
 
@@ -48,7 +49,7 @@ class GameViewModel(
 ) : ViewModel() {
     private val _sheetContentState = MutableStateFlow<SheetContentState>(SheetContentState.ViewingList)
     val sheetContentState = _sheetContentState.asStateFlow()
-    private val _gameState = MutableStateFlow<GameState>(GameState.WaitingToStart("00:00")) // TODO change into 'WaitingToStart'
+    private val _gameState = MutableStateFlow<GameState>(GameState.Loading)
     val gameState = _gameState.asStateFlow()
 
     var event : Event? = null
@@ -80,6 +81,7 @@ class GameViewModel(
                 val readUUID = nfcUtils.readUuidFromNdef(nfcTag)
                 if (readUUID == null) {
                     _uiEvent.trySend("Tag non valido!")
+                    Log.d("TAG_SCANNER", "Generic error while reading tag")
                     return@launch
                 }
                 val foundTag = tagsToFind.value.firstOrNull { it.id == readUUID.toString() }
@@ -93,6 +95,7 @@ class GameViewModel(
                     }
                 } else {
                     _uiEvent.trySend("Tag non valido!")
+                    Log.d("TAG_SCANNER", "The scanned tag's UUID from in this event")
                 }
             }
         }
@@ -129,11 +132,9 @@ class GameViewModel(
                         val timeString = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
 
                         _gameState.value = GameState.WaitingToStart(timeString)
-
                     }
                 }
 
-                // Tick di 1 secondo
                 delay(1000L)
             }
         }

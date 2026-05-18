@@ -23,6 +23,7 @@ import androidx.compose.material.icons.filled.Visibility
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
@@ -61,6 +62,7 @@ import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.LocationService
 import com.example.cacciaaltesoro.utils.nfc.NfcReaderLifecycle
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
+import com.google.android.gms.maps.CameraUpdateFactory
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
@@ -90,10 +92,10 @@ fun GameScreen(
         }
     )
 
-//    BackHandler(enabled = gameState is GameState.Playing) {
-//        // TODO ask for confirmation
-//        navController.navigateUp()
-//    }
+    BackHandler(enabled = gameState is GameState.Playing) {
+        // In a real app, you might show a confirmation dialog here
+        navController.navigateUp()
+    }
 
     BackHandler(enabled = sheetContentState is SheetContentState.SingleTagView) {
         viewModel.viewTagList()
@@ -128,21 +130,24 @@ fun GameScreen(
     }
 
     val sheetState = rememberStandardBottomSheetState(
-        initialValue = when (gameState) {
-            is GameState.Playing -> SheetValue.Hidden
-            else -> SheetValue.PartiallyExpanded
-        },
-        skipHiddenState = false
+        initialValue = SheetValue.PartiallyExpanded,
+        skipHiddenState = gameState is GameState.Playing
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
 
     val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect(gameState) {
-        if (gameState is GameState.Playing && sheetState.currentValue == SheetValue.Hidden) {
+        if (gameState is GameState.Playing || gameState is GameState.Finished) {
             sheetState.partialExpand()
-        } else if (gameState is GameState.WaitingToStart || gameState is GameState.Finished) {
+        } else if (gameState is GameState.WaitingToStart || gameState is GameState.Loading) {
             sheetState.hide()
+        }
+    }
+
+    LaunchedEffect(sheetContentState) {
+        if (sheetContentState is SheetContentState.SingleTagView) {
+            sheetState.expand()
         }
     }
 
@@ -152,7 +157,7 @@ fun GameScreen(
         scaffoldState = scaffoldState,
         topBar = { AppBar(
             title = when (gameState) {
-                is GameState.WaitingToStart -> stringResource(R.string.waiting_for_start)
+                is GameState.WaitingToStart, is GameState.Loading -> stringResource(R.string.waiting_for_start)
                 else -> stringResource(R.string.good_luck)
             },
             navController
@@ -187,17 +192,24 @@ fun GameScreen(
 
         Surface(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             when (gameState) {
+                is GameState.Loading -> {
+                    Box(
+                        modifier = Modifier.fillMaxSize(),
+                        contentAlignment = Alignment.Center
+                    ) {
+                        CircularProgressIndicator()
+                    }
+                }
                 is GameState.WaitingToStart -> {
                     GameWaiting((gameState as GameState.WaitingToStart).countDownTime)
                 }
-                is GameState.Playing -> {
+                else -> {
                     GamePlaying(
                         viewModel = viewModel,
                         coordinates = coordinates,
                         tagsToFind = tagsToFind
                     )
                 }
-                else -> {}
             }
             if (gameState is GameState.Finished) {
                 GameFinishedAlert(onDismiss = { navController.navigateUp() })
@@ -266,7 +278,26 @@ fun TagList(
 fun TagView(
     tag: Tag
 ) {
-    Text("PLACEHOLDER\n\nTag view\n\nTag: ${tag.number}")
+    Column(
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(horizontal = 16.dp),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        Text(
+            text = "Tag #${tag.number}",
+            style = MaterialTheme.typography.headlineSmall,
+            color = MaterialTheme.colorScheme.primary,
+            fontWeight = FontWeight.Bold
+        )
+        HorizontalDivider(modifier = Modifier.padding(16.dp))
+        Text(
+            text = tag.textHint ?: "Nessun indizio disponibile per questo tag.",
+            style = MaterialTheme.typography.bodyLarge,
+            textAlign = TextAlign.Center
+        )
+        // TODO add image
+    }
 }
 
 @Composable
