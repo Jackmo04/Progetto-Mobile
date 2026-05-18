@@ -52,7 +52,6 @@ fun OnlineEventsScreen(
     val stateLogin by loginViewModel.state.collectAsStateWithLifecycle()
     val list = state.listEvent
 
-    // --- LOGICA DI NAVIGAZIONE E MESSAGGI ---
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
@@ -116,7 +115,6 @@ fun OnlineEventsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            // --- TAB ROW (Le Schede) ---
             TabRow(selectedTabIndex = state.currentFilter.ordinal) {
                 Tab(
                     selected = state.currentFilter == EventFilterType.ONLINE,
@@ -210,7 +208,7 @@ fun OnlineEventsScreen(
                         verticalArrangement = Arrangement.spacedBy(8.dp),
                         contentPadding = PaddingValues(bottom = 16.dp)
                     ) {
-                        items(items = list, key = { event -> event.id ?: event.hashCode() }) { event ->
+                        items(items = list, key = { event -> event.id!! }) { event ->
                             EventListCard(
                                 events = event,
                                 isMyEvent = event.organizerUUID == state.uuid,
