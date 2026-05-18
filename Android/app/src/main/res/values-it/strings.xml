@@ -59,4 +59,5 @@
     <string name="update_password_title">Aggiorna Password</string>
     <string name="tag_number">Numero di Tag</string>
     <string name="good_luck">Buona fortuna!</string>
+    <string name="waiting_for_start">Attesa inizio</string>
 </resources>

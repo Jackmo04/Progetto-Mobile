@@ -1,3 +1,5 @@
+@file:OptIn(ExperimentalTime::class)
+
 package com.example.cacciaaltesoro.ui.screens.game
 
 import android.util.Log
@@ -9,12 +11,20 @@ import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.utils.nfc.NfcUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.filter
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.receiveAsFlow
 import kotlinx.coroutines.launch
+import java.util.Locale
+import kotlin.time.Clock
+import kotlin.time.Duration
+import kotlin.time.ExperimentalTime
+import kotlin.time.Instant
+import kotlin.time.toJavaInstant
+import kotlin.time.toKotlinInstant
 
 sealed class SheetContentState {
     object ViewingList : SheetContentState()
@@ -22,7 +32,7 @@ sealed class SheetContentState {
 }
 
 sealed class GameState {
-    object WaitingToStart : GameState()
+    data class WaitingToStart(val countDownTime: String) : GameState()
     object Playing : GameState()
     object Finished : GameState()
 }
@@ -38,7 +48,7 @@ class GameViewModel(
 ) : ViewModel() {
     private val _sheetContentState = MutableStateFlow<SheetContentState>(SheetContentState.ViewingList)
     val sheetContentState = _sheetContentState.asStateFlow()
-    private val _gameState = MutableStateFlow(GameState.Playing) // TODO change into 'WaitingToStart'
+    private val _gameState = MutableStateFlow<GameState>(GameState.WaitingToStart("00:00")) // TODO change into 'WaitingToStart'
     val gameState = _gameState.asStateFlow()
 
     var event : Event? = null
@@ -57,6 +67,7 @@ class GameViewModel(
                     throw IllegalArgumentException("No event with id = $eventId")
                 }
                 _tagsToFind.value = event!!.tags
+                startTrackingEvent()
             } catch (e: Exception) {
                 e.printStackTrace()
             }
@@ -93,6 +104,39 @@ class GameViewModel(
 
     fun viewTagList() {
         _sheetContentState.value = SheetContentState.ViewingList
+    }
+
+    fun startTrackingEvent() {
+        viewModelScope.launch {
+            while (true) {
+                val now = Clock.System.now() // TODO replace with internet time
+                val currentEvent = event ?: break
+
+                when {
+                    now >= currentEvent.endTime -> {
+                        _gameState.value = GameState.Finished
+                        break
+                    }
+
+                    now >= currentEvent.startTime -> {
+                        _gameState.value = GameState.Playing
+                    }
+
+                    else -> {
+                        val durationToStart = event!!.startTime - now
+                        val minutes = durationToStart.inWholeMinutes
+                        val seconds = durationToStart.inWholeSeconds % 60
+                        val timeString = String.format(Locale.getDefault(), "%02d:%02d", minutes, seconds)
+
+                        _gameState.value = GameState.WaitingToStart(timeString)
+
+                    }
+                }
+
+                // Tick di 1 secondo
+                delay(1000L)
+            }
+        }
     }
 
 }
