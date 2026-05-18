@@ -47,7 +47,7 @@
     <string name="login_answer">"Non sei ancora registrato? "</string>
     <string name="signup_answer">Sei già registrato?</string>
     <string name="password_confirm">Conferma password</string>
-    <string name="online_event_title">Eventi disponibili</string>
+    <string name="online_event_title">Eventi online</string>
     <string name="event_code">Codice evento</string>
     <string name="find">Cerca</string>
     <string name="saved_event_title">Eventi salvati</string>

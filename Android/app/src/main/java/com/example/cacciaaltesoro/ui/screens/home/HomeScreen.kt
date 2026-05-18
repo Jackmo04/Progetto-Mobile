@@ -72,11 +72,11 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                MyButton("Online Events") { navController.navigate(NavigationRoute.OnlineEvents) }
+                MyButton(stringResource(R.string.online_event_title)) { navController.navigate(NavigationRoute.OnlineEvents) }
 
                 if (stateLogin.isLogin) {
-                    MyButton("Saved Events") { navController.navigate(NavigationRoute.SavedEvents) }
-                    MyButton("New Event") { navController.navigate(NavigationRoute.EventEditor()) }
+                    MyButton(stringResource(R.string.saved_event_title)) { navController.navigate(NavigationRoute.SavedEvents) }
+                    MyButton(stringResource(R.string.new_event)) { navController.navigate(NavigationRoute.EventEditor()) }
 
                     // TODO delete following lines
                     Spacer(modifier = Modifier.height(24.dp))
