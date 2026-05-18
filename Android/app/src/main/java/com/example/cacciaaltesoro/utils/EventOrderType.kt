@@ -5,5 +5,6 @@ enum class EventOrderType(val type: String) {
     NAME_DESC("Nome Z..A"),
     START_DATE("Data inizio"),
     DISTANCE("Distanza da me"),
-    EVENT_DURATION("Durata evento")
+    EVENT_DURATION("Durata evento"),
+    START_TIME("Data inizio")
 }

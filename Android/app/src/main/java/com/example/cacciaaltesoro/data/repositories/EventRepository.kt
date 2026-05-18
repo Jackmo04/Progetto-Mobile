@@ -207,18 +207,21 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         try {
             when (type) {
                 EventOrderType.NAME.type -> {
-                    result = listEvent.sortedBy{ it.name }
+                    result = listEvent.sortedBy{ it.name.uppercase() }
                 }
                 EventOrderType.NAME_DESC.type -> {
-                    result = listEvent.sortedByDescending{ it.name }
+                    result = listEvent.sortedByDescending{ it.name.uppercase() }
                 }
 
                 EventOrderType.START_DATE.type -> {
-                    result = listEvent.sortedBy { it.startTime.epochSeconds }
+                    result = listEvent.sortedBy { it.startTime }
                 }
 
                 EventOrderType.EVENT_DURATION.type -> {
-                    result =  listEvent.sortedBy { it.endTime.nanosecondsOfSecond - it.startTime.nanosecondsOfSecond }
+                    result = listEvent.sortedBy { it.endTime.toEpochMilliseconds() - it.startTime.toEpochMilliseconds() }
+                }
+                EventOrderType.START_DATE.type ->{
+                    result = listEvent.sortedBy { it.startTime }
                 }
 
 
