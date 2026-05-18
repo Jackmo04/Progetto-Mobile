@@ -224,7 +224,11 @@ fun OnlineEventsScreen(
                             EventListCard(
                                 events = event,
                                 isMyEvent = event.organizerUUID == state.uuid,
-                                onClick = { event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id)) } }
+                                onClick = { if(stateLogin.isLogin)
+                                    event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id)) }
+                                else
+                                    navController.navigate(NavigationRoute.Login)
+                                }
                             )
                         }
                     }
