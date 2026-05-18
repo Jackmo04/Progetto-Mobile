@@ -79,9 +79,8 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
             ) {
                 MyButton(stringResource(R.string.online_event_title)) { navController.navigate(NavigationRoute.OnlineEvents) }
 
-                if (stateLogin.isLogin) {
-                    MyButton(stringResource(R.string.saved_event_title)) { navController.navigate(NavigationRoute.SavedEvents) }
-                    MyButton(stringResource(R.string.new_event)) { navController.navigate(NavigationRoute.EventEditor()) }
+                MyButton(stringResource(R.string.saved_event_title)) { if(stateLogin.isLogin)navController.navigate(NavigationRoute.SavedEvents) else navController.navigate((NavigationRoute.Login)) }
+                MyButton(stringResource(R.string.new_event)) { if(stateLogin.isLogin) navController.navigate(NavigationRoute.EventEditor()) else navController.navigate(NavigationRoute.Login) }
 
                     // TODO delete following lines
                     Spacer(modifier = Modifier.height(24.dp))
@@ -100,7 +99,7 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
                         Text("Partecipa")
                     }
 
-                }
+
 
             }
         }

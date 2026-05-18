@@ -97,6 +97,9 @@ class OnlineEventViewModel(
                 } finally {
                     isLoading = false
                 }
+                if(state.value.idEventCodeSearched == null){
+                    errorMessage = "Evento non trovato"
+                }
             }
 
         },

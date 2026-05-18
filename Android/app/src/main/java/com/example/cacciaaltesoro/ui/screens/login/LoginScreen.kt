@@ -38,6 +38,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
 import com.example.cacciaaltesoro.R
+import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.rememberCameraLauncher
 import kotlinx.coroutines.Dispatchers
@@ -267,6 +268,12 @@ fun LoginScreen(
                                     viewModel.action.onLogOut()
                                     username = ""
                                     password = ""
+                                    navController.navigate(NavigationRoute.Home) {
+                                        popUpTo(0) {
+                                            inclusive = true
+                                        }
+                                        launchSingleTop = true
+                                    }
                                 })
                                 Spacer(modifier = Modifier.size(8.dp))
                                 MyButton(stringResource(R.string.change_password), onClick = {

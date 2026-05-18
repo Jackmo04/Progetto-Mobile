@@ -101,6 +101,12 @@ class LoginScreenViewModel(
                 successMessage = null
                 try {
                     repository.logOut()
+                    _state.update { currentState ->
+                        currentState.copy(
+                            isLogin = false,
+                            imageUri = null,
+                        )
+                    }
                     successMessage = "Logout effettuato"
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
