@@ -72,6 +72,8 @@ class GameViewModel(
 
     val nfcActions = NfcActions(
         onNfcTagDiscovered = { nfcTag ->
+            if (gameState.value !is GameState.Playing) return@NfcActions
+
             viewModelScope.launch(Dispatchers.IO) {
                 val readUUID = nfcUtils.readUuidFromNdef(nfcTag)
                 if (readUUID == null) {

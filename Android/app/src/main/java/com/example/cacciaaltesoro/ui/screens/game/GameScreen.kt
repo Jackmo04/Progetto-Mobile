@@ -89,7 +89,7 @@ fun GameScreen(
     var showExitConfirmation by remember { mutableStateOf(false) }
 
     NfcReaderLifecycle(
-        isActive = gameState is GameState.Playing,
+        isActive = gameState is GameState.Playing || gameState is GameState.Finished,
         onTagDiscovered = { nfcTag ->
             viewModel.nfcActions.onNfcTagDiscovered(nfcTag)
         }
