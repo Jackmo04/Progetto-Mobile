@@ -106,7 +106,7 @@ fun OnlineEventsScreen(
     Scaffold(
         topBar = {
             AppBar(
-                title = if (state.currentFilter == EventFilterType.ONLINE) "Esplora Eventi" else "I Miei Eventi",
+                title = "Esplora Eventi",
                 navController = navController,
                 showProfile = true,
                 imageUri = stateLogin.imageUri
@@ -203,7 +203,7 @@ fun OnlineEventsScreen(
                     }
                 } else if (list.isEmpty()) {
                     val icon = if (state.currentFilter == EventFilterType.ONLINE) Icons.Default.EventBusy else Icons.Default.BookmarkBorder
-                    val textEmpty = if (state.currentFilter == EventFilterType.ONLINE) "Nessun evento trovato" else "Non hai salvato nessun evento"
+                    val textEmpty = "Nessun evento trovato"
 
                     Column(
                         modifier = Modifier.fillMaxSize(),
