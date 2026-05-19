@@ -23,8 +23,6 @@ import com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor.EventTagEdito
 import com.example.cacciaaltesoro.ui.screens.game.GameViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsViewModel
 import com.example.cacciaaltesoro.ui.screens.onlineevents.OnlineEventsScreen
-import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsScreen
-import com.example.cacciaaltesoro.ui.screens.savedevents.SavedEventsViewModel
 import com.example.cacciaaltesoro.ui.screens.splash.SplashScreen
 import kotlinx.serialization.Serializable
 import org.koin.androidx.compose.koinViewModel
@@ -36,7 +34,6 @@ sealed interface NavigationRoute {
     @Serializable data object OnlineEvents : NavigationRoute
     @Serializable data class EventDetails(val eventId: Int) : NavigationRoute
     @Serializable data class Game(val eventId: Int) : NavigationRoute
-    @Serializable data object SavedEvents : NavigationRoute
     @Serializable data object Login : NavigationRoute
     @Serializable data class EventEditor(val eventId: Int? = null) : NavigationRoute
     @Serializable data class EventTagEditor(val lat: Double, val lon: Double) : NavigationRoute
@@ -87,11 +84,6 @@ fun CacciaAlTesoroNavGraph(navController: NavHostController) {
                 parameters = { parametersOf(route.eventId) }
             )
             GameScreen(navController, gameViewModel)
-        }
-        composable<NavigationRoute.SavedEvents> {
-            val savedEventViewModel = koinViewModel<SavedEventsViewModel>()
-            val newLoginEvent = koinViewModel<LoginScreenViewModel>()
-            SavedEventsScreen(navController, savedEventViewModel,newLoginEvent)
         }
         composable<NavigationRoute.EventEditor> { backStackEntry ->
             val route = backStackEntry.toRoute<NavigationRoute.EventEditor>()
