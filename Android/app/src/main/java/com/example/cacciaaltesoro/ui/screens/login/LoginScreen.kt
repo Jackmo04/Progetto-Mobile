@@ -112,7 +112,7 @@ fun LoginScreen(
             takePicture()
         } else {
             scope.launch {
-            snackbarHostState.showSnackbar("Permesso di uso forocamera necessario!")
+            snackbarHostState.showSnackbar(context.getString(R.string.camera_permission_required))
         }}
     }
 
@@ -168,7 +168,7 @@ fun LoginScreen(
                         OutlinedTextField(
                             value = password,
                             onValueChange = { password = it },
-                            label = { Text("Password") },
+                            label = { Text(stringResource(R.string.password)) },
                             visualTransformation = PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth(),
                             enabled = !state.isLoading,
@@ -282,7 +282,7 @@ fun LoginScreen(
                                     passwordConfirm = ""
                                 })
                                 Spacer(Modifier.size(24.dp))
-                                Text("Aggiorna la tua foto", style = MaterialTheme.typography.titleMedium)
+                                Text(stringResource(R.string.update_profile_photo), style = MaterialTheme.typography.titleMedium)
                                 Spacer(Modifier.size(16.dp))
                                 Row(
                                     modifier = Modifier.fillMaxWidth(),
@@ -294,11 +294,11 @@ fun LoginScreen(
                                     ) {
                                         Icon(
                                             Icons.Outlined.PhotoCamera,
-                                            contentDescription = "Fotocamera",
+                                            contentDescription = stringResource(R.string.camera),
                                             modifier = Modifier.size(ButtonDefaults.IconSize)
                                         )
                                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                        Text("Fotocamera")
+                                        Text(stringResource(R.string.camera))
                                     }
 
                                     Button(
@@ -311,17 +311,17 @@ fun LoginScreen(
                                     ) {
                                         Icon(
                                             Icons.Outlined.PhotoLibrary,
-                                            contentDescription = "Galleria",
+                                            contentDescription = stringResource(R.string.gallery),
                                             modifier = Modifier.size(ButtonDefaults.IconSize)
                                         )
                                         Spacer(Modifier.size(ButtonDefaults.IconSpacing))
-                                        Text("Galleria")
+                                        Text(stringResource(R.string.gallery))
                                     }
                                 }
                                 Spacer(Modifier.size(16.dp))
                                 AsyncImage(
                                     model = state.imageUri,
-                                    contentDescription = "Foto del profilo",
+                                    contentDescription = stringResource(R.string.profile_photo),
                                     modifier = Modifier
                                         .size(140.dp)
                                         .aspectRatio(1f)
@@ -358,7 +358,9 @@ fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
             text = if (!isSignUp) stringResource(R.string.signup_title) else stringResource(R.string.login_title),
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { onToggle() }.padding(4.dp)
+            modifier = Modifier
+                .clickable { onToggle() }
+                .padding(4.dp)
         )
         Text(text = ".")
     }
@@ -372,7 +374,9 @@ fun SendEmail(email: String, onToggle: (String) -> Unit) {
             text = "E-mail",
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
-            modifier = Modifier.clickable { onToggle(email) }.padding(4.dp)
+            modifier = Modifier
+                .clickable { onToggle(email) }
+                .padding(4.dp)
         )
         Text(text = ".")
     }

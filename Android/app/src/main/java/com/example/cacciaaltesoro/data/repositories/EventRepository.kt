@@ -158,22 +158,17 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
     override suspend fun getEventsByCode(code: String): Event? {
-        return try {
-            supabase.from(SupabaseTables.EVENTS.tableName).select {
+          return  supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::code eq code
                     EventDTO::organizerUUID neq supabase.auth.currentUserOrNull()?.id
                 }
             }.decodeSingleOrNull<EventDTO>()?.toDomain()
-        } catch (e: Exception) {
-            Log.e("EventRepository", "Error fetching event", e)
-            null
-        }
     }
 
     override suspend fun getAllEvents(): List<Event> {
         val uuid = supabase.auth.currentUserOrNull()?.id
-        val localTime = Clock.System.now()//.toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault())
+        val localTime = Clock.System.now()
         if (uuid == null){
             val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
@@ -185,7 +180,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             return  listEvent.map{e -> e.toDomain()}
 
         } else {
-        try {
             val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::isPrivate eq false
@@ -195,18 +189,13 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())
             return  listEvent.map{e -> e.toDomain()}
+}
 
-        } catch (e: Exception) {
-            Log.e("EventRepository", "Error searching events", e)
-
-        }}
-        return emptyList()
     }
 
     @OptIn(ExperimentalTime::class)
     override suspend fun getOrderedEvent(type: String , location: Location? , listEvent: List<Event>): List<Event> {
         var result = emptyList<Event>()
-        try {
             when (type) {
                 EventOrderType.NAME.type -> {
                     result = listEvent.sortedBy{ it.name.uppercase() }
@@ -226,9 +215,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                     result = listEvent.sortedBy { it.startTime }
                 }
 
-
-
-
                 EventOrderType.DISTANCE.type ->{
                     result = try {
                         orderLocationByDistance(listEvent , location)
@@ -238,16 +224,11 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 }
 
             }
-        } catch (e: Exception) {
-            Log.e("EventRepository", "Error fetching ordered events", e)
-        }
         return result
     }
 
     override suspend fun getAllMyEvents(): List<Event> {
 
-
-        try {
             val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
                 ?: throw IllegalStateException("utente non loggato")
             val createdEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
@@ -258,11 +239,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
 
             Log.d("SavedEventRepository", "Fetched events: ${createdEvent.toString()}")
             return createdEvent.distinct().map{e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
-        } catch (e: Exception) {
-            Log.e("SavedEventRepository", "Error searching events", e)
-
-        }
-        return emptyList()
     }
 
     override suspend fun getAllMySubscribedEvents(): List<Event> {

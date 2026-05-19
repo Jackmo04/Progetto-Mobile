@@ -42,7 +42,7 @@ fun OnlineEventsScreen(
     viewModel: OnlineEventsViewModel,
     loginViewModel: LoginScreenViewModel
 ) {
-    val ctx = LocalContext.current
+    val context = LocalContext.current
     val scope = rememberCoroutineScope()
     var searchQuery by rememberSaveable { mutableStateOf("") }
     val snackbarHostState = remember { SnackbarHostState() }
@@ -70,7 +70,7 @@ fun OnlineEventsScreen(
         }
     }
 
-    val locationService = remember { LocationService(ctx) }
+    val locationService = remember { LocationService(context) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
 
     fun getCurrentLocation() = scope.launch {
@@ -88,7 +88,7 @@ fun OnlineEventsScreen(
             getCurrentLocation()
         } else {
             scope.launch {
-                snackbarHostState.showSnackbar("Permesso di posizione necessario.")
+                snackbarHostState.showSnackbar(context.getString(R.string.position_permission_required))
             }
         }
     }
@@ -106,7 +106,7 @@ fun OnlineEventsScreen(
     Scaffold(
         topBar = {
             AppBar(
-                title = "Esplora Eventi",
+                title = stringResource(R.string.event_explorer),
                 navController = navController,
                 showProfile = true,
                 imageUri = stateLogin.imageUri
@@ -124,20 +124,20 @@ fun OnlineEventsScreen(
                     selected = state.currentFilter == EventFilterType.ONLINE,
                     onClick = {
                         viewModel.action.loadEvents(EventFilterType.ONLINE)},
-                    text = { Text("Tutti") }
+                    text = { Text(stringResource(R.string.online_event)) }
                 )
                 if (stateLogin.isLogin) {
                     Tab(
                         selected = state.currentFilter == EventFilterType.SAVED,
                         onClick = { viewModel.action.loadEvents(EventFilterType.SAVED)
                             },
-                        text = { Text("Salvati") }
+                        text = { Text(stringResource(R.string.saved)) }
                     )
                     Tab(
                         selected = state.currentFilter == EventFilterType.CREATED,
                         onClick = { viewModel.action.loadEvents(EventFilterType.CREATED)
                         },
-                        text = { Text("Creati") }
+                        text = { Text(stringResource(R.string.created)) }
                     )
                 }
             }
@@ -146,7 +146,9 @@ fun OnlineEventsScreen(
 
                 if (state.currentFilter == EventFilterType.ONLINE) {
                     Row(
-                        modifier = Modifier.fillMaxWidth().padding(bottom = 8.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(bottom = 8.dp),
                         verticalAlignment = Alignment.CenterVertically,
                         horizontalArrangement = Arrangement.spacedBy(8.dp)
                     ) {
@@ -180,7 +182,9 @@ fun OnlineEventsScreen(
                 }
 
                 Box(
-                    modifier = Modifier.fillMaxWidth().padding(bottom = 16.dp, top = 8.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(bottom = 16.dp, top = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
                     OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
@@ -203,7 +207,7 @@ fun OnlineEventsScreen(
                     }
                 } else if (list.isEmpty()) {
                     val icon = if (state.currentFilter == EventFilterType.ONLINE) Icons.Default.EventBusy else Icons.Default.BookmarkBorder
-                    val textEmpty = "Nessun evento trovato"
+                    val textEmpty = stringResource(R.string.no_event_found)
 
                     Column(
                         modifier = Modifier.fillMaxSize(),

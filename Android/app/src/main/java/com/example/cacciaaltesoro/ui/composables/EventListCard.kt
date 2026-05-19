@@ -12,9 +12,11 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -30,8 +32,9 @@ fun EventListCard(
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
     val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
     val onSurface = MaterialTheme.colorScheme.onSurface
+    val loading = stringResource(R.string.loading)
 
-    var addressText by remember { mutableStateOf("Caricamento...") }
+    var addressText by remember { mutableStateOf(loading) }
 
     LaunchedEffect(events.lat, events.lon) {
         addressText = withContext(Dispatchers.IO) {

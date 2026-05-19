@@ -63,7 +63,7 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
 
             Image(
                 painter = painterResource(id = R.drawable.home_logo),
-                contentDescription = "Logo Caccia al Tesoro",
+                contentDescription = "Logo",
                 modifier = Modifier.size(160.dp)
             )
 

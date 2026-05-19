@@ -63,4 +63,18 @@
     <string name="exit_game_title">Sicuro di voler uscire?</string>
     <string name="exit_game_message">I progressi sono stati salvati, ma attento al tempo limite!</string>
     <string name="game_finished">Game Over</string>
+    <string name="order_by">Order by:</string>
+    <string name="camera_permission_required">Permesso di uso forocamera necessario!</string>
+    <string name="password">Password</string>
+    <string name="update_profile_photo">Aggiorna foto profilo!</string>
+    <string name="camera">Fotocamera</string>
+    <string name="gallery">Galleria</string>
+    <string name="profile_photo">Foto del profilo</string>
+    <string name="position_permission_required">Permesso di posizione necessario.</string>
+    <string name="event_explorer">Esplora Eventi</string>
+    <string name="online_event">Eventi Online</string>
+    <string name="saved">Salvati</string>
+    <string name="created">Creati</string>
+    <string name="no_event_found">Nessun evento trovato</string>
+    <string name="loading">Caricamento...</string>
 </resources>
