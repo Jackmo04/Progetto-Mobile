@@ -262,7 +262,8 @@ fun EventCard(
                     }
 
                     Button(
-                        onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) }
+                        onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) },
+                        enabled = isEditableTheEvent(event)
                     ) {
                         Text("Modifica")
                     }
@@ -437,4 +438,10 @@ fun isAvailableTheEvent(event: Event): Boolean {
     val now = Clock.System.now().toEpochMilliseconds()
     val extratime = 15 * 60 * 1000
     return (event.startTime.epochSeconds * 1000L - now - extratime) <= 0 && (event.endTime.epochSeconds *1000L - now)>=0
+}
+
+@OptIn(ExperimentalTime::class)
+fun isEditableTheEvent(event: Event): Boolean {
+    val now = Clock.System.now().toEpochMilliseconds()
+    return (event.startTime.epochSeconds * 1000L) > now
 }
