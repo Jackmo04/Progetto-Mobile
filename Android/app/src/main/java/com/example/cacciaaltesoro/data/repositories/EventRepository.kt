@@ -43,6 +43,7 @@ interface EventRepository {
     suspend fun getEventsByCode(code: String): Event?
     suspend fun getOrderedEvent (type : String , location: Location?, listEvent: List<Event>) : List<Event>
     suspend fun getAllMyEvents(): List<Event>
+    suspend fun getAllMySubscribedEvents(): List<Event>
     suspend fun getRegisteredAtEventNumber(idEvent: Int): Int?
     suspend fun joinToEvent(idEvent: Int )
 
@@ -207,18 +208,21 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         try {
             when (type) {
                 EventOrderType.NAME.type -> {
-                    result = listEvent.sortedBy{ it.name }
+                    result = listEvent.sortedBy{ it.name.uppercase() }
                 }
                 EventOrderType.NAME_DESC.type -> {
-                    result = listEvent.sortedByDescending{ it.name }
+                    result = listEvent.sortedByDescending{ it.name.uppercase() }
                 }
 
                 EventOrderType.START_DATE.type -> {
-                    result = listEvent.sortedBy { it.startTime.epochSeconds }
+                    result = listEvent.sortedBy { it.startTime }
                 }
 
                 EventOrderType.EVENT_DURATION.type -> {
-                    result =  listEvent.sortedBy { it.endTime.nanosecondsOfSecond - it.startTime.nanosecondsOfSecond }
+                    result = listEvent.sortedBy { it.endTime.toEpochMilliseconds() - it.startTime.toEpochMilliseconds() }
+                }
+                EventOrderType.START_DATE.type ->{
+                    result = listEvent.sortedBy { it.startTime }
                 }
 
 
@@ -245,24 +249,14 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         try {
             val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
                 ?: throw IllegalStateException("utente non loggato")
-
-            val userSaved = supabase.from(SupabaseTables.USERS.tableName).select(
-                columns = Columns.raw("*,  partite!partecipazioni(*)")) {
-                filter {
-                    UserDTO::uuid eq uuidC
-                }
-            }.decodeSingle<UserDTO>().eventDTOS
-
             val createdEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::organizerUUID eq uuidC
                 }
             }.decodeList<EventDTO>()
 
-            val listEvent = userSaved + createdEvent
-
-            Log.d("SavedEventRepository", "Fetched events: ${listEvent.toString()}")
-            return listEvent.distinct().map{e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
+            Log.d("SavedEventRepository", "Fetched events: ${createdEvent.toString()}")
+            return createdEvent.distinct().map{e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
         } catch (e: Exception) {
             Log.e("SavedEventRepository", "Error searching events", e)
 
@@ -270,8 +264,22 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         return emptyList()
     }
 
+    override suspend fun getAllMySubscribedEvents(): List<Event> {
+
+            val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
+                ?: throw IllegalStateException("utente non loggato")
+
+            val userSaved = supabase.from(SupabaseTables.USERS.tableName).select(
+                columns = Columns.raw("*,  partite!partecipazioni(*)")
+            ) {
+                filter {
+                    UserDTO::uuid eq uuidC
+                }
+            }.decodeSingle<UserDTO>().eventDTOS
+            return userSaved.map{e -> e.toDomain()}
+    }
+
     override suspend fun getRegisteredAtEventNumber(idEvent: Int): Int? {
-        try {
             val result = supabase.from(SupabaseTables.SUBSCRIPTION.tableName).select {
                 filter {
                     eq("prt_partita", idEvent)
@@ -281,33 +289,20 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             }.countOrNull()
             Log.i("CountR", result.toString())
             return result?.toInt()
-        } catch (e: Exception) {
-            Log.e("Count registered", e.toString())
-        }
-        return null
     }
 
 
     override suspend fun joinToEvent(idEvent: Int) {
-        try {
-            val link = UserEvent(idEvent,supabase.auth.currentSessionOrNull()?.user!!.id)
-            supabase.postgrest[SupabaseTables.SUBSCRIPTION.tableName].insert(link)
-        }catch (e: Exception){
-            Log.e("JoinEvent",e.toString())
-        }
+        val link = UserEvent(idEvent, supabase.auth.currentSessionOrNull()?.user!!.id)
+        supabase.from(SupabaseTables.SUBSCRIPTION.tableName).insert(link)
     }
 
     override suspend fun unscribeFromEvent(idEvent: Int) {
-
-        try {
-            supabase.from(SupabaseTables.SUBSCRIPTION.tableName).delete {
-                filter {
-                    eq("prt_partita", idEvent)
-                    eq("prt_utente", supabase.auth.currentSessionOrNull()?.user!!.id)
-                }
+        supabase.from(SupabaseTables.SUBSCRIPTION.tableName).delete {
+            filter {
+                eq("prt_partita", idEvent)
+                eq("prt_utente", supabase.auth.currentSessionOrNull()?.user!!.id)
             }
-        }catch (e: Exception){
-            Log.e("JoinEvent",e.toString())
         }
     }
 

@@ -94,7 +94,7 @@ class LoginScreenViewModel(
                 }
             }
         },
-        onLogOut = {onComplete ->
+        onLogOut = { onComplete ->
             viewModelScope.launch {
                 enableLoading()
                 errorMessage = null
@@ -115,6 +115,7 @@ class LoginScreenViewModel(
                    disableLoading()
                 }
                 onComplete()
+
             }
         },
         changeSignScreen = {
