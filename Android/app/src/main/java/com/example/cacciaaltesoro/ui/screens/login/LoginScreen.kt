@@ -265,7 +265,7 @@ fun LoginScreen(
 
                             } else {
                                 MyButton("Log Out", onClick = {
-                                    viewModel.action.onLogOut({                              navController.navigate(NavigationRoute.Home) {
+                                    viewModel.action.onLogOut({navController.navigate(NavigationRoute.Home) {
                                         popUpTo(0) {
                                             inclusive = true
                                         }
