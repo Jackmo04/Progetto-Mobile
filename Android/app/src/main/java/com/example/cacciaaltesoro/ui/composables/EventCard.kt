@@ -57,6 +57,8 @@ import androidx.compose.material.icons.filled.PersonAdd
 import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.ui.graphics.vector.ImageVector
+import androidx.compose.ui.res.stringResource
+import com.example.cacciaaltesoro.R
 import com.google.maps.model.AddressComponentType
 import kotlin.time.Clock
 
@@ -74,10 +76,11 @@ fun EventCard(
     }
 
     val isMineEvent: Boolean = state.userId == event.organizerUUID
-    val ctx = LocalContext.current
+    val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
-    var addressText by remember { mutableStateOf("Caricamento indirizzo...") }
+    val loading = stringResource(R.string.loading)
+    var addressText by remember { mutableStateOf(loading) }
 
     LaunchedEffect(event.lat, event.lon) {
         val address = withContext(Dispatchers.IO) {
@@ -98,8 +101,9 @@ fun EventCard(
                         type = "text/plain"
                         putExtra(Intent.EXTRA_TEXT, textToShare)
                     }
-                    val shareIntent = Intent.createChooser(sendIntent, "Condividi Evento")
-                    ctx.startActivity(shareIntent)
+                    val shareIntent = Intent.createChooser(sendIntent,
+                        context.getString(R.string.share_event))
+                    context.startActivity(shareIntent)
                 }
             } catch (e: Exception) {
                 Log.e("ShareError", "Errore durante la condivisione", e)
@@ -129,7 +133,11 @@ fun EventCard(
                     modifier = Modifier
                         .size(48.dp)
                         .clip(CircleShape)
-                        .background(if (isMineEvent) MaterialTheme.colorScheme.onPrimaryContainer.copy(alpha = 0.2f) else MaterialTheme.colorScheme.primaryContainer),
+                        .background(
+                            if (isMineEvent) MaterialTheme.colorScheme.onPrimaryContainer.copy(
+                                alpha = 0.2f
+                            ) else MaterialTheme.colorScheme.primaryContainer
+                        ),
                     contentAlignment = Alignment.Center
                 ) {
                     Text(
@@ -150,7 +158,7 @@ fun EventCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "Codice: ${event.code} • ${if (event.isPrivate) "Privato" else "Pubblico"}",
+                        text = "Codice: ${event.code} • ${if (event.isPrivate) stringResource(R.string.private_k) else stringResource(R.string.public_k)}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -169,7 +177,7 @@ fun EventCard(
                     .fillMaxWidth()
                     .height(160.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { openInMaps(event, ctx) },
+                    .clickable { openInMaps(event, context) },
                 contentScale = ContentScale.Crop
             )
 
@@ -189,8 +197,9 @@ fun EventCard(
                     )
                 }
 
-                InfoRow(icon = Icons.Default.Person, text = "Organizzatore: ${event.organizer?.username ?: "Sconosciuto"}")
-                InfoRow(icon = Icons.Default.LocationOn, text = "Indirizzo: ${addressText}")
+                InfoRow(icon = Icons.Default.Person, text = "${stringResource(R.string.master)} ${event.organizer?.username ?: stringResource(
+                    R.string.unknow)}")
+                InfoRow(icon = Icons.Default.LocationOn, text = "${stringResource(R.string.Address)} $addressText")
                 InfoRow(icon = Icons.Default.AccessTime, text = "Inizio: ${getStartTime(event)}")
                 InfoRow(icon = Icons.Default.Timer, text = "Durata: ${getGameDuration(event)}")
                 if(!isMineEvent && state.imSubscribe)
@@ -208,7 +217,7 @@ fun EventCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { addToCalendar(event, addressText, ctx) },
+                    onClick = { addToCalendar(event, addressText, context) },
                     enabled = state.imSubscribe
                 ) {
                     Icon(

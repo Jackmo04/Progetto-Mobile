@@ -77,4 +77,8 @@
     <string name="created">Creati</string>
     <string name="no_event_found">Nessun evento trovato</string>
     <string name="loading">Caricamento...</string>
+    <string name="share_event">Condividi Evento</string>
+    <string name="master">Organizzatore:</string>
+    <string name="unknow">Sconosciuto</string>
+    <string name="Address">Indirizzo:</string>
 </resources>
