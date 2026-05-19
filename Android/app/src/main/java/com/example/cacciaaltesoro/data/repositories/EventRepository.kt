@@ -29,6 +29,7 @@ import kotlin.time.ExperimentalTime
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
 import kotlinx.datetime.TimeZone
+import kotlinx.datetime.toInstant
 import kotlinx.datetime.toLocalDateTime
 import kotlin.collections.plus
 import kotlin.time.Clock
@@ -172,12 +173,12 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
 
     override suspend fun getAllEvents(): List<Event> {
         val uuid = supabase.auth.currentUserOrNull()?.id
-        val localTime = Clock.System.now().toLocalDateTime(TimeZone.currentSystemDefault())
+        val localTime = Clock.System.now()//.toLocalDateTime(TimeZone.currentSystemDefault()).toInstant(TimeZone.currentSystemDefault())
         if (uuid == null){
             val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
                     EventDTO::isPrivate eq false
-                    EventDTO::startTime gt localTime
+                    EventDTO::endTime.gte( localTime)
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())
@@ -189,7 +190,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 filter {
                     EventDTO::isPrivate eq false
                     EventDTO::organizerUUID neq uuid
-                    EventDTO::startTime gt localTime
+                    EventDTO::endTime.gte( localTime)
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())

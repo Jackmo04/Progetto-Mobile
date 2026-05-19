@@ -435,5 +435,6 @@ fun getGameDuration(event: Event): String {
 @OptIn(ExperimentalTime::class)
 fun isAvailableTheEvent(event: Event): Boolean {
     val now = Clock.System.now().toEpochMilliseconds()
-    return (event.startTime.epochSeconds * 1000L - now) <= 0 && (event.endTime.epochSeconds *1000L - now)>=0
+    val extratime = 15 * 60 * 1000
+    return (event.startTime.epochSeconds * 1000L - now - extratime) <= 0 && (event.endTime.epochSeconds *1000L - now)>=0
 }
