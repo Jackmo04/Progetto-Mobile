@@ -63,7 +63,7 @@
     <string name="exit_game_title">Sicuro di voler uscire?</string>
     <string name="exit_game_message">I progressi sono stati salvati, ma attento al tempo limite!</string>
     <string name="game_finished">Game Over</string>
-    <string name="order_by">Order by:</string>
+    <string name="order_by">Ordina per:</string>
     <string name="camera_permission_required">Permesso di uso forocamera necessario!</string>
     <string name="password">Password</string>
     <string name="update_profile_photo">Aggiorna foto profilo!</string>

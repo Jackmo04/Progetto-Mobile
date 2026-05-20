@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.provider.CalendarContract
 import android.util.Log
-import android.widget.Toast
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
@@ -430,7 +429,7 @@ suspend fun addToCalendar(event: Event, address: String, context: Context, snack
 }
 @OptIn(ExperimentalTime::class)
 fun getStartTime(event: Event): String{
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", java.util.Locale.ITALY)
+    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", Locale.ITALY)
     val dateTime = Instant.ofEpochSecond(event.startTime.epochSeconds)
         .atZone(ZoneId.systemDefault())
         .format(formatter)
