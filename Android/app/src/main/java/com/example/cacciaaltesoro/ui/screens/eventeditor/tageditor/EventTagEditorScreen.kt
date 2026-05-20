@@ -62,6 +62,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
@@ -242,7 +243,8 @@ fun EventTagEditorScreen(
                         Button(onClick = { viewModel.nfcActions.resetState() }) {
                             Text("Annulla")
                         }
-                    }
+                    },
+                    properties = DialogProperties(dismissOnClickOutside = false)
                 )
             }
             is NfcState.Disabled -> {
@@ -264,7 +266,8 @@ fun EventTagEditorScreen(
                         TextButton(onClick = { viewModel.nfcActions.resetState() } ) {
                             Text("Annulla")
                         }
-                    }
+                    },
+                    properties = DialogProperties(dismissOnClickOutside = false)
                 )
             }
             else -> {}

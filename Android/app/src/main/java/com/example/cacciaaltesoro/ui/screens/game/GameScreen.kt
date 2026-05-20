@@ -1,6 +1,8 @@
 package com.example.cacciaaltesoro.ui.screens.game
 
 import android.Manifest
+import android.content.Intent
+import android.provider.Settings
 import androidx.activity.compose.BackHandler
 import androidx.compose.animation.Crossfade
 import androidx.compose.foundation.clickable
@@ -20,9 +22,11 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.BottomSheetScaffold
+import androidx.compose.material3.Button
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.HorizontalDivider
@@ -55,6 +59,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.window.DialogProperties
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
@@ -88,9 +93,11 @@ fun GameScreen(
     val tagsToFind by viewModel.tagsToFind.collectAsStateWithLifecycle()
     var showExitConfirmation by remember { mutableStateOf(false) }
 
+    var showNfcDisabledAlert by remember { mutableStateOf(false) }
+
     NfcReaderLifecycle(
         isActive = gameState is GameState.Playing || gameState is GameState.Finished,
-        onNfcDisabled = { TODO() },
+        onNfcDisabled = { showNfcDisabledAlert = true },
         onTagDiscovered = { nfcTag ->
             viewModel.nfcActions.onNfcTagDiscovered(nfcTag)
         }
@@ -239,6 +246,25 @@ fun GameScreen(
                             Text(stringResource(R.string.cancel))
                         }
                     }
+                )
+            }
+
+            if (showNfcDisabledAlert) {
+                AlertDialog(
+                    onDismissRequest = { showNfcDisabledAlert = false },
+                    icon = { Icon(Icons.Default.Warning, contentDescription = null) },
+                    title = { Text("NFC Disattivato!") },
+                    text = { Text("Per poter collezionare i Tag è necessario attivare l'NFC!") },
+                    confirmButton = {
+                        Button(
+                            onClick = {
+                                val intent = Intent(Settings.ACTION_NFC_SETTINGS)
+                                ctx.startActivity(intent)
+                                showNfcDisabledAlert = false
+                            }
+                        ) { Text("Apri impostazioni") }
+                    },
+                    properties = DialogProperties(dismissOnClickOutside = false)
                 )
             }
         }
