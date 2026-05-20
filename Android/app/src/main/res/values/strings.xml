@@ -75,7 +75,7 @@
     <string name="saved">Saved</string>
     <string name="created">Created</string>
     <string name="no_event_found">No events found</string>
-    <string name="loading">Loading...</string>
+    <string name="loading">Loading…</string>
     <string name="share_event">Share Event</string>
     <string name="master">Organizer:</string>
     <string name="unknow">Unknown</string>
