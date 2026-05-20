@@ -86,7 +86,7 @@ fun EventCard(
 
     LaunchedEffect(event.lat, event.lon) {
         val address = withContext(Dispatchers.IO) {
-            getAddressFromCords(event.lat, event.lon)
+            getAddressFromCords(lat = event.lat, lng= event.lon, contextMain = context)
         }
         addressText = address
     }
@@ -179,7 +179,15 @@ fun EventCard(
                     .fillMaxWidth()
                     .height(160.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { coroutineScope.launch { openInMaps(event, context,snackbarHostState)} },
+                    .clickable {
+                        coroutineScope.launch {
+                            openInMaps(
+                                event,
+                                context,
+                                snackbarHostState
+                            )
+                        }
+                    },
                 contentScale = ContentScale.Crop
             )
 
@@ -203,7 +211,7 @@ fun EventCard(
                     R.string.unknow)}")
                 InfoRow(icon = Icons.Default.LocationOn, text = "${stringResource(R.string.Address)} $addressText")
                 InfoRow(icon = Icons.Default.AccessTime, text = "${stringResource(R.string.start_event)} ${getStartTime(event)}")
-                InfoRow(icon = Icons.Default.Timer, text = "${stringResource(R.string.duration)} ${getGameDuration(event)}")
+                InfoRow(icon = Icons.Default.Timer, text = "${stringResource(R.string.duration)} ${getGameDuration(event,context)}")
                 if(!isMineEvent && state.imSubscribe)
                     InfoRow(icon = Icons.Default.Tag, text = "${stringResource(R.string.tag_catched)} ${state.userTagCached}")
                 else
@@ -357,7 +365,7 @@ fun shareTextBuilder(event: Event, resolvedAddress: String): String {
     """.trimIndent()
 }
 
-fun getAddressFromCords(lat: Double, lng: Double, onlyCity: Boolean = false): String {
+fun getAddressFromCords(lat: Double, lng: Double, onlyCity: Boolean = false, contextMain: Context): String {
     val context = GeoApiContext.Builder()
         .apiKey(BuildConfig.MAPS_KEY)
         .build()
@@ -375,12 +383,12 @@ fun getAddressFromCords(lat: Double, lng: Double, onlyCity: Boolean = false): St
                     component.types.contains(AddressComponentType.ADMINISTRATIVE_AREA_LEVEL_3)
                 }
 
-                cityComponent?.longName ?: "Città non trovata"
+                cityComponent?.longName ?: contextMain.getString(R.string.city_not_find)
             } else {
                 results[0].formattedAddress
             }
         } else {
-            "Nessun risultato"
+            contextMain.getString(R.string.no_result_found)
         }
     } catch (e: Exception) {
         "Errore API: ${e.message}"
@@ -394,7 +402,7 @@ suspend fun openInMaps(event: Event, context: Context, snackbarHostState: Snackb
         val mapIntent = Intent(Intent.ACTION_VIEW, uri)
         context.startActivity(mapIntent)
     } catch (e: Exception) {
-        snackbarHostState.showSnackbar("Impossibile aprire le mappe")
+        snackbarHostState.showSnackbar(context.getString(R.string.impossible_open_map))
     }
 }
 
@@ -416,7 +424,7 @@ suspend fun addToCalendar(event: Event, address: String, context: Context, snack
 
         context.startActivity(intent)
     } catch (e: Exception) {
-        snackbarHostState.showSnackbar("Nessuna app calendario trovata")
+        snackbarHostState.showSnackbar(context.getString(R.string.no_app_found_calendar))
         Log.e("CalendarError", "Errore durante l'apertura del calendario", e)
     }
 }
@@ -431,7 +439,7 @@ fun getStartTime(event: Event): String{
 }
 
 @OptIn(ExperimentalTime::class)
-fun getGameDuration(event: Event): String {
+fun getGameDuration(event: Event , context: Context): String {
     val diffInSeconds = event.endTime.epochSeconds - event.startTime.epochSeconds
     val minutes = diffInSeconds / 60
 
@@ -440,7 +448,7 @@ fun getGameDuration(event: Event): String {
         val remainingMinutes = minutes % 60
         if (remainingMinutes > 0) "$hours h e $remainingMinutes min" else "$hours h"
     } else {
-        "$minutes minuti"
+        "$minutes"+ context.getString(R.string.minute)
     }
 }
 

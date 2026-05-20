@@ -92,4 +92,9 @@
     <string name="edit">Edit</string>
     <string name="delete_confirm">Confirm deletion</string>
     <string name="delete_answare">Are you sure you want to delete this event? This action cannot be undone.</string>
+    <string name="city_not_find">Città non trovata</string>
+    <string name="no_result_found">Nessun risultato</string>
+    <string name="impossible_open_map">Impossibile aprire le mappe</string>
+    <string name="no_app_found_calendar">Nessuna app calendario trovata</string>
+    <string name="minute">minuti</string>
 </resources>
