@@ -90,4 +90,7 @@
     <string name="add_to_calendar">Aggiungi a calendario</string>
     <string name="subscribe">Iscriviti</string>
     <string name="unscribe">Disiscriviti</string>
+    <string name="edit">Modifica</string>
+    <string name="delete_confirm">Conferma eliminazione</string>
+    <string name="delete_answare">Sei sicuro di voler cancellare questo evento? Questa azione non può essere annullata.</string>
 </resources>

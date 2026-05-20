@@ -60,6 +60,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import com.example.cacciaaltesoro.R
 import com.google.maps.model.AddressComponentType
+import java.util.Locale
 import kotlin.time.Clock
 
 @OptIn(ExperimentalTime::class)
@@ -276,7 +277,7 @@ fun EventCard(
                         onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) },
                         enabled = isEditableTheEvent(event)
                     ) {
-                        Text("Modifica")
+                        Text(stringResource(R.string.edit))
                     }
                 }
             }
@@ -286,8 +287,8 @@ fun EventCard(
     if (showDeleteDialog) {
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
-            title = { Text(text = "Conferma eliminazione") },
-            text = { Text(text = "Sei sicuro di voler cancellare questo evento? Questa azione non può essere annullata.") },
+            title = { Text(text = stringResource(R.string.delete_confirm)) },
+            text = { Text(text = stringResource(R.string.delete_answare)) },
             confirmButton = {
                 TextButton(
                     onClick = {
@@ -296,11 +297,11 @@ fun EventCard(
                         navController.navigateUp()
                     }
                 ) {
-                    Text("Elimina", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.delete), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
-                TextButton(onClick = { showDeleteDialog = false }) { Text("Annulla") }
+                TextButton(onClick = { showDeleteDialog = false }) { Text(stringResource(R.string.cancel)) }
             }
         )
     }
@@ -363,7 +364,7 @@ fun getAddressFromCords(lat: Double, lng: Double, onlyCity: Boolean = false): St
 
     return try {
         val results = GeocodingApi.reverseGeocode(context, LatLng(lat, lng))
-            .language("it")
+            .language(Locale.getDefault().language)
             .await()
 
         if (results.isNotEmpty()) {
