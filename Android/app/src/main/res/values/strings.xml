@@ -80,4 +80,13 @@
     <string name="master">Organizzatore:</string>
     <string name="unknow">Sconosciuto</string>
     <string name="Address">Indirizzo:</string>
+    <string name="code">Codice:</string>
+    <string name="map_position_for">Posizione mappa per</string>
+    <string name="start_event">Inizio evento:</string>
+    <string name="duration">Durata:</string>
+    <string name="tag_catched">Tag raccolti:</string>
+    <string name="subscribed">Inscritti:</string>
+    <string name="add_to_calendar">Aggiungi a calendario</string>
+    <string name="subscribe">Iscriviti</string>
+    <string name="unscribe">Disiscriviti</string>
 </resources>

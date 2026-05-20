@@ -158,7 +158,7 @@ fun EventCard(
                         overflow = TextOverflow.Ellipsis
                     )
                     Text(
-                        text = "Codice: ${event.code} • ${if (event.isPrivate) stringResource(R.string.private_k) else stringResource(R.string.public_k)}",
+                        text = "${stringResource(R.string.code)} ${event.code} • ${if (event.isPrivate) stringResource(R.string.private_k) else stringResource(R.string.public_k)}",
                         style = MaterialTheme.typography.bodyMedium,
                         color = MaterialTheme.colorScheme.onSurfaceVariant,
                         maxLines = 1,
@@ -172,7 +172,7 @@ fun EventCard(
                     .data(mapImageUrl)
                     .crossfade(true)
                     .build(),
-                contentDescription = "Posizione mappa per ${event.name}",
+                contentDescription = "${stringResource(R.string.map_position_for)} ${event.name}",
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(160.dp)
@@ -200,12 +200,12 @@ fun EventCard(
                 InfoRow(icon = Icons.Default.Person, text = "${stringResource(R.string.master)} ${event.organizer?.username ?: stringResource(
                     R.string.unknow)}")
                 InfoRow(icon = Icons.Default.LocationOn, text = "${stringResource(R.string.Address)} $addressText")
-                InfoRow(icon = Icons.Default.AccessTime, text = "Inizio: ${getStartTime(event)}")
-                InfoRow(icon = Icons.Default.Timer, text = "Durata: ${getGameDuration(event)}")
+                InfoRow(icon = Icons.Default.AccessTime, text = "${stringResource(R.string.start_event)} ${getStartTime(event)}")
+                InfoRow(icon = Icons.Default.Timer, text = "${stringResource(R.string.duration)} ${getGameDuration(event)}")
                 if(!isMineEvent && state.imSubscribe)
-                    InfoRow(icon = Icons.Default.Tag, text = "Tag raccolti: ${state.userTagCached}")
+                    InfoRow(icon = Icons.Default.Tag, text = "${stringResource(R.string.tag_catched)} ${state.userTagCached}")
                 else
-                    InfoRow(icon = Icons.Default.PersonAdd, text = "Inscritti: ${state.registeredUser}")
+                    InfoRow(icon = Icons.Default.PersonAdd, text = "${stringResource(R.string.subscribed)} ${state.registeredUser}")
             }
 
             HorizontalDivider(color = MaterialTheme.colorScheme.outlineVariant.copy(alpha = 0.5f))
@@ -222,14 +222,14 @@ fun EventCard(
                 ) {
                     Icon(
                         imageVector = Icons.Default.CalendarMonth,
-                        contentDescription = "Aggiungi a calendario",
+                        contentDescription = stringResource(R.string.add_to_calendar),
                         tint = if (state.imSubscribe) MaterialTheme.colorScheme.primary else MaterialTheme.colorScheme.onSurface.copy(alpha = 0.38f)
                     )
                 }
                 IconButton(onClick = { shareDetails() }) {
                     Icon(
                         imageVector = Icons.Default.Share,
-                        contentDescription = "Condividi Evento",
+                        contentDescription = stringResource(R.string.share_event),
                         tint = MaterialTheme.colorScheme.primary
                     )
                 }
@@ -248,7 +248,9 @@ fun EventCard(
                         if (state.isLoadingSubscription) {
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         } else {
-                            Text(if (!state.imSubscribe) "Iscriviti" else "Disiscriviti")
+                            Text(if (!state.imSubscribe) stringResource(R.string.subscribe) else stringResource(
+                                R.string.unscribe
+                            ))
                         }
                     }
 
@@ -259,7 +261,7 @@ fun EventCard(
                         ) },
                         enabled = state.imSubscribe && isAvailableTheEvent(event)
                     ) {
-                        Text("Avvia")
+                        Text(stringResource(R.string.start))
                     }
                 } else {
                     OutlinedButton(
@@ -267,7 +269,7 @@ fun EventCard(
                         modifier = Modifier.padding(end = 8.dp),
                         colors = ButtonDefaults.outlinedButtonColors(contentColor = MaterialTheme.colorScheme.error)
                     ) {
-                        Text("Cancella")
+                        Text(stringResource(R.string.delete))
                     }
 
                     Button(
