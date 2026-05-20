@@ -1,6 +1,5 @@
 package com.example.cacciaaltesoro.ui
 
-import android.util.Log
 import androidx.compose.animation.EnterTransition
 import androidx.compose.animation.ExitTransition
 import androidx.compose.runtime.Composable

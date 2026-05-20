@@ -35,7 +35,12 @@ import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.LocationService
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
-
+import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.verticalScroll
+import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
+@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnlineEventsScreen(
     navController: NavHostController,
@@ -51,6 +56,8 @@ fun OnlineEventsScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val stateLogin by loginViewModel.state.collectAsStateWithLifecycle()
     val list = state.listEvent
+
+    val permissionDeniedMessage = stringResource(R.string.position_permission_required)
 
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
@@ -88,7 +95,7 @@ fun OnlineEventsScreen(
             getCurrentLocation()
         } else {
             scope.launch {
-                snackbarHostState.showSnackbar(context.getString(R.string.position_permission_required))
+                snackbarHostState.showSnackbar(permissionDeniedMessage)
             }
         }
     }
@@ -102,6 +109,8 @@ fun OnlineEventsScreen(
             viewModel.action.onOrderChanged(EventOrderType.DISTANCE.type)
         }
     }
+    val pullRefreshState = rememberPullToRefreshState()
+
 
     Scaffold(
         topBar = {
@@ -201,43 +210,54 @@ fun OnlineEventsScreen(
                     }
                 }
 
-                if (viewModel.isLoading) {
+                if (viewModel.isLoading && list.isEmpty()) {
                     Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
                         CircularProgressIndicator()
                     }
-                } else if (list.isEmpty()) {
-                    val icon = if (state.currentFilter == EventFilterType.ONLINE) Icons.Default.EventBusy else Icons.Default.BookmarkBorder
-                    val textEmpty = stringResource(R.string.no_event_found)
-
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center,
-                        horizontalAlignment = Alignment.CenterHorizontally
-                    ) {
-                        Icon(icon, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
-                        Spacer(modifier = Modifier.height(16.dp))
-                        Text(textEmpty, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
-                    }
                 } else {
-                    LazyColumn(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.spacedBy(8.dp),
-                        contentPadding = PaddingValues(bottom = 16.dp)
+                    // IL NUOVO COMPONENTE MAGICO:
+                    PullToRefreshBox(
+                        isRefreshing = viewModel.isLoading, // Capisce da solo quando fermare la rotellina!
+                        onRefresh = {
+                            // Quello che deve fare quando l'utente trascina verso il basso
+                            viewModel.action.loadEvents(state.currentFilter)
+                        },
+                        modifier = Modifier.fillMaxSize()
                     ) {
-                        items(items = list, key = { event -> event.id!! }) { event ->
-                            EventListCard(
-                                events = event,
-                                isMyEvent = event.organizerUUID == state.uuid,
-                                onClick = { if(stateLogin.isLogin)
-                                    event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id)) }
-                                else
-                                    navController.navigate(NavigationRoute.Login)
+                        if (list.isEmpty()) {
+                            val icon = if (state.currentFilter == EventFilterType.ONLINE) Icons.Default.EventBusy else Icons.Default.BookmarkBorder
+                            val textEmpty = stringResource(R.string.no_event_found)
+
+                            Column(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.Center,
+                                horizontalAlignment = Alignment.CenterHorizontally
+                            ) {
+                                Icon(icon, contentDescription = null, modifier = Modifier.size(64.dp), tint = MaterialTheme.colorScheme.onSurfaceVariant.copy(alpha = 0.5f))
+                                Spacer(modifier = Modifier.height(16.dp))
+                                Text(textEmpty, style = MaterialTheme.typography.titleMedium, color = MaterialTheme.colorScheme.onSurfaceVariant)
+                            }
+                        } else {
+                            LazyColumn(
+                                modifier = Modifier.fillMaxSize(),
+                                verticalArrangement = Arrangement.spacedBy(8.dp),
+                                contentPadding = PaddingValues(bottom = 16.dp)
+                            ) {
+                                items(items = list, key = { event -> event.id!! }) { event ->
+                                    EventListCard(
+                                        events = event,
+                                        isMyEvent = event.organizerUUID == state.uuid,
+                                        onClick = { if(stateLogin.isLogin)
+                                            event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id)) }
+                                        else
+                                            navController.navigate(NavigationRoute.Login)
+                                        }
+                                    )
                                 }
-                            )
+                            }
                         }
                     }
-                }
-            }
+            }}
         }
     }
 }
