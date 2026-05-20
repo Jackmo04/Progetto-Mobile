@@ -23,6 +23,7 @@ sealed class SheetContentState {
 
 sealed class NfcState {
     object Idle : NfcState()
+    object Disabled : NfcState()
     object WaitingForTag : NfcState()
     object Done : NfcState()
 }
@@ -34,6 +35,7 @@ data class EditingTagActions(
 
 data class NfcActions(
     val onNfcTagDiscovered: (android.nfc.Tag) -> Unit,
+    val onNfcDisabled: () -> Unit,
     val prepareForWrite: () -> Unit,
     val resetState: () -> Unit
 )
@@ -78,13 +80,9 @@ class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
                 _nfcState.value = NfcState.Idle
             }
         },
-        prepareForWrite = {
-            _nfcState.value = NfcState.WaitingForTag
-            //_uiEvent.trySend("Avvicina il tag NFC") // TODO change in ui
-        },
-        resetState = {
-            _nfcState.value = NfcState.Idle
-        }
+        onNfcDisabled = { _nfcState.value = NfcState.Disabled },
+        prepareForWrite = { _nfcState.value = NfcState.WaitingForTag },
+        resetState = { _nfcState.value = NfcState.Idle }
     )
 
     fun toViewingList() {

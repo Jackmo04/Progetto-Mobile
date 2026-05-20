@@ -90,6 +90,7 @@ fun GameScreen(
 
     NfcReaderLifecycle(
         isActive = gameState is GameState.Playing || gameState is GameState.Finished,
+        onNfcDisabled = { TODO() },
         onTagDiscovered = { nfcTag ->
             viewModel.nfcActions.onNfcTagDiscovered(nfcTag)
         }
