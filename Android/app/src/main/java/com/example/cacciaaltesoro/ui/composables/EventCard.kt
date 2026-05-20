@@ -256,7 +256,6 @@ fun EventCard(
                     }
 
                     Button(
-                        // TODO quando event id sarà UUID, togliere elvis
                         onClick = { navController.navigate(NavigationRoute.Game(
                             event.id ?: throw IllegalArgumentException())
                         ) },
