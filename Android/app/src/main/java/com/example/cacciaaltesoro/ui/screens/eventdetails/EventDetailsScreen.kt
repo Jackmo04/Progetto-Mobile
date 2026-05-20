@@ -12,13 +12,17 @@ import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
+import androidx.compose.material3.SnackbarHost
+import androidx.compose.material3.SnackbarHostState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
@@ -36,6 +40,8 @@ fun EventDetailsScreen(navController: NavHostController,
     loginViewModel: LoginScreenViewModel) {
     val state by viewModel.state.collectAsState()
     val stateLogin by loginViewModel.state.collectAsStateWithLifecycle()
+    val context = LocalContext.current
+    val snackbarHostState = remember { SnackbarHostState() }
 
     LaunchedEffect (eventId) {
         Log.i("CardLog" , eventId.toString())
@@ -48,7 +54,8 @@ fun EventDetailsScreen(navController: NavHostController,
             navController = navController,
             showProfile = true,
             imageUri = stateLogin.imageUri
-        ) }
+        ) },
+        snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->
         Box(
             modifier = Modifier
@@ -64,7 +71,7 @@ fun EventDetailsScreen(navController: NavHostController,
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    EventCard(state.event!!, viewModel, navController)
+                    EventCard(state.event!!, viewModel, navController,context,snackbarHostState )
                 }
             } else {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))

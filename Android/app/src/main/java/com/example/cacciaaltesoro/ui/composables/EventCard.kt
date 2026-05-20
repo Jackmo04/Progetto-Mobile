@@ -16,7 +16,6 @@ import androidx.compose.material.icons.filled.Share
 import androidx.compose.material3.*
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -58,6 +57,7 @@ import androidx.compose.material.icons.filled.Tag
 import androidx.compose.material.icons.filled.Timer
 import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
+import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cacciaaltesoro.R
 import com.google.maps.model.AddressComponentType
 import java.util.Locale
@@ -68,16 +68,17 @@ import kotlin.time.Clock
 fun EventCard(
     event: Event,
     viewModel: EventDetailsViewModel,
-    navController: NavHostController
+    navController: NavHostController,
+    context: Context,
+    snackbarHostState: SnackbarHostState
 ) {
-    val state by viewModel.state.collectAsState()
+    val state by viewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.action.saveIdUser()
     }
 
     val isMineEvent: Boolean = state.userId == event.organizerUUID
-    val context = LocalContext.current
     var showDeleteDialog by remember { mutableStateOf(false) }
     val coroutineScope = rememberCoroutineScope()
     val loading = stringResource(R.string.loading)
@@ -178,7 +179,7 @@ fun EventCard(
                     .fillMaxWidth()
                     .height(160.dp)
                     .background(MaterialTheme.colorScheme.surfaceVariant)
-                    .clickable { openInMaps(event, context) },
+                    .clickable { coroutineScope.launch { openInMaps(event, context,snackbarHostState)} },
                 contentScale = ContentScale.Crop
             )
 
@@ -218,7 +219,7 @@ fun EventCard(
                 verticalAlignment = Alignment.CenterVertically
             ) {
                 IconButton(
-                    onClick = { addToCalendar(event, addressText, context) },
+                    onClick = {coroutineScope.launch {  addToCalendar(event, addressText, context,snackbarHostState)} },
                     enabled = state.imSubscribe
                 ) {
                     Icon(
@@ -387,19 +388,19 @@ fun getAddressFromCords(lat: Double, lng: Double, onlyCity: Boolean = false): St
         context.shutdown()
     }
 }
-fun openInMaps(event: Event , ctx: Context) {
+suspend fun openInMaps(event: Event, context: Context, snackbarHostState: SnackbarHostState) {
     try {
         val uri = "https://maps.google.com/?q=${event.lat},${event.lon}".toUri()
         val mapIntent = Intent(Intent.ACTION_VIEW, uri)
-        ctx.startActivity(mapIntent)
+        context.startActivity(mapIntent)
     } catch (e: Exception) {
-        Toast.makeText(ctx, "Impossibile aprire le mappe", Toast.LENGTH_SHORT).show()
+        snackbarHostState.showSnackbar("Impossibile aprire le mappe")
     }
 }
 
 
 @OptIn(ExperimentalTime::class)
-fun addToCalendar(event: Event, address: String, ctx: Context) {
+suspend fun addToCalendar(event: Event, address: String, context: Context, snackbarHostState: SnackbarHostState) {
     try {
         val startTimeMillis = event.startTime.epochSeconds * 1000L
         val endTimeMillis = event.endTime.epochSeconds * 1000L
@@ -413,13 +414,12 @@ fun addToCalendar(event: Event, address: String, ctx: Context) {
             putExtra(CalendarContract.Events.EVENT_LOCATION, address)
         }
 
-        ctx.startActivity(intent)
+        context.startActivity(intent)
     } catch (e: Exception) {
-        Toast.makeText(ctx, "Nessuna app calendario trovata", Toast.LENGTH_SHORT).show()
+        snackbarHostState.showSnackbar("Nessuna app calendario trovata")
         Log.e("CalendarError", "Errore durante l'apertura del calendario", e)
     }
 }
-
 @OptIn(ExperimentalTime::class)
 fun getStartTime(event: Event): String{
     val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", java.util.Locale.ITALY)
@@ -447,8 +447,8 @@ fun getGameDuration(event: Event): String {
 @OptIn(ExperimentalTime::class)
 fun isAvailableTheEvent(event: Event): Boolean {
     val now = Clock.System.now().toEpochMilliseconds()
-    val extratime = 15 * 60 * 1000
-    return (event.startTime.epochSeconds * 1000L - now - extratime) <= 0 && (event.endTime.epochSeconds *1000L - now)>=0
+    val extraTime = 15 * 60 * 1000
+    return (event.startTime.epochSeconds * 1000L - now - extraTime) <= 0 && (event.endTime.epochSeconds *1000L - now)>=0
 }
 
 @OptIn(ExperimentalTime::class)
