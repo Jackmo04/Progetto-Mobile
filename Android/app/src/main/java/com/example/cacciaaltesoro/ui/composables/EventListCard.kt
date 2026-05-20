@@ -12,6 +12,7 @@ import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
@@ -33,12 +34,13 @@ fun EventListCard(
     val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
     val onSurface = MaterialTheme.colorScheme.onSurface
     val loading = stringResource(R.string.loading)
+    val context = LocalContext.current
 
     var addressText by remember { mutableStateOf(loading) }
 
     LaunchedEffect(events.lat, events.lon) {
         addressText = withContext(Dispatchers.IO) {
-            getAddressFromCords(events.lat, events.lon, true)
+            getAddressFromCords(events.lat, events.lon, onlyCity = true , contextMain = context)
         }
     }
 
