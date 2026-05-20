@@ -14,6 +14,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
+import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
@@ -63,44 +64,43 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
 
             Image(
                 painter = painterResource(id = R.drawable.home_logo),
-                contentDescription = "Logo",
+                contentDescription = stringResource(R.string.app_name),
                 modifier = Modifier.size(160.dp)
             )
 
-            Spacer(modifier = Modifier.height(40.dp))
-
-
-            Spacer(modifier = Modifier.height(32.dp))
+            Spacer(modifier = Modifier.height(72.dp))
 
             Column(
                 modifier = Modifier.fillMaxWidth(),
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                MyButton(stringResource(R.string.online_event_title)) { navController.navigate(NavigationRoute.OnlineEvents) }
+                MyButton(stringResource(R.string.online_event_title)) {
+                    navController.navigate(NavigationRoute.OnlineEvents)
+                }
 
-              //  MyButton(stringResource(R.string.saved_event_title)) { if(stateLogin.isLogin)navController.navigate(NavigationRoute.SavedEvents) else navController.navigate((NavigationRoute.Login)) }
-                MyButton(stringResource(R.string.new_event)) { if(stateLogin.isLogin) navController.navigate(NavigationRoute.EventEditor()) else navController.navigate(NavigationRoute.Login) }
+                MyButton(stringResource(R.string.new_event)) {
+                    if (stateLogin.isLogin)
+                        navController.navigate(NavigationRoute.EventEditor())
+                    else
+                        navController.navigate(NavigationRoute.Login)
+                }
 
-                    // TODO delete following lines
-                    Spacer(modifier = Modifier.height(24.dp))
-                    //MyButton("Test Game (id:33)") { navController.navigate(NavigationRoute.Game(33)) }
-
-                    var gameID by remember { mutableStateOf("") }
-                   // Text("Test schermata di gioco")
-                    OutlinedTextField(
-                        value = gameID,
-                        label = { Text("ID partita (non codice)") },
-                        onValueChange = { gameID = it }
-                    )
-                    Button(
-                        onClick = { navController.navigate(NavigationRoute.Game(gameID.toInt())) }
-                    ) {
-                        Text("Partecipa")
-                    }
-
-
-
+                // TODO START DELETE BLOCK
+                HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
+                var gameID by remember { mutableStateOf("") }
+                Text("DA ELIMINARE IN PRODUZIONE", color = MaterialTheme.colorScheme.error)
+                OutlinedTextField(
+                    value = gameID,
+                    label = { Text("ID partita test") },
+                    onValueChange = { gameID = it }
+                )
+                Button(
+                    onClick = { navController.navigate(NavigationRoute.Game(gameID.toInt())) }
+                ) {
+                    Text("Partecipa")
+                }
+                // TODO END DELETE BLOCK
             }
         }
     }

@@ -116,7 +116,7 @@ fun EventTagEditorScreen(
     }
 
     val sheetState = rememberStandardBottomSheetState(
-        initialValue = SheetValue.Expanded
+        initialValue = SheetValue.PartiallyExpanded
     )
     val scaffoldState = rememberBottomSheetScaffoldState(bottomSheetState = sheetState)
     val coroutineScope = rememberCoroutineScope()
@@ -136,43 +136,40 @@ fun EventTagEditorScreen(
         sheetPeekHeight = 200.dp,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         sheetContent = {
-            Crossfade(targetState = sheetContentState, label = "sheet_content") { state ->
-                when (state) {
-                    is SheetContentState.ViewingList -> {
-                        TagListContent(
-                            tags = eventState.tags,
-                            onTagClick = { tag ->
-                                coroutineScope.launch {
-                                    sheetState.expand()
-                                    cameraPositionState.animate(
-                                        CameraUpdateFactory.newLatLng(tag.coordinates.toLatLng())
-                                    )
-                                }
-                                viewModel.toEditing(tag)
-                            },
-                            onDeleteTag = { tag ->
-                                sharedViewModel.tagActions.onDeleteTag(tag)
+            when (sheetContentState) {
+                is SheetContentState.ViewingList -> {
+                    TagListContent(
+                        tags = eventState.tags,
+                        onTagClick = { tag ->
+                            coroutineScope.launch {
+                                cameraPositionState.animate(
+                                    CameraUpdateFactory.newLatLng(tag.coordinates.toLatLng())
+                                )
                             }
-                        )
-                    }
-                    is SheetContentState.Editing -> {
-                        TagEditor(
-                            tag = editingTag,
-                            onAssociateNfcTag = {
-                                viewModel.nfcActions.prepareForWrite()
-                            },
-                            onChangeHint = { newHint ->
-                                viewModel.editingTagActions.onTextHintChange(newHint)
-                            },
-                            onChangeImage = { newImageUri ->
-                                viewModel.editingTagActions.onImageHintChange(newImageUri)
-                            },
-                            onSave = {
-                                sharedViewModel.tagActions.onUpdateTag(editingTag)
-                                viewModel.toViewingList()
-                            }
-                        )
-                    }
+                            viewModel.toEditing(tag)
+                        },
+                        onDeleteTag = { tag ->
+                            sharedViewModel.tagActions.onDeleteTag(tag)
+                        }
+                    )
+                }
+                is SheetContentState.Editing -> {
+                    TagEditor(
+                        tag = editingTag,
+                        onAssociateNfcTag = {
+                            viewModel.nfcActions.prepareForWrite()
+                        },
+                        onChangeHint = { newHint ->
+                            viewModel.editingTagActions.onTextHintChange(newHint)
+                        },
+                        onChangeImage = { newImageUri ->
+                            viewModel.editingTagActions.onImageHintChange(newImageUri)
+                        },
+                        onSave = {
+                            sharedViewModel.tagActions.onUpdateTag(editingTag)
+                            viewModel.toViewingList()
+                        }
+                    )
                 }
             }
             Spacer(modifier = Modifier.padding(24.dp))
@@ -187,6 +184,13 @@ fun EventTagEditorScreen(
             }
         }
 
+        LaunchedEffect(sheetContentState) {
+            when (sheetContentState) {
+                is SheetContentState.Editing -> sheetState.expand()
+                is SheetContentState.ViewingList -> sheetState.partialExpand()
+            }
+        }
+
         Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
             GoogleMap(
                 properties = MapProperties(
@@ -195,15 +199,17 @@ fun EventTagEditorScreen(
                 cameraPositionState = cameraPositionState,
                 modifier = Modifier.fillMaxSize(),
                 onMapClick = { latLng ->
-                    if (sheetContentState is SheetContentState.ViewingList) {
-                        val newTag = sharedViewModel.tagActions.onNewTag(latLng.toCoordinates())
-                        viewModel.toEditing(newTag)
-                        coroutineScope.launch {
-                            sheetState.expand()
-                            cameraPositionState.animate(
-                                CameraUpdateFactory.newLatLng(latLng)
-                            )
+                    when (sheetContentState) {
+                        is SheetContentState.ViewingList -> {
+                            val newTag = sharedViewModel.tagActions.onNewTag(latLng.toCoordinates())
+                            coroutineScope.launch {
+                                cameraPositionState.animate(
+                                    CameraUpdateFactory.newLatLng(latLng)
+                                )
+                            }
+                            viewModel.toEditing(newTag)
                         }
+                        is SheetContentState.Editing -> { viewModel.toViewingList() }
                     }
                 },
                 uiSettings = MapUiSettings(
@@ -212,19 +218,20 @@ fun EventTagEditorScreen(
                 )
             ) {
                 Marker(
-                    MarkerState(position = LatLng(startingLat, startingLon)),
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                    state = MarkerState(position = LatLng(startingLat, startingLon)),
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                    title = "Punto di ritrovo"
                 )
                 eventState.tags.forEach { tag ->
                     Marker(
                         MarkerState(position = tag.coordinates.toLatLng()),
                         onClick = {
-                            viewModel.toEditing(tag)
                             coroutineScope.launch {
                                 cameraPositionState.animate(
                                     CameraUpdateFactory.newLatLng(tag.coordinates.toLatLng())
                                 )
                             }
+                            viewModel.toEditing(tag)
                             true
                         }
                     )
