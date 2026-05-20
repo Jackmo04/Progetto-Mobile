@@ -39,6 +39,7 @@ interface EventRepository {
     suspend fun updateEvent(event: Event)
     suspend fun getEventWithTags(eventId: Int): Event?
     suspend fun setFoundTag(tag: Tag)
+    suspend fun getFoundTags(eventId: Int): List<Tag>
     suspend fun getEvent(id: Int): Event?
     suspend fun getAllEvents(): List<Event>
     suspend fun getEventsByCode(code: String): Event?
@@ -138,6 +139,22 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                     tagId = tag.id
                 )
             )
+        }
+    }
+
+    override suspend fun getFoundTags(eventId: Int): List<Tag> {
+        return withContext(Dispatchers.IO) {
+            val currentUser =
+                supabase.auth.currentSessionOrNull()?.user?.id ?: throw IllegalStateException()
+
+            val tagDTOs = supabase.from(SupabaseTables.FOUND_TAGS_VIEW.tableName).select {
+                filter {
+                    eq("utente", currentUser)
+                    eq("tag_partita", eventId)
+                }
+            }.decodeList<TagDTO>()
+
+            tagDTOs.map { it.toDomain() }
         }
     }
 

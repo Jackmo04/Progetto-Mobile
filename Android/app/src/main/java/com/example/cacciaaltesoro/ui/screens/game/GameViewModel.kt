@@ -62,7 +62,13 @@ class GameViewModel(
                 if (event == null) {
                     throw IllegalArgumentException("No event with id = $eventId")
                 }
-                _tagsToFind.value = event!!.tags
+                val foundTags = eventRepository.getFoundTags(eventId)
+                val remainingTags = event?.tags?.filter { tag -> foundTags.none { it.id == tag.id } } ?: emptyList()
+                if (remainingTags.isEmpty()) {
+                    _gameState.value = GameState.Finished("Hai già trovato tutti i tag!")
+                    return@launch
+                }
+                _tagsToFind.value = remainingTags
                 startTrackingEvent()
             } catch (e: Exception) {
                 e.printStackTrace()
