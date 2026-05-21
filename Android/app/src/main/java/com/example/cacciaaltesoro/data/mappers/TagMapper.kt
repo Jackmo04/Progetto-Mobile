@@ -3,7 +3,6 @@ package com.example.cacciaaltesoro.data.mappers
 import com.example.cacciaaltesoro.data.database.dto.TagDTO
 import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
-import com.google.android.gms.maps.model.LatLng
 
 fun Tag.toDto(): TagDTO {
     return TagDTO(

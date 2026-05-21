@@ -77,14 +77,11 @@ import com.example.cacciaaltesoro.data.mappers.toLatLng
 import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.ui.composables.ClickableBox
-import com.example.cacciaaltesoro.utils.Coordinates
 import com.example.cacciaaltesoro.utils.LocationService
-import com.example.cacciaaltesoro.utils.PermissionStatus
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import com.google.android.gms.maps.model.BitmapDescriptorFactory
 import com.google.android.gms.maps.model.CameraPosition
 import com.google.android.gms.maps.model.LatLng
-import com.google.android.gms.maps.model.Marker
 import com.google.maps.android.compose.GoogleMap
 import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapUiSettings
