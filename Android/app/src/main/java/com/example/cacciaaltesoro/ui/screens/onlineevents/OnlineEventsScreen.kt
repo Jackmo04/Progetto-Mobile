@@ -35,11 +35,7 @@ import com.example.cacciaaltesoro.utils.EventOrderType
 import com.example.cacciaaltesoro.utils.LocationService
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
-import androidx.compose.foundation.rememberScrollState
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
-import androidx.compose.material3.pulltorefresh.rememberPullToRefreshState
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnlineEventsScreen(
@@ -109,9 +105,6 @@ fun OnlineEventsScreen(
             viewModel.action.onOrderChanged(EventOrderType.DISTANCE.type)
         }
     }
-    val pullRefreshState = rememberPullToRefreshState()
-
-
     Scaffold(
         topBar = {
             AppBar(
@@ -128,23 +121,36 @@ fun OnlineEventsScreen(
                 .fillMaxSize()
                 .padding(innerPadding)
         ) {
-            TabRow(selectedTabIndex = state.currentFilter.ordinal) {
+            SecondaryTabRow(
+                selectedTabIndex = state.currentFilter.ordinal,
+                containerColor = TabRowDefaults.primaryContainerColor,
+                contentColor = TabRowDefaults.primaryContentColor,
+                indicator = {
+                    TabRowDefaults.SecondaryIndicator(
+                        Modifier.tabIndicatorOffset(state.currentFilter.ordinal, matchContentSize = true)
+                    )
+                },
+                divider = { HorizontalDivider() }
+            ) {
                 Tab(
                     selected = state.currentFilter == EventFilterType.ONLINE,
                     onClick = {
-                        viewModel.action.loadEvents(EventFilterType.ONLINE)},
+                        viewModel.action.loadEvents(EventFilterType.ONLINE)
+                    },
                     text = { Text(stringResource(R.string.online_event)) }
                 )
                 if (stateLogin.isLogin) {
                     Tab(
                         selected = state.currentFilter == EventFilterType.SAVED,
-                        onClick = { viewModel.action.loadEvents(EventFilterType.SAVED)
-                            },
+                        onClick = {
+                            viewModel.action.loadEvents(EventFilterType.SAVED)
+                        },
                         text = { Text(stringResource(R.string.saved)) }
                     )
                     Tab(
                         selected = state.currentFilter == EventFilterType.CREATED,
-                        onClick = { viewModel.action.loadEvents(EventFilterType.CREATED)
+                        onClick = {
+                            viewModel.action.loadEvents(EventFilterType.CREATED)
                         },
                         text = { Text(stringResource(R.string.created)) }
                     )
@@ -215,11 +221,9 @@ fun OnlineEventsScreen(
                         CircularProgressIndicator()
                     }
                 } else {
-                    // IL NUOVO COMPONENTE MAGICO:
                     PullToRefreshBox(
-                        isRefreshing = viewModel.isLoading, // Capisce da solo quando fermare la rotellina!
+                        isRefreshing = viewModel.isLoading,
                         onRefresh = {
-                            // Quello che deve fare quando l'utente trascina verso il basso
                             viewModel.action.loadEvents(state.currentFilter)
                         },
                         modifier = Modifier.fillMaxSize()
