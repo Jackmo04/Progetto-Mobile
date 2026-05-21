@@ -56,6 +56,10 @@ fun OnlineEventsScreen(
     val permissionDeniedMessage = stringResource(R.string.position_permission_required)
     var isPullRefreshing by remember { mutableStateOf(false) }
 
+    val distanceString = stringResource(EventOrderType.DISTANCE.stringResId)
+    val orderOptionsMap = EventOrderType.entries.associateBy { stringResource(it.stringResId) }
+    val optionsList = orderOptionsMap.keys.toList()
+
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
@@ -103,7 +107,7 @@ fun OnlineEventsScreen(
                 latitude = it.latitude
                 longitude = it.longitude
             })
-            viewModel.action.onOrderChanged(EventOrderType.DISTANCE.type)
+            viewModel.action.onOrderChanged(EventOrderType.DISTANCE.name)
         }
     }
 
@@ -209,16 +213,18 @@ fun OnlineEventsScreen(
                         .padding(bottom = 16.dp, top = 8.dp),
                     contentAlignment = Alignment.Center
                 ) {
-                    OrderComboBox(options = EventOrderType.entries.map { it.type }) { selected ->
-                        if (selected == EventOrderType.DISTANCE.type) {
+                    OrderComboBox(options = optionsList) { selected ->
+                        val orderType = orderOptionsMap[selected]
+
+                        if (selected == distanceString) {
                             if (locationPermissions.statuses.any { it.value.isGranted }) {
                                 getCurrentLocation()
-                                viewModel.action.onOrderChanged(selected)
+                                orderType?.let { viewModel.action.onOrderChanged(it.name) }
                             } else {
                                 locationPermissions.launchPermissionRequest()
                             }
                         } else {
-                            viewModel.action.onOrderChanged(selected)
+                            orderType?.let { viewModel.action.onOrderChanged(it.name) }
                         }
                     }
                 }

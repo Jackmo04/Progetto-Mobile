@@ -112,4 +112,8 @@
     <string name="error_during_password_change">Errore durante il cambio password</string>
     <string name="profile_immage_updated">Immagine del profilo aggiornata!</string>
     <string name="error_during_immage_update">Errore durante il caricamento della foto</string>
+    <string name="name_a_z">Nome A..Z</string>
+    <string name="name_z_a">Nome Z..A</string>
+    <string name="distance_from_me">Distanza da me</string>
+    <string name="during_event">Durata evento</string>
 </resources>

@@ -21,7 +21,7 @@ data class OnlineEventsState(
     val uuid: String = "",
     val idEventCodeSearched: Int? = null,
     val currentFilter: EventFilterType = EventFilterType.ONLINE,
-    val orderString: String = EventOrderType.NAME.type
+    val orderString: String = EventOrderType.NAME.name
 )
 
 data class OnlineEventsAction(
