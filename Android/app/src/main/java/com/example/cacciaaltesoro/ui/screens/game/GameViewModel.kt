@@ -83,13 +83,13 @@ class GameViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 val readUUID = nfcUtils.readUuidFromNdef(nfcTag)
                 if (readUUID == null) {
-                    _uiEvent.trySend("Tag non valido!")
+                    _uiEvent.send("Tag non valido!")
                     Log.d("TAG_SCANNER", "Generic error while reading tag")
                     return@launch
                 }
                 val foundTag = tagsToFind.value.firstOrNull { it.id == readUUID.toString() }
                 if (foundTag != null) {
-                    _uiEvent.trySend("Tag ${foundTag.number} trovato!")
+                    _uiEvent.send("Tag ${foundTag.number} trovato!")
                     _tagsToFind.value -= foundTag
                     try {
                         eventRepository.setFoundTag(foundTag)
@@ -101,7 +101,7 @@ class GameViewModel(
                         return@launch
                     }
                 } else {
-                    _uiEvent.trySend("Tag non valido!")
+                    _uiEvent.send("Tag non valido!")
                     Log.d("TAG_SCANNER", "The scanned tag's UUID from in this event")
                 }
             }

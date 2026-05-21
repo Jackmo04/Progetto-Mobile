@@ -1,6 +1,5 @@
 package com.example.cacciaaltesoro.data.database.dto
 
-import kotlinx.serialization.EncodeDefault
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
 
