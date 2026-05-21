@@ -222,9 +222,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 EventOrderType.EVENT_DURATION.type -> {
                     result = listEvent.sortedBy { it.endTime.toEpochMilliseconds() - it.startTime.toEpochMilliseconds() }
                 }
-                EventOrderType.START_DATE.type ->{
-                    result = listEvent.sortedBy { it.startTime }
-                }
 
                 EventOrderType.DISTANCE.type ->{
                     result = try {
