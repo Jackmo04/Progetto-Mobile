@@ -98,4 +98,17 @@
     <string name="no_app_found_calendar">No calendar app found</string>
     <string name="minute">minutes</string>
     <string name="online">Online</string>
+    <string name="login_done_with_success">Login successful</string>
+    <string name="email_password_was_wrong">Login error: Incorrect email or password</string>
+    <string name="passwords_not_equal">Passwords do not match</string>
+    <string name="signon_complete">Registration completed</string>
+    <string name="error_during_signon">Error during registration</string>
+    <string name="logout_done">Logout successful</string>
+    <string name="error_during_logout">Error during logout</string>
+    <string name="reset_email_sended">Reset email sent</string>
+    <string name="error_to_send_email">Error sending email</string>
+    <string name="password_update">Password updated</string>
+    <string name="error_during_password_change">Error during password change</string>
+    <string name="profile_immage_updated">Profile picture updated!</string>
+    <string name="error_during_immage_update">Error uploading profile photo</string>
 </resources>

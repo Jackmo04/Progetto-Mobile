@@ -63,6 +63,7 @@ fun LoginScreen(
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordConfirm by rememberSaveable { mutableStateOf("") }
+    val imageRequiredString = stringResource(R.string.camera_permission_required)
 
     LaunchedEffect(state.username) {
         if (state.username.isNotEmpty() && username.isEmpty()) {
@@ -111,8 +112,9 @@ fun LoginScreen(
         if (isGranted) {
             takePicture()
         } else {
+
             scope.launch {
-            snackbarHostState.showSnackbar(context.getString(R.string.camera_permission_required))
+            snackbarHostState.showSnackbar(imageRequiredString)
         }}
     }
 
@@ -386,9 +388,9 @@ fun SendEmail(email: String, onToggle: (String) -> Unit) {
 
 @Composable
 fun ErrorText(viewModel: LoginScreenViewModel) {
-    viewModel.errorMessage?.let {
+    viewModel.errorMessage?.let { messageResId ->
         Text(
-            text = it,
+            text = stringResource(id = messageResId),
             color = MaterialTheme.colorScheme.error,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 8.dp)
@@ -398,9 +400,9 @@ fun ErrorText(viewModel: LoginScreenViewModel) {
 
 @Composable
 fun SuccessText(viewModel: LoginScreenViewModel) {
-    viewModel.successMessage?.let {
+    viewModel.successMessage?.let { messageResId ->
         Text(
-            text = it,
+            text = stringResource(id = messageResId),
             color = MaterialTheme.colorScheme.primary,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(top = 8.dp)

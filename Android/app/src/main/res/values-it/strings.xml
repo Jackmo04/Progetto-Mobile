@@ -99,4 +99,17 @@
     <string name="no_app_found_calendar">Nessuna app calendario trovata</string>
     <string name="minute">minuti</string>
     <string name="online">Online</string>
+    <string name="login_done_with_success">Login eseguito con successo</string>
+    <string name="email_password_was_wrong">Errore durante il login: Email o Password non corrette</string>
+    <string name="passwords_not_equal">Le password non coincidono</string>
+    <string name="signon_complete">Registrazione completata</string>
+    <string name="error_during_signon">Errore durante la registrazione</string>
+    <string name="logout_done">Logout effettuato</string>
+    <string name="error_during_logout">Errore durante il logout</string>
+    <string name="reset_email_sended">Email di reset inviata</string>
+    <string name="error_to_send_email">Errore nell\'invio dell\'email</string>
+    <string name="password_update">Password aggiornata</string>
+    <string name="error_during_password_change">Errore durante il cambio password</string>
+    <string name="profile_immage_updated">Immagine del profilo aggiornata!</string>
+    <string name="error_during_immage_update">Errore durante il caricamento della foto</string>
 </resources>

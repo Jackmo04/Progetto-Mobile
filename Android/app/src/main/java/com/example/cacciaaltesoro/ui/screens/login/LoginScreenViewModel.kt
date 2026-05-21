@@ -16,6 +16,9 @@ import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import androidx.core.net.toUri
 import io.github.jan.supabase.auth.status.SessionStatus
+import androidx.annotation.StringRes
+import com.example.cacciaaltesoro.R
+
 
 data class LoginState(
     val username: String = "",
@@ -48,10 +51,12 @@ class LoginScreenViewModel(
 
     val  state =_state.asStateFlow()
 
-    var errorMessage by mutableStateOf<String?>(null)
+    @get:StringRes
+    var errorMessage by mutableStateOf<Int?>(null)
         private set
 
-    var successMessage by mutableStateOf<String?>(null)
+    @get:StringRes
+    var successMessage by mutableStateOf<Int?>(null)
         private set
 
 
@@ -65,10 +70,10 @@ class LoginScreenViewModel(
                 successMessage = null
                 try {
                     repository.onLogIn(username, password)
-                    successMessage = "Login eseguito con successo"
+                    successMessage = R.string.login_done_with_success
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = "Errore durante il login: Email o Password non corrette"
+                    errorMessage = R.string.email_password_was_wrong
                 } finally {
                     disableLoading()
                 }
@@ -77,7 +82,7 @@ class LoginScreenViewModel(
         onSignOn = { username, password, passwordConfirm ->
             viewModelScope.launch {
                 if (password != passwordConfirm) {
-                    errorMessage = "Le password non coincidono"
+                    errorMessage = R.string.passwords_not_equal
                     return@launch
                 }
                 enableLoading()
@@ -85,10 +90,10 @@ class LoginScreenViewModel(
                 successMessage = null
                 try {
                     repository.onSignOn(username, password)
-                    successMessage = "Registrazione completata"
+                    successMessage = R.string.signon_complete
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = "Errore durante la registrazione"
+                    errorMessage = R.string.error_during_signon
                 } finally {
                    disableLoading()
                 }
@@ -107,10 +112,10 @@ class LoginScreenViewModel(
                             imageUri = null,
                         )
                     }
-                    successMessage = "Logout effettuato"
+                    successMessage = R.string.logout_done
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = "Errore durante il logout"
+                    errorMessage = R.string.error_during_logout
                 } finally {
                    disableLoading()
                 }
@@ -130,10 +135,10 @@ class LoginScreenViewModel(
                 successMessage = null
                 try {
                     repository.sendResetPasswordEmail(email)
-                    successMessage = "Email di reset inviata"
+                    successMessage = R.string.reset_email_sended
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = "Errore nell'invio dell'email"
+                    errorMessage = R.string.error_to_send_email
                 } finally {
                     disableLoading()
                 }
@@ -142,7 +147,7 @@ class LoginScreenViewModel(
         changePassword = { password, passwordConfirm ->
             viewModelScope.launch {
                 if (password != passwordConfirm) {
-                    errorMessage = "Le password non coincidono"
+                    errorMessage = R.string.passwords_not_equal
                     return@launch
                 }
                 enableLoading()
@@ -150,7 +155,7 @@ class LoginScreenViewModel(
                 successMessage = null
                 try {
                     repository.updatePassword(password)
-                    successMessage = "Password aggiornata"
+                    successMessage = R.string.password_update
 
                     repository.setPasswordUpdateRequested(false)
                     _state.update {
@@ -158,7 +163,7 @@ class LoginScreenViewModel(
                     }
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = "Errore durante il cambio password"
+                    errorMessage = R.string.error_during_password_change
                 } finally {
                     disableLoading()
                 }
@@ -196,11 +201,11 @@ class LoginScreenViewModel(
                         repository.uploadProfileImage(ctx,uid, imageBytes, fileName)
 
                         _state.update { it.copy(imageUri = uri) }
-                        successMessage = "Immagine del profilo aggiornata!"
+                        successMessage = R.string.profile_immage_updated
                     }
                 } catch (e: Exception) {
                     Log.e("UploadPhoto" , e.toString())
-                    errorMessage = "Errore durante il caricamento della foto"
+                    errorMessage = R.string.error_during_immage_update
                 } finally {
                     disableLoading()
                 }
