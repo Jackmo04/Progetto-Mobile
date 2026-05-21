@@ -3,6 +3,7 @@ agp = "9.2.1"
 bom = "3.5.0"
 bomVersion = "3.0.0"
 coilCompose = "2.5.0"
+composeBomVersion = "2026.05.01"
 compressor = "3.0.1"
 coreKtx = "1.17.0"
 coreSplashscreen = "1.0.1"
@@ -25,6 +26,7 @@ kotlin = "2.2.10"
 composeBom = "2024.09.00"
 mapsCompose = "8.3.0"
 material3 = "1.2.1"
+material3Version = "1.4.0"
 navigationCompose = "2.9.7"
 playServicesLocation = "21.3.0"
 playServicesMaps = "20.0.0"
@@ -33,7 +35,9 @@ slf4jSimple = "2.0.12"
 storageKt = "3.0.0-rc-1"
 
 [libraries]
+androidx-compose-bom-v20260501 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
+androidx-compose-material3-v140 = { module = "androidx.compose.material3:material3", version.ref = "material3Version" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
