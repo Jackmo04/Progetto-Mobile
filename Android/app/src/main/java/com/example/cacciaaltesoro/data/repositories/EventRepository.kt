@@ -10,7 +10,6 @@ import com.example.cacciaaltesoro.data.database.dto.TagDTO
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.domain.Tag
-import com.example.cacciaaltesoro.data.domain.User
 import com.example.cacciaaltesoro.data.mappers.toDomain
 import com.example.cacciaaltesoro.data.mappers.toDto
 import com.example.cacciaaltesoro.data.mappers.toInsertDto
@@ -24,14 +23,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 import kotlinx.serialization.SerialName
 import kotlinx.serialization.Serializable
-import java.util.UUID
 import kotlin.time.ExperimentalTime
 import io.github.jan.supabase.postgrest.query.Columns
 import io.github.jan.supabase.postgrest.query.Count
-import kotlinx.datetime.TimeZone
-import kotlinx.datetime.toInstant
-import kotlinx.datetime.toLocalDateTime
-import kotlin.collections.plus
 import kotlin.time.Clock
 
 interface EventRepository {
@@ -235,7 +229,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 EventOrderType.DISTANCE.type ->{
                     result = try {
                         orderLocationByDistance(listEvent , location)
-                    } catch (e: Exception){
+                    } catch (_: Exception){
                         listEvent
                     }
                 }
@@ -254,7 +248,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 }
             }.decodeList<EventDTO>()
 
-            Log.d("SavedEventRepository", "Fetched events: ${createdEvent.toString()}")
+            Log.d("SavedEventRepository", "Fetched events: $createdEvent")
             return createdEvent.distinct().map{e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
     }
 
