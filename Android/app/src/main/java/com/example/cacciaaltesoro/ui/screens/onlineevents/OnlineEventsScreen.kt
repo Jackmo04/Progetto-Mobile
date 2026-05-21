@@ -144,7 +144,7 @@ fun OnlineEventsScreen(
                     onClick = {
                         viewModel.action.loadEvents(EventFilterType.ONLINE)
                     },
-                    text = { Text(stringResource(R.string.online_event)) }
+                    text = { Text(stringResource(R.string.online)) }
                 )
                 if (stateLogin.isLogin) {
                     Tab(

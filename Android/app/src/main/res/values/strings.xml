@@ -97,4 +97,5 @@
     <string name="impossible_open_map">Cannot open maps</string>
     <string name="no_app_found_calendar">No calendar app found</string>
     <string name="minute">minutes</string>
+    <string name="online">Online</string>
 </resources>

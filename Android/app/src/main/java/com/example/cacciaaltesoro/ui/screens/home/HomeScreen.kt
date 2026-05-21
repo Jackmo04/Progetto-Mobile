@@ -74,7 +74,7 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
                 verticalArrangement = Arrangement.spacedBy(16.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
-                MyButton(stringResource(R.string.online_event_title)) {
+                MyButton(stringResource(R.string.event_explorer)) {
                     navController.navigate(NavigationRoute.OnlineEvents)
                 }
 

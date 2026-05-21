@@ -98,4 +98,5 @@
     <string name="impossible_open_map">Impossibile aprire le mappe</string>
     <string name="no_app_found_calendar">Nessuna app calendario trovata</string>
     <string name="minute">minuti</string>
+    <string name="online">Online</string>
 </resources>
