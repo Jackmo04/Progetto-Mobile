@@ -54,6 +54,7 @@ fun OnlineEventsScreen(
     val list = state.listEvent
 
     val permissionDeniedMessage = stringResource(R.string.position_permission_required)
+    var isPullRefreshing by remember { mutableStateOf(false) }
 
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
@@ -103,6 +104,12 @@ fun OnlineEventsScreen(
                 longitude = it.longitude
             })
             viewModel.action.onOrderChanged(EventOrderType.DISTANCE.type)
+        }
+    }
+
+    LaunchedEffect(viewModel.isLoading) {
+        if (!viewModel.isLoading) {
+            isPullRefreshing = false
         }
     }
     Scaffold(
@@ -222,8 +229,9 @@ fun OnlineEventsScreen(
                     }
                 } else {
                     PullToRefreshBox(
-                        isRefreshing = viewModel.isLoading,
+                        isRefreshing = isPullRefreshing,
                         onRefresh = {
+                            isPullRefreshing = true
                             viewModel.action.loadEvents(state.currentFilter)
                         },
                         modifier = Modifier.fillMaxSize()
