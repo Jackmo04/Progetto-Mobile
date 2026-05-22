@@ -387,7 +387,7 @@ fun GamePlaying(
         viewModel.event?.let {
             Marker(
                 MarkerState(position = it.location.toLatLng()),
-                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
                 title = stringResource(R.string.meeting_point)
             )
         }

@@ -555,7 +555,7 @@ fun MapPickerDialog(
                         markerPosition?.let { latLng ->
                             Marker(
                                 state = MarkerState(position = latLng),
-                                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN)
+                                icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
                             )
                         }
                     }

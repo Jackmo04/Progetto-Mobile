@@ -15,10 +15,13 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Place
@@ -35,22 +38,27 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.ListItem
 import androidx.compose.material3.ListItemDefaults
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.SheetValue
 import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.platform.LocalFocusManager
 import androidx.compose.ui.res.stringResource
@@ -105,9 +113,20 @@ fun EventTagEditorScreen(
 
     val editingTag by viewModel.editingTag.collectAsStateWithLifecycle()
 
-    BackHandler(enabled = sheetContentState !is SheetContentState.ViewingList) {
-        // TODO logica per rimuovere il tag se non salvato
-        viewModel.toViewingList()
+    var showDiscardChangesDialog by remember { mutableStateOf(false) }
+
+    BackHandler {
+        when (sheetContentState) {
+            is SheetContentState.Editing -> viewModel.toViewingList()
+            is SheetContentState.ViewingList -> {
+                if (sharedViewModel.tagActions.areAllValid()) {
+                    navController.popBackStack()
+                } else {
+                    showDiscardChangesDialog = true
+                }
+            }
+        }
+
     }
 
     val sheetState = rememberStandardBottomSheetState(
@@ -127,7 +146,13 @@ fun EventTagEditorScreen(
 
     BottomSheetScaffold(
         scaffoldState = scaffoldState,
-        topBar = { AppBar(stringResource(R.string.new_event), navController) },
+        topBar = {
+            AppBar(
+                title = stringResource(R.string.new_event),
+                navController = navController,
+                showBackArrow = false
+            )
+        },
         sheetPeekHeight = 200.dp,
         snackbarHost = { SnackbarHost(snackbarHostState) },
         sheetContent = {
@@ -160,8 +185,13 @@ fun EventTagEditorScreen(
                         onChangeImage = { newImageUri ->
                             viewModel.editingTagActions.onImageHintChange(newImageUri)
                         },
+                        isOkToSave = { viewModel.editingTagActions.isValid() },
                         onSave = {
                             sharedViewModel.tagActions.onUpdateTag(editingTag)
+                            viewModel.toViewingList()
+                        },
+                        onDelete = {
+                            sharedViewModel.tagActions.onDeleteTag(editingTag)
                             viewModel.toViewingList()
                         }
                     )
@@ -214,7 +244,7 @@ fun EventTagEditorScreen(
             ) {
                 Marker(
                     state = MarkerState(position = LatLng(startingLat, startingLon)),
-                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_GREEN),
+                    icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
                     title = "Punto di ritrovo"
                 )
                 eventState.tags.forEach { tag ->
@@ -228,7 +258,10 @@ fun EventTagEditorScreen(
                             }
                             viewModel.toEditing(tag)
                             true
-                        }
+                        },
+                        icon = BitmapDescriptorFactory.defaultMarker(
+                            if (tag.hasNfc) BitmapDescriptorFactory.HUE_GREEN else BitmapDescriptorFactory.HUE_RED
+                        )
                     )
                 }
             }
@@ -275,6 +308,26 @@ fun EventTagEditorScreen(
             else -> {}
         }
 
+        if (showDiscardChangesDialog) {
+            AlertDialog(
+                onDismissRequest = { showDiscardChangesDialog = false },
+                title = { Text("Tag non validi") },
+                text = { Text("Alcuni tag non hanno un sensore NFC associato! Sicuro di voler uscire?") },
+                confirmButton = {
+                    TextButton(onClick = {
+                        showDiscardChangesDialog = false
+                        navController.popBackStack()
+                    }) {
+                        Text("Esci comunque")
+                    }
+                },
+                dismissButton = {
+                    Button(onClick = { showDiscardChangesDialog = false }) {
+                        Text("Continua a modificare")
+                    }
+                }
+            )
+        }
     }
 }
 
@@ -306,13 +359,13 @@ fun TagListContent(
             items(tags) { tag ->
                 ListItem(
                     headlineContent = {
-                        Text("Tag N° ${tag.number}")
+                        Text("Tag #${tag.number}")
                     },
                     leadingContent = {
                         Icon(
-                            Icons.Default.Place,
+                            if (tag.hasNfc) Icons.Default.Done else Icons.Default.Warning,
                             contentDescription = null,
-                            tint = MaterialTheme.colorScheme.primary
+                            tint = if (tag.hasNfc) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
                         )
                     },
                     trailingContent = {
@@ -340,6 +393,7 @@ fun TagListContent(
                 HorizontalDivider(color = MaterialTheme.colorScheme.surfaceVariant)
             }
         }
+        Spacer(modifier = Modifier.padding(8.dp))
     }
 }
 
@@ -349,7 +403,9 @@ fun TagEditor(
     onAssociateNfcTag: () -> Unit,
     onChangeHint: (String) -> Unit,
     onChangeImage: (String) -> Unit,
-    onSave: () -> Unit
+    isOkToSave: () -> Boolean,
+    onSave: () -> Unit,
+    onDelete: () -> Unit
 ) {
     val focusManager = LocalFocusManager.current
     Column(
@@ -360,7 +416,7 @@ fun TagEditor(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = "Tag N° ${tag.number}",
+            text = "Tag #${tag.number}",
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -375,6 +431,27 @@ fun TagEditor(
                 Icon(Icons.Default.Nfc, contentDescription = null)
                 Text("Associa tag NFC")
             }
+        }
+
+        Row(
+            verticalAlignment = Alignment.CenterVertically,
+            horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
+            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+        ) {
+            Icon(
+                imageVector = if (tag.hasNfc) Icons.Default.Done else Icons.Default.Warning,
+                contentDescription = null,
+                tint = if (tag.hasNfc) Color(0xFF4CAF50) else MaterialTheme.colorScheme.error
+            )
+            Text(
+                text = if (tag.hasNfc) {
+                    "NFC associato"
+                } else {
+                    "NFC non associato"
+                },
+                style = MaterialTheme.typography.bodySmall,
+                color = MaterialTheme.colorScheme.onSurfaceVariant
+            )
         }
 
         HorizontalDivider()
@@ -407,14 +484,31 @@ fun TagEditor(
 
         }
 
-        Spacer(modifier = Modifier.padding(8.dp))
+        Spacer(modifier = Modifier.padding(6.dp))
 
-        Button(
+        Row(
             modifier = Modifier.fillMaxWidth(),
-            onClick = { onSave() },
-            enabled = true // TODO check for nfc
+            horizontalArrangement = Arrangement.spacedBy(8.dp)
         ) {
-            Text("Salva")
+            OutlinedButton(
+                onClick = { onDelete() },
+                modifier = Modifier.weight(0.5f)
+            ) {
+                Text(
+                    text = "Elimina",
+                    color = MaterialTheme.colorScheme.error
+                )
+            }
+
+            Button(
+                modifier = Modifier.weight(0.5f),
+                onClick = { onSave() },
+                enabled = isOkToSave()
+            ) {
+                Text("Salva")
+            }
         }
+
+        Spacer(modifier = Modifier.padding(8.dp))
     }
 }

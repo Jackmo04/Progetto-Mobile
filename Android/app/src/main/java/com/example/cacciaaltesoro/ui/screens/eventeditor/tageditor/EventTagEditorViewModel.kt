@@ -30,7 +30,8 @@ sealed class NfcState {
 
 data class EditingTagActions(
     val onTextHintChange: (String) -> Unit,
-    val onImageHintChange: (String) -> Unit
+    val onImageHintChange: (String) -> Unit,
+    val isValid: () -> Boolean
 )
 
 data class NfcActions(
@@ -62,6 +63,9 @@ class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
         },
         onImageHintChange = { newImage ->
             _editingTag.update { it.copy(imageHint = newImage) }
+        },
+        isValid = {
+            _editingTag.value.hasNfc
         }
     )
 
@@ -71,6 +75,7 @@ class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
                 val result = nfcUtils.writeUuidToNdef(nfcTag, UUID.fromString(_editingTag.value.id))
                 if (result) {
                     _uiEvent.trySend("Tag NFC scritto correttamente!")
+                    _editingTag.update { it.copy(hasNfc = true) }
                     Log.d("NFC_DEBUG", "Scritto: ${_editingTag.value.id}")
                 } else {
                     _uiEvent.trySend("Errore! Riprova per favore!")

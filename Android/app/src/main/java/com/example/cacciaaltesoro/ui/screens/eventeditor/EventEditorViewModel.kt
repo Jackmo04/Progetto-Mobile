@@ -92,7 +92,8 @@ data class EventActions(
 data class TagActions(
     val onNewTag: (Coordinates) -> Tag,
     val onDeleteTag: (Tag) -> Unit,
-    val onUpdateTag: (Tag) -> Unit
+    val onUpdateTag: (Tag) -> Unit,
+    val areAllValid: () -> Boolean
 )
 
 class EventEditorViewModel(
@@ -283,6 +284,9 @@ class EventEditorViewModel(
                     tags = state.tags.map { if (it.id == tag.id) tag else it }
                 )
             }
+        },
+        areAllValid = {
+            _eventState.value.tags.all { it.hasNfc }
         }
     )
 
