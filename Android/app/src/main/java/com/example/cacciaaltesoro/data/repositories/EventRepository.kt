@@ -207,31 +207,31 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     @OptIn(ExperimentalTime::class)
     override suspend fun getOrderedEvent(type: String , location: Location? , listEvent: List<Event>): List<Event> {
         var result = emptyList<Event>()
-            when (type) {
-                EventOrderType.NAME.name -> {
-                    result = listEvent.sortedBy{ it.name.uppercase() }
-                }
-                EventOrderType.NAME_DESC.name -> {
-                    result = listEvent.sortedByDescending{ it.name.uppercase() }
-                }
-
-                EventOrderType.START_DATE.name -> {
-                    result = listEvent.sortedBy { it.startTime }
-                }
-
-                EventOrderType.EVENT_DURATION.name -> {
-                    result = listEvent.sortedBy { it.endTime.toEpochMilliseconds() - it.startTime.toEpochMilliseconds() }
-                }
-
-                EventOrderType.DISTANCE.name ->{
-                    result = try {
-                        orderLocationByDistance(listEvent , location)
-                    } catch (_: Exception){
-                        listEvent
-                    }
-                }
-
+        when (type) {
+            EventOrderType.NAME.name -> {
+                result = listEvent.sortedBy{ it.name.uppercase() }
             }
+            EventOrderType.NAME_DESC.name -> {
+                result = listEvent.sortedByDescending{ it.name.uppercase() }
+            }
+
+            EventOrderType.START_DATE.name -> {
+                result = listEvent.sortedBy { it.startTime }
+            }
+
+            EventOrderType.EVENT_DURATION.name -> {
+                result = listEvent.sortedBy { it.endTime.toEpochMilliseconds() - it.startTime.toEpochMilliseconds() }
+            }
+
+            EventOrderType.DISTANCE.name ->{
+                result = try {
+                    orderLocationByDistance(listEvent , location)
+                } catch (_: Exception){
+                    listEvent
+                }
+            }
+
+        }
         return result
     }
 
