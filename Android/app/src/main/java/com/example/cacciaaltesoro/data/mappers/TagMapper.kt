@@ -12,7 +12,8 @@ fun Tag.toDto(): TagDTO {
         lat = coordinates.latitude,
         lon = coordinates.longitude,
         textHint = textHint,
-        imageHint = imageHint
+        imageHint = imageHint,
+        hasNfc = hasNfc
     )
 }
 
@@ -23,6 +24,7 @@ fun TagDTO.toDomain(): Tag {
         eventId = eventId,
         coordinates = Coordinates(lat, lon),
         textHint = textHint,
-        imageHint = imageHint
+        imageHint = imageHint,
+        hasNfc = hasNfc
     )
 }

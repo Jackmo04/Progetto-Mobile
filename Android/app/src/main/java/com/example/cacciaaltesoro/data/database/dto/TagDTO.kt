@@ -11,5 +11,6 @@ data class TagDTO(
     @SerialName("tag_latitudine") val lat: Double,
     @SerialName("tag_longitudine") val lon: Double,
     @SerialName("tag_indizio") val textHint: String?,
-    @SerialName("tag_immagine") val imageHint: String?
+    @SerialName("tag_immagine") val imageHint: String?,
+    @SerialName("tag_hasNFC") val hasNfc: Boolean
 )

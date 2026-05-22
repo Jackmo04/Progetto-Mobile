@@ -9,7 +9,8 @@ data class Tag (
     val eventId: Int? = null,
     val coordinates: Coordinates,
     val textHint: String? = null,
-    val imageHint: String? = null
+    val imageHint: String? = null,
+    val hasNfc: Boolean = false
 )
 
 

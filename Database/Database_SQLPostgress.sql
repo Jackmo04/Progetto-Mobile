@@ -49,6 +49,7 @@ CREATE TABLE tags (
     tag_longitudine FLOAT NOT NULL,
     tag_indizio text NULL,
     tag_immagine text NULL,
+	tag_hasNFC boolean NOT NULL,
     FOREIGN KEY (tag_partita) REFERENCES partite(par_id) ON DELETE CASCADE
 );
 
