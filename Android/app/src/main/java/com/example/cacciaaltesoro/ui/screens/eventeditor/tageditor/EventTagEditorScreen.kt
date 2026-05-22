@@ -15,8 +15,6 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
@@ -24,7 +22,6 @@ import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
 import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Nfc
-import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.Edit
 import androidx.compose.material3.AlertDialog
@@ -45,7 +42,6 @@ import androidx.compose.material3.SnackbarDuration
 import androidx.compose.material3.SnackbarHost
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
-import androidx.compose.material3.Surface
 import androidx.compose.material3.TextButton
 import androidx.compose.material3.rememberBottomSheetScaffoldState
 import androidx.compose.material3.rememberStandardBottomSheetState
@@ -201,9 +197,9 @@ fun EventTagEditorScreen(
         }
     ) { innerPadding ->
         LaunchedEffect(Unit) {
-            viewModel.uiEvent.collect { message ->
+            viewModel.uiEvent.collect { stringResource ->
                 snackbarHostState.showSnackbar(
-                    message = message,
+                    message = stringResource.asString(context),
                     duration = SnackbarDuration.Short
                 )
             }
@@ -216,7 +212,9 @@ fun EventTagEditorScreen(
             }
         }
 
-        Box(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+        Box(modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize()) {
             GoogleMap(
                 properties = MapProperties(
                     mapType = MapType.SATELLITE
@@ -245,7 +243,7 @@ fun EventTagEditorScreen(
                 Marker(
                     state = MarkerState(position = LatLng(startingLat, startingLon)),
                     icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
-                    title = "Punto di ritrovo"
+                    title = stringResource(R.string.meeting_point)
                 )
                 eventState.tags.forEach { tag ->
                     Marker(
@@ -272,11 +270,11 @@ fun EventTagEditorScreen(
                 AlertDialog(
                     onDismissRequest = { viewModel.nfcActions.resetState() },
                     icon = { Icon(Icons.Default.Nfc, contentDescription = null) },
-                    title = { Text("Scrittura Tag NFC") },
-                    text = { Text("Avvicina il tag NFC al retro del dispositivo per completare l'associazione.") },
+                    title = { Text(stringResource(R.string.nfc_assoc_title)) },
+                    text = { Text(stringResource(R.string.nfc_assoc_body)) },
                     confirmButton = {
                         Button(onClick = { viewModel.nfcActions.resetState() }) {
-                            Text("Annulla")
+                            Text(stringResource(R.string.cancel))
                         }
                     },
                     properties = DialogProperties(dismissOnClickOutside = false)
@@ -286,8 +284,8 @@ fun EventTagEditorScreen(
                 AlertDialog(
                     onDismissRequest = { viewModel.nfcActions.resetState() },
                     icon = { Icon(Icons.Default.Warning, contentDescription = null) },
-                    title = { Text("NFC Disattivato!") },
-                    text = { Text("Per poter continuare è necessario abilitare l'NFC dalle impostazioni di sistema.") },
+                    title = { Text(stringResource(R.string.nfc_disabled_title)) },
+                    text = { Text(stringResource(R.string.nfc_disabled_body)) },
                     confirmButton = {
                         Button(
                             onClick = {
@@ -295,11 +293,11 @@ fun EventTagEditorScreen(
                                 context.startActivity(intent)
                                 viewModel.nfcActions.resetState()
                             }
-                        ) { Text("Apri impostazioni") }
+                        ) { Text(stringResource(R.string.open_settings)) }
                     },
                     dismissButton = {
                         TextButton(onClick = { viewModel.nfcActions.resetState() } ) {
-                            Text("Annulla")
+                            Text(stringResource(R.string.cancel))
                         }
                     },
                     properties = DialogProperties(dismissOnClickOutside = false)
@@ -311,19 +309,19 @@ fun EventTagEditorScreen(
         if (showDiscardChangesDialog) {
             AlertDialog(
                 onDismissRequest = { showDiscardChangesDialog = false },
-                title = { Text("Tag non validi") },
-                text = { Text("Alcuni tag non hanno un sensore NFC associato! Sicuro di voler uscire?") },
+                title = { Text(stringResource(R.string.invalid_tags_title)) },
+                text = { Text(stringResource(R.string.invalid_tags_body)) },
                 confirmButton = {
                     TextButton(onClick = {
                         showDiscardChangesDialog = false
                         navController.popBackStack()
                     }) {
-                        Text("Esci comunque")
+                        Text(stringResource(R.string.quit_anyways))
                     }
                 },
                 dismissButton = {
                     Button(onClick = { showDiscardChangesDialog = false }) {
-                        Text("Continua a modificare")
+                        Text(stringResource(R.string.keep_editing))
                     }
                 }
             )
@@ -345,7 +343,7 @@ fun TagListContent(
             contentAlignment = Alignment.Center
         ) {
             Text(
-                "Ancora nessun tag inserito.\nClicca sulla mappa per posizionarli!",
+                stringResource(R.string.no_inserted_tags_msg),
                 style = MaterialTheme.typography.bodyLarge,
                 color = MaterialTheme.colorScheme.onSurfaceVariant,
                 textAlign = TextAlign.Center
@@ -359,7 +357,7 @@ fun TagListContent(
             items(tags) { tag ->
                 ListItem(
                     headlineContent = {
-                        Text("Tag #${tag.number}")
+                        Text(stringResource(R.string.tag_number_symbol) + tag.number)
                     },
                     leadingContent = {
                         Icon(
@@ -375,13 +373,16 @@ fun TagListContent(
                         ) {
                             Icon(
                                 imageVector = Icons.Rounded.Edit,
-                                contentDescription = "Modifica tesoro",
+                                contentDescription = null,
                                 tint = MaterialTheme.colorScheme.onSurfaceVariant
                             )
                             IconButton(
                                 onClick = { onDeleteTag(tag) }
                             ) {
-                                Icon(Icons.Default.Delete, contentDescription = "Elimina")
+                                Icon(
+                                    Icons.Default.Delete,
+                                    contentDescription = stringResource(R.string.delete)
+                                )
                             }
                         }
                     },
@@ -416,7 +417,7 @@ fun TagEditor(
         verticalArrangement = Arrangement.spacedBy(12.dp)
     ) {
         Text(
-            text = "Tag #${tag.number}",
+            text = stringResource(R.string.tag_number_symbol) + tag.number,
             style = MaterialTheme.typography.headlineSmall
         )
 
@@ -429,14 +430,16 @@ fun TagEditor(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(Icons.Default.Nfc, contentDescription = null)
-                Text("Associa tag NFC")
+                Text(stringResource(R.string.link_nfc_tag))
             }
         }
 
         Row(
             verticalAlignment = Alignment.CenterVertically,
             horizontalArrangement = Arrangement.spacedBy(8.dp, Alignment.CenterHorizontally),
-            modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+            modifier = Modifier
+                .fillMaxWidth()
+                .padding(vertical = 4.dp)
         ) {
             Icon(
                 imageVector = if (tag.hasNfc) Icons.Default.Done else Icons.Default.Warning,
@@ -445,9 +448,9 @@ fun TagEditor(
             )
             Text(
                 text = if (tag.hasNfc) {
-                    "NFC associato"
+                    stringResource(R.string.nfc_linked)
                 } else {
-                    "NFC non associato"
+                    stringResource(R.string.nfc_not_linked)
                 },
                 style = MaterialTheme.typography.bodySmall,
                 color = MaterialTheme.colorScheme.onSurfaceVariant
@@ -458,14 +461,14 @@ fun TagEditor(
         Spacer(modifier = Modifier.padding(1.dp))
 
         Text(
-            text = "Indizi (Opzionali)",
+            text = stringResource(R.string.hints_optional),
             style = MaterialTheme.typography.titleMedium
         )
 
         OutlinedTextField(
             value = tag.textHint ?: "",
             onValueChange = onChangeHint,
-            label = { Text("Indizio testuale") },
+            label = { Text(stringResource(R.string.text_hint)) },
             modifier = Modifier.fillMaxWidth(),
             keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
             keyboardActions = KeyboardActions(
@@ -479,7 +482,7 @@ fun TagEditor(
                 horizontalArrangement = Arrangement.spacedBy(8.dp)
             ) {
                 Icon(Icons.Default.Image, contentDescription = null)
-                Text("Indizio visivo")
+                Text(stringResource(R.string.visual_hint))
             }
 
         }
@@ -495,7 +498,7 @@ fun TagEditor(
                 modifier = Modifier.weight(0.5f)
             ) {
                 Text(
-                    text = "Elimina",
+                    text = stringResource(R.string.delete),
                     color = MaterialTheme.colorScheme.error
                 )
             }
@@ -505,7 +508,7 @@ fun TagEditor(
                 onClick = { onSave() },
                 enabled = isOkToSave()
             ) {
-                Text("Salva")
+                Text(stringResource(R.string.save))
             }
         }
 

@@ -3,8 +3,10 @@ package com.example.cacciaaltesoro.ui.screens.eventeditor.tageditor
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
+import com.example.cacciaaltesoro.utils.StringResource
 import com.example.cacciaaltesoro.utils.nfc.NfcUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -48,7 +50,7 @@ class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
     private val _nfcState = MutableStateFlow<NfcState>(NfcState.Idle)
     val nfcState = _nfcState.asStateFlow()
 
-    private val _uiEvent = Channel<String>()
+    private val _uiEvent = Channel<StringResource>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _editingTag = MutableStateFlow(Tag(
@@ -74,11 +76,11 @@ class EventTagEditorViewModel(private val nfcUtils: NfcUtils) : ViewModel() {
             viewModelScope.launch(Dispatchers.IO) {
                 val result = nfcUtils.writeUuidToNdef(nfcTag, UUID.fromString(_editingTag.value.id))
                 if (result) {
-                    _uiEvent.trySend("Tag NFC scritto correttamente!")
+                    _uiEvent.trySend(StringResource(R.string.nfc_write_success))
                     _editingTag.update { it.copy(hasNfc = true) }
-                    Log.d("NFC_DEBUG", "Scritto: ${_editingTag.value.id}")
+                    Log.d("NFC_DEBUG", "Written: ${_editingTag.value.id}")
                 } else {
-                    _uiEvent.trySend("Errore! Riprova per favore!")
+                    _uiEvent.trySend(StringResource(R.string.error_please_retry))
                 }
                 _nfcState.value = NfcState.Done // TODO improve logic if there's time
                 delay(2000L)

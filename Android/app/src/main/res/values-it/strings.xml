@@ -116,4 +116,23 @@
     <string name="name_z_a">Nome Z..A</string>
     <string name="distance_from_me">Distanza da me</string>
     <string name="during_event">Durata evento</string>
+    <string name="nfc_assoc_body">Avvicina il tag NFC al retro del dispositivo per completare l\'associazione.</string>
+    <string name="nfc_disabled_title">NFC disattivato!</string>
+    <string name="nfc_disabled_body">Per poter continuare è necessario abilitare l\'NFC dalle impostazioni di sistema.</string>
+    <string name="open_settings">Apri impostazioni</string>
+    <string name="nfc_assoc_title">Scrittura tag NFC…</string>
+    <string name="invalid_tags_title">Tag non validi</string>
+    <string name="invalid_tags_body">Alcuni tag non hanno un sensore NFC associato! Sicuro di voler uscire?</string>
+    <string name="quit_anyways">Esci comunque</string>
+    <string name="keep_editing">Continua a modificare</string>
+    <string name="no_inserted_tags_msg">Ancora nessun tag inserito.\nClicca sulla mappa per posizionarli!</string>
+    <string name="tag_number_symbol">Tag #</string>
+    <string name="link_nfc_tag">Associa tag NFC</string>
+    <string name="nfc_linked">NFC associato</string>
+    <string name="nfc_not_linked">NFC non associato</string>
+    <string name="hints_optional">Indizi (Opzionali)</string>
+    <string name="text_hint">Indizio testuale</string>
+    <string name="visual_hint">Indizio visivo</string>
+    <string name="nfc_write_success">Tag NFC scritto correttamente!</string>
+    <string name="error_please_retry">Errore! Riprova per favore!</string>
 </resources>
