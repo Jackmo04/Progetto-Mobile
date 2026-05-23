@@ -130,6 +130,11 @@ class LoginScreenViewModel(
         },
         callResetPasswordEmail={email->
             viewModelScope.launch {
+
+                if(email.isBlank()){
+                    errorMessage= R.string.need_email_for_reset
+                    return@launch
+                }
                 enableLoading()
                 errorMessage = null
                 successMessage = null

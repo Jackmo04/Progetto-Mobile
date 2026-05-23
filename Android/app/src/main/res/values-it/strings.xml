@@ -163,4 +163,5 @@
     <string name="password_too_weak">La password è troppo debole (deve contenere almeno 6 caratteri).</string>
     <string name="connection_error">Errore di connessione. Controlla la tua rete internet e riprova.</string>
     <string name="unexpected_error">Si è verificato un errore imprevisto. Riprova più tardi.</string>
+    <string name="need_email_for_reset">Inserisci una mail per richiedere il reset!</string>
 </resources>
