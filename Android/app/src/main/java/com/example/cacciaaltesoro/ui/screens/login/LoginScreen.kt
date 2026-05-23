@@ -154,7 +154,9 @@ fun LoginScreen(
     Scaffold(
         topBar = { AppBar(title, navController) },
         snackbarHost = {
-            SnackbarHost(snackbarHostState) { data ->
+            SnackbarHost(
+                snackbarHostState,
+                modifier = Modifier.imePadding()) { data ->
                 Snackbar(
                     snackbarData = data,
                     containerColor = if (isErrorSnackbar) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primaryContainer,
