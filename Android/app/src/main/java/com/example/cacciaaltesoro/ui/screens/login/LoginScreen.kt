@@ -65,6 +65,30 @@ fun LoginScreen(
     var passwordConfirm by rememberSaveable { mutableStateOf("") }
     val imageRequiredString = stringResource(R.string.camera_permission_required)
 
+    val errorStringRes = viewModel.errorMessage
+    val errorString = errorStringRes?.let { stringResource(it) }
+
+    val successStringRes = viewModel.successMessage
+    val successString = successStringRes?.let { stringResource(it) }
+
+    var isErrorSnackbar by remember { mutableStateOf(false) }
+
+    LaunchedEffect(errorString) {
+        if (errorString != null) {
+            isErrorSnackbar = true
+            snackbarHostState.showSnackbar(errorString)
+            viewModel.action.clearErrorMessage()
+        }
+    }
+
+    LaunchedEffect(successString) {
+        if (successString != null) {
+            isErrorSnackbar = false
+            snackbarHostState.showSnackbar(successString)
+            viewModel.action.clearSuccessMessage()
+        }
+    }
+
     LaunchedEffect(state.username) {
         if (state.username.isNotEmpty() && username.isEmpty()) {
             username = state.username
@@ -114,6 +138,7 @@ fun LoginScreen(
         } else {
 
             scope.launch {
+                isErrorSnackbar = true
             snackbarHostState.showSnackbar(imageRequiredString)
         }}
     }
@@ -128,7 +153,15 @@ fun LoginScreen(
 
     Scaffold(
         topBar = { AppBar(title, navController) },
-        snackbarHost = { SnackbarHost(snackbarHostState) }
+        snackbarHost = {
+            SnackbarHost(snackbarHostState) { data ->
+                Snackbar(
+                    snackbarData = data,
+                    containerColor = if (isErrorSnackbar) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primaryContainer,
+                    contentColor = if (isErrorSnackbar) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.primary
+                )
+            }
+        }
     ) { contentPadding ->
 
         if (state.isInitializing) {
@@ -229,9 +262,6 @@ fun LoginScreen(
                 }
 
                 Spacer(modifier = Modifier.size(16.dp))
-                ErrorText(viewModel)
-                SuccessText(viewModel)
-                Spacer(modifier = Modifier.size(8.dp))
 
                 Box(
                     modifier = Modifier
@@ -383,29 +413,5 @@ fun SendEmail(email: String, onToggle: (String) -> Unit) {
                 .padding(4.dp)
         )
         Text(text = ".")
-    }
-}
-
-@Composable
-fun ErrorText(viewModel: LoginScreenViewModel) {
-    viewModel.errorMessage?.let { messageResId ->
-        Text(
-            text = stringResource(id = messageResId),
-            color = MaterialTheme.colorScheme.error,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 8.dp)
-        )
-    }
-}
-
-@Composable
-fun SuccessText(viewModel: LoginScreenViewModel) {
-    viewModel.successMessage?.let { messageResId ->
-        Text(
-            text = stringResource(id = messageResId),
-            color = MaterialTheme.colorScheme.primary,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(top = 8.dp)
-        )
     }
 }

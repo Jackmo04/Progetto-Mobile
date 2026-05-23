@@ -40,7 +40,9 @@ data class LoginAction(
     val changePassword: (String, String) -> Unit,
     val toggleUpdatePassword: (Boolean) -> Unit,
     val getImageFromCloud:() -> Unit,
-    val uploadImage: (Context ,Uri, ByteArray) -> Unit
+    val uploadImage: (Context ,Uri, ByteArray) -> Unit,
+    val clearErrorMessage: () -> Unit,
+    val clearSuccessMessage: () -> Unit
 )
 
 class LoginScreenViewModel(
@@ -63,11 +65,13 @@ class LoginScreenViewModel(
 
     val action = LoginAction(
         onLogIn = { username, password ->
+            enableLoading()
             if(username.isBlank() || password.isBlank()){
                 errorMessage= R.string.enter_email_and_password
+                disableLoading()
                 return@LoginAction
             }
-            enableLoading()
+
             viewModelScope.launch {
                enableLoading()
                 errorMessage = null
@@ -85,11 +89,13 @@ class LoginScreenViewModel(
         },
         onSignOn = { username, password, passwordConfirm ->
             viewModelScope.launch {
+                enableLoading()
                 if (password != passwordConfirm) {
                     errorMessage = R.string.passwords_not_equal
+                    disableLoading()
                     return@launch
                 }
-                enableLoading()
+
                 errorMessage = null
                 successMessage = null
                 try {
@@ -134,12 +140,13 @@ class LoginScreenViewModel(
         },
         callResetPasswordEmail={email->
             viewModelScope.launch {
-
+                enableLoading()
                 if(email.isBlank()){
                     errorMessage= R.string.need_email_for_reset
+                    disableLoading()
                     return@launch
                 }
-                enableLoading()
+
                 errorMessage = null
                 successMessage = null
                 try {
@@ -154,12 +161,14 @@ class LoginScreenViewModel(
             }
         },
         changePassword = { password, passwordConfirm ->
+            enableLoading()
             viewModelScope.launch {
                 if (password != passwordConfirm) {
                     errorMessage = R.string.passwords_not_equal
+                    disableLoading()
                     return@launch
                 }
-                enableLoading()
+
                 errorMessage = null
                 successMessage = null
                 try {
@@ -219,7 +228,10 @@ class LoginScreenViewModel(
                     disableLoading()
                 }
             }
-        }
+
+        },
+        clearErrorMessage = { errorMessage = null },
+        clearSuccessMessage = { successMessage = null }
     )
 
     init {
