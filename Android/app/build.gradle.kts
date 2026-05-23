@@ -49,7 +49,7 @@ dependencies {
     implementation(libs.androidx.compose.ui)
     implementation(libs.androidx.compose.ui.graphics)
     implementation(libs.androidx.compose.ui.tooling.preview)
-    implementation(libs.androidx.compose.material3.v140)
+    implementation(libs.androidx.compose.material3)
     implementation(libs.androidx.navigation.compose)
     implementation(libs.ktor.serialization.kotlinx.json)
     implementation(libs.androidx.lifecycle.viewmodel.compose)
@@ -72,12 +72,10 @@ dependencies {
     debugImplementation(libs.androidx.compose.ui.test.manifest)
     implementation(libs.google.maps.services)
     implementation(libs.androidx.core.splashscreen)
-    implementation(platform(libs.androidx.compose.bom.v20260501))
+    implementation(platform(libs.androidx.compose.bom))
 
     //Supbase dependence
     implementation(libs.auth.kt)
-    implementation(libs.postgrest.kt)
-    implementation(libs.ktor.client.android)
     implementation(libs.slf4j.simple)
     implementation(libs.storage.kt)
 
@@ -85,7 +83,6 @@ dependencies {
     testImplementation(libs.kotlinx.coroutines.test)
 
     //permessi posizione
-    implementation(libs.play.services.location)
     implementation(libs.kotlinx.coroutines.play.services)
     implementation(libs.coil.compose)
 
