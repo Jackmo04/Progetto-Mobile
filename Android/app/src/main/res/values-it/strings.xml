@@ -150,7 +150,7 @@
     <string name="game_ended">Partita terminata!</string>
     <string name="ok">Ok</string>
     <string name="invalid_tag">Tag non valido!</string>
-    <string name="found_tag_n">Trovato tag #</string>
+    <string name="found_tag_n">Trovato tag #%1$d</string>
     <string name="already_found_all_tags">Hai già trovato tutti i tag!</string>
     <string name="all_tags_found">Hai trovato tutti i tag!</string>
     <string name="out_of_time">Tempo scaduto!</string>
