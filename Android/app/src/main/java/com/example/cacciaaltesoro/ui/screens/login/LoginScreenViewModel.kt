@@ -73,7 +73,7 @@ class LoginScreenViewModel(
                     successMessage = R.string.login_done_with_success
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = R.string.email_password_was_wrong
+                    errorMessage = mapSupabaseError(e)
                 } finally {
                     disableLoading()
                 }
@@ -93,7 +93,7 @@ class LoginScreenViewModel(
                     successMessage = R.string.signon_complete
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = R.string.error_during_signon
+                    errorMessage = mapSupabaseError(e)
                 } finally {
                    disableLoading()
                 }
@@ -115,7 +115,7 @@ class LoginScreenViewModel(
                     successMessage = R.string.logout_done
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = R.string.error_during_logout
+                    errorMessage = mapSupabaseError(e)
                 } finally {
                    disableLoading()
                 }
@@ -138,7 +138,7 @@ class LoginScreenViewModel(
                     successMessage = R.string.reset_email_sended
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = R.string.error_to_send_email
+                    errorMessage = mapSupabaseError(e)
                 } finally {
                     disableLoading()
                 }
@@ -163,7 +163,7 @@ class LoginScreenViewModel(
                     }
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
-                    errorMessage = R.string.error_during_password_change
+                    errorMessage = mapSupabaseError(e)
                 } finally {
                     disableLoading()
                 }
@@ -248,5 +248,23 @@ class LoginScreenViewModel(
     fun enableLoading(){
             _state.update { it.copy(isLoading = true) }
 
+    }
+
+    @StringRes
+    private fun mapSupabaseError(e: Exception): Int {
+        val errorMessage = e.message?.lowercase() ?: ""
+
+        return when {
+            errorMessage.contains("invalid login credentials") -> R.string.email_password_not_valid
+            errorMessage.contains("email not confirmed") -> R.string.email_not_confirmed
+
+            errorMessage.contains("user already registered") -> R.string.account_exists
+            errorMessage.contains("password should be at least") -> R.string.password_too_weak
+
+            errorMessage.contains("unable to resolve host") ||
+                    errorMessage.contains("failed to connect") -> R.string.connection_error
+
+            else -> R.string.unexpected_error
+        }
     }
 }

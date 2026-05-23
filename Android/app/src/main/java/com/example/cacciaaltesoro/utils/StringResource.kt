@@ -6,7 +6,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.res.stringResource
 
 class StringResource(
-    @StringRes val resourceId: Int,
+    @get:StringRes val resourceId: Int,
     vararg val formatArgs: Any
 ) {
     @Composable

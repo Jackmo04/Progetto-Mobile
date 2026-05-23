@@ -156,4 +156,10 @@
     <string name="unsaved_changes_title">Unsaved changes!</string>
     <string name="unsaved_changes_body">There\'s some unsaved changes. Quit anyway?</string>
     <string name="exit_wo_saving">Exit without saving</string>
+    <string name="email_password_not_valid">Invalid email or password.</string>
+    <string name="email_not_confirmed">Email not confirmed. Check your inbox.</string>
+    <string name="account_exists">An account with this email address already exists.</string>
+    <string name="password_too_weak">The password is too weak (must contain at least 6 characters).</string>
+    <string name="connection_error">Connection error. Check your internet connection and try again.</string>
+    <string name="unexpected_error">An unexpected error occurred. Please try again later.</string>
 </resources>

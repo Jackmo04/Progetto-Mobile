@@ -157,4 +157,10 @@
     <string name="unsaved_changes_title">Modifiche non salvate!</string>
     <string name="unsaved_changes_body">Ci sono delle modifiche non salvate. Uscire comunque?</string>
     <string name="exit_wo_saving">Esci senza salvare</string>
+    <string name="email_password_not_valid">Email o password non valide.</string>
+    <string name="email_not_confirmed">Email non confermata. Controlla la tua casella di posta.</string>
+    <string name="account_exists">Esiste già un account con questo indirizzo email.</string>
+    <string name="password_too_weak">La password è troppo debole (deve contenere almeno 6 caratteri).</string>
+    <string name="connection_error">Errore di connessione. Controlla la tua rete internet e riprova.</string>
+    <string name="unexpected_error">Si è verificato un errore imprevisto. Riprova più tardi.</string>
 </resources>
