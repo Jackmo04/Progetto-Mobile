@@ -63,6 +63,10 @@ class LoginScreenViewModel(
 
     val action = LoginAction(
         onLogIn = { username, password ->
+            if(username.isBlank() || password.isBlank()){
+                errorMessage= R.string.enter_email_and_password
+                return@LoginAction
+            }
             enableLoading()
             viewModelScope.launch {
                enableLoading()

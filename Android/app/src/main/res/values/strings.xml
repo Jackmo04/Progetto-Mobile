@@ -163,4 +163,5 @@
     <string name="connection_error">Connection error. Check your internet connection and try again.</string>
     <string name="unexpected_error">An unexpected error occurred. Please try again later.</string>
     <string name="need_email_for_reset">Enter an email to request the reset!</string>
+    <string name="enter_email_and_password">Enter email and password to log in!</string>
 </resources>
