@@ -20,7 +20,6 @@ import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Done
-import androidx.compose.material.icons.filled.Image
 import androidx.compose.material.icons.filled.Nfc
 import androidx.compose.material.icons.filled.Warning
 import androidx.compose.material.icons.rounded.Edit
@@ -80,8 +79,8 @@ import com.google.maps.android.compose.MapProperties
 import com.google.maps.android.compose.MapType
 import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
-import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -178,9 +177,6 @@ fun EventTagEditorScreen(
                         onChangeHint = { newHint ->
                             viewModel.editingTagActions.onTextHintChange(newHint)
                         },
-                        onChangeImage = { newImageUri ->
-                            viewModel.editingTagActions.onImageHintChange(newImageUri)
-                        },
                         isOkToSave = { viewModel.editingTagActions.isValid() },
                         onSave = {
                             sharedViewModel.tagActions.onUpdateTag(editingTag)
@@ -241,13 +237,13 @@ fun EventTagEditorScreen(
                 )
             ) {
                 Marker(
-                    state = MarkerState(position = LatLng(startingLat, startingLon)),
+                    state = rememberUpdatedMarkerState(position = LatLng(startingLat, startingLon)),
                     icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
                     title = stringResource(R.string.meeting_point)
                 )
                 eventState.tags.forEach { tag ->
                     Marker(
-                        MarkerState(position = tag.coordinates.toLatLng()),
+                        rememberUpdatedMarkerState(position = tag.coordinates.toLatLng()),
                         onClick = {
                             coroutineScope.launch {
                                 cameraPositionState.animate(
@@ -403,12 +399,10 @@ fun TagEditor(
     tag: Tag,
     onAssociateNfcTag: () -> Unit,
     onChangeHint: (String) -> Unit,
-    onChangeImage: (String) -> Unit,
     isOkToSave: () -> Boolean,
     onSave: () -> Unit,
     onDelete: () -> Unit
 ) {
-    val focusManager = LocalFocusManager.current
     Column(
         modifier = Modifier
             .fillMaxWidth()
@@ -460,32 +454,12 @@ fun TagEditor(
         HorizontalDivider()
         Spacer(modifier = Modifier.padding(1.dp))
 
-        Text(
-            text = stringResource(R.string.hints_optional),
-            style = MaterialTheme.typography.titleMedium
-        )
-
         OutlinedTextField(
             value = tag.textHint ?: "",
             onValueChange = onChangeHint,
-            label = { Text(stringResource(R.string.text_hint)) },
-            modifier = Modifier.fillMaxWidth(),
-            keyboardOptions = KeyboardOptions(imeAction = ImeAction.Done),
-            keyboardActions = KeyboardActions(
-                onDone = { focusManager.clearFocus() }
-            )
+            label = { Text(stringResource(R.string.hint) + " " + stringResource(R.string.optional_par)) },
+            modifier = Modifier.fillMaxWidth()
         )
-        FilledTonalButton(
-            onClick = {/* TODO */}
-        ) {
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp)
-            ) {
-                Icon(Icons.Default.Image, contentDescription = null)
-                Text(stringResource(R.string.visual_hint))
-            }
-
-        }
 
         Spacer(modifier = Modifier.padding(6.dp))
 

@@ -75,6 +75,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
@@ -307,7 +308,7 @@ fun TagList(
                     Text(
                         text = tag.textHint ?: stringResource(R.string.no_hint),
                         overflow = TextOverflow.Ellipsis,
-                        textAlign = TextAlign.Center
+                        maxLines = 2
                     )
                 },
                 trailingContent = {
@@ -343,9 +344,9 @@ fun TagView(
         HorizontalDivider(modifier = Modifier.padding(16.dp))
         Text(
             text = tag.textHint ?: stringResource(R.string.no_hint_available),
-            style = MaterialTheme.typography.bodyLarge,
-            textAlign = TextAlign.Center
+            style = MaterialTheme.typography.bodyLarge
         )
+        Spacer(modifier = Modifier.padding(8.dp))
     }
 }
 
@@ -381,14 +382,14 @@ fun GamePlaying(
     ) {
         viewModel.event?.let {
             Marker(
-                MarkerState(position = it.location.toLatLng()),
+                rememberUpdatedMarkerState(position = it.location.toLatLng()),
                 icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE),
                 title = stringResource(R.string.meeting_point)
             )
         }
         tagsToFind.forEach { tag ->
             Marker(
-                MarkerState(position = tag.coordinates.toLatLng()),
+                rememberUpdatedMarkerState(position = tag.coordinates.toLatLng()),
                 title = tag.number.toString(),
                 onClick = {
                     viewModel.viewSingleTag(tag)

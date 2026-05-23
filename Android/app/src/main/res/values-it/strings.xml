@@ -154,4 +154,7 @@
     <string name="already_found_all_tags">Hai già trovato tutti i tag!</string>
     <string name="all_tags_found">Hai trovato tutti i tag!</string>
     <string name="out_of_time">Tempo scaduto!</string>
+    <string name="unsaved_changes_title">Modifiche non salvate!</string>
+    <string name="unsaved_changes_body">Ci sono delle modifiche non salvate. Uscire comunque?</string>
+    <string name="exit_wo_saving">Esci senza salvare</string>
 </resources>

@@ -153,4 +153,7 @@
     <string name="already_found_all_tags">You have already found all tags!</string>
     <string name="all_tags_found">You found all the tags!</string>
     <string name="out_of_time">Out of time!</string>
+    <string name="unsaved_changes_title">Unsaved changes!</string>
+    <string name="unsaved_changes_body">There\'s some unsaved changes. Quit anyway?</string>
+    <string name="exit_wo_saving">Exit without saving</string>
 </resources>

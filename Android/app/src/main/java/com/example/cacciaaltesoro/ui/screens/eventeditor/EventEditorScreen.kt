@@ -5,6 +5,7 @@ package com.example.cacciaaltesoro.ui.screens.eventeditor
 import android.Manifest
 import android.app.DatePickerDialog
 import android.app.TimePickerDialog
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
@@ -32,6 +33,7 @@ import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.PinDrop
 import androidx.compose.material.icons.filled.Place
 import androidx.compose.material.icons.filled.Public
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -88,6 +90,7 @@ import com.google.maps.android.compose.MapUiSettings
 import com.google.maps.android.compose.Marker
 import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
+import com.google.maps.android.compose.rememberUpdatedMarkerState
 import kotlinx.coroutines.launch
 import kotlin.time.ExperimentalTime
 
@@ -133,13 +136,24 @@ fun EventEditorScreen(
         }
     }
 
+    var showExitConfirmationDialog by remember { mutableStateOf(false) }
+
+    BackHandler(
+        enabled = eventState.name.isNotEmpty()
+                || eventState.location != null
+                || eventState.description.isNotEmpty()
+    ) {
+        showExitConfirmationDialog = true
+    }
+
     Scaffold(
         modifier = Modifier.fillMaxSize(),
         topBar = {
             AppBar(
                 title = if (uiState.isEditMode) stringResource(R.string.edit_event)
                         else stringResource(R.string.new_event),
-                navController = navController
+                navController = navController,
+                showBackArrow = false
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
@@ -311,6 +325,24 @@ fun EventEditorScreen(
                 onLocationSelected = { latLng ->
                     viewModel.eventActions.onLocationChange(latLng.toCoordinates())
                     showMapDialog = false
+                }
+            )
+        }
+
+        if (showExitConfirmationDialog) {
+            AlertDialog(
+                title = { Text(stringResource(R.string.unsaved_changes_title)) },
+                text = { Text(stringResource(R.string.unsaved_changes_body)) },
+                onDismissRequest = { showExitConfirmationDialog = false },
+                dismissButton = {
+                    TextButton(onClick = { showExitConfirmationDialog = false }) {
+                        Text(stringResource(R.string.cancel))
+                    }
+                },
+                confirmButton = {
+                    Button(onClick = { navController.popBackStack() }) {
+                        Text(stringResource(R.string.exit_wo_saving))
+                    }
                 }
             )
         }
@@ -554,7 +586,7 @@ fun MapPickerDialog(
                     ) {
                         markerPosition?.let { latLng ->
                             Marker(
-                                state = MarkerState(position = latLng),
+                                state = rememberUpdatedMarkerState(position = latLng),
                                 icon = BitmapDescriptorFactory.defaultMarker(BitmapDescriptorFactory.HUE_AZURE)
                             )
                         }
