@@ -192,13 +192,15 @@ fun GameScreen(
         LaunchedEffect(Unit) {
             viewModel.uiEvent.collect { message ->
                 snackbarHostState.showSnackbar(
-                    message = message,
+                    message = message.asString(ctx),
                     duration = SnackbarDuration.Short
                 )
             }
         }
 
-        Surface(modifier = Modifier.padding(innerPadding).fillMaxSize()) {
+        Surface(modifier = Modifier
+            .padding(innerPadding)
+            .fillMaxSize()) {
             when (gameState) {
                 is GameState.Loading -> {
                     Box(
@@ -222,7 +224,7 @@ fun GameScreen(
             if (gameState is GameState.Finished) {
                 GameFinishedAlert(
                     onDismiss = { navController.navigateUp() },
-                    message = (gameState as GameState.Finished).message
+                    message = (gameState as GameState.Finished).message.asString()
                 )
             }
 
@@ -248,8 +250,8 @@ fun GameScreen(
                 AlertDialog(
                     onDismissRequest = { showNfcDisabledAlert = false },
                     icon = { Icon(Icons.Default.Warning, contentDescription = null) },
-                    title = { Text("NFC Disattivato!") },
-                    text = { Text("Per poter collezionare i Tag è necessario attivare l'NFC!") },
+                    title = { Text(stringResource(R.string.nfc_disabled_title)) },
+                    text = { Text(stringResource(R.string.nfc_game_required)) },
                     confirmButton = {
                         Button(
                             onClick = {
@@ -257,7 +259,7 @@ fun GameScreen(
                                 ctx.startActivity(intent)
                                 showNfcDisabledAlert = false
                             }
-                        ) { Text("Apri impostazioni") }
+                        ) { Text(stringResource(R.string.open_settings)) }
                     },
                     properties = DialogProperties(dismissOnClickOutside = false)
                 )
@@ -277,13 +279,13 @@ fun TagList(
     ) {
         item {
             ListItem(
-                leadingContent = { Text("N°") },
+                leadingContent = { Text("#") },
                 headlineContent = {
                     Row(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.Center
                     ) {
-                        Text("Indizio")
+                        Text(stringResource(R.string.hint))
                     }
                 },
                 colors = ListItemDefaults.colors(
@@ -303,13 +305,13 @@ fun TagList(
                 },
                 headlineContent = {
                     Text(
-                        text = tag.textHint ?: "Nessun indizio",
+                        text = tag.textHint ?: stringResource(R.string.no_hint),
                         overflow = TextOverflow.Ellipsis,
                         textAlign = TextAlign.Center
                     )
                 },
                 trailingContent = {
-                    Icon(Icons.Default.Visibility, contentDescription = "Mostra")
+                    Icon(Icons.Default.Visibility, contentDescription = stringResource(R.string.show))
                 },
                 modifier = Modifier.clickable { onTagClick(tag) },
                 colors = ListItemDefaults.colors(
@@ -340,11 +342,10 @@ fun TagView(
         )
         HorizontalDivider(modifier = Modifier.padding(16.dp))
         Text(
-            text = tag.textHint ?: "Nessun indizio disponibile per questo tag.",
+            text = tag.textHint ?: stringResource(R.string.no_hint_available),
             style = MaterialTheme.typography.bodyLarge,
             textAlign = TextAlign.Center
         )
-        // TODO add image
     }
 }
 
@@ -363,12 +364,6 @@ fun GamePlaying(
             18f
         )
     }
-
-//    LaunchedEffect(coordinates) {
-//        coordinates?.let {
-//            cameraPositionState.position = CameraPosition.fromLatLngZoom(it.toLatLng(), 18f)
-//        }
-//    }
 
     GoogleMap(
         properties = MapProperties(
@@ -412,7 +407,7 @@ fun GameWaiting(timeRemaining: String) {
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
         Text(
-            text = "L'evento inizia tra:",
+            text = stringResource(R.string.event_starting_in),
             style = MaterialTheme.typography.headlineMedium
         )
         Spacer(modifier = Modifier.height(8.dp))
@@ -431,11 +426,11 @@ fun GameFinishedAlert(
 ) {
     AlertDialog(
         onDismissRequest = onDismiss,
-        title = { Text("Partita terminata!") },
+        title = { Text(stringResource(R.string.game_ended)) },
         text = { Text(message) },
         confirmButton = {
-            TextButton(onClick = onDismiss) {
-                Text("Vai ai risultati")
+            Button(onClick = onDismiss) {
+                Text(stringResource(R.string.ok))
             }
         }
     )

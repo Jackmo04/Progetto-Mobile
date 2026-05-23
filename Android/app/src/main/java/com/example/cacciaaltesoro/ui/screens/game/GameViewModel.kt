@@ -5,9 +5,11 @@ package com.example.cacciaaltesoro.ui.screens.game
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.repositories.EventRepository
+import com.example.cacciaaltesoro.utils.StringResource
 import com.example.cacciaaltesoro.utils.nfc.NfcUtils
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.channels.Channel
@@ -30,7 +32,7 @@ sealed class GameState {
     object Loading : GameState()
     data class WaitingToStart(val countDownTime: String) : GameState()
     data class Playing(val remainingTime: String) : GameState()
-    data class Finished(val message: String) : GameState()
+    data class Finished(val message: StringResource) : GameState()
 }
 
 class NfcActions(
@@ -49,7 +51,7 @@ class GameViewModel(
 
     var event : Event? = null
 
-    private val _uiEvent = Channel<String>()
+    private val _uiEvent = Channel<StringResource>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val _tagsToFind = MutableStateFlow<List<Tag>>(emptyList())
@@ -65,7 +67,7 @@ class GameViewModel(
                 val foundTags = eventRepository.getFoundTags(eventId)
                 val remainingTags = event?.tags?.filter { tag -> foundTags.none { it.id == tag.id } } ?: emptyList()
                 if (remainingTags.isEmpty()) {
-                    _gameState.value = GameState.Finished("Hai già trovato tutti i tag!")
+                    _gameState.value = GameState.Finished(StringResource(R.string.already_found_all_tags))
                     return@launch
                 }
                 _tagsToFind.value = remainingTags
@@ -83,13 +85,13 @@ class GameViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 val readUUID = nfcUtils.readUuidFromNdef(nfcTag)
                 if (readUUID == null) {
-                    _uiEvent.send("Tag non valido!")
+                    _uiEvent.send(StringResource(R.string.invalid_tag))
                     Log.d("TAG_SCANNER", "Generic error while reading tag")
                     return@launch
                 }
                 val foundTag = tagsToFind.value.firstOrNull { it.id == readUUID.toString() }
                 if (foundTag != null) {
-                    _uiEvent.send("Tag ${foundTag.number} trovato!")
+                    _uiEvent.send(StringResource(R.string.found_tag_n, foundTag.number))
                     _tagsToFind.value -= foundTag
                     try {
                         eventRepository.setFoundTag(foundTag)
@@ -97,12 +99,12 @@ class GameViewModel(
                         Log.e("DATABASE", "Error while trying to update found tag", e)
                     }
                     if (tagsToFind.value.isEmpty()) {
-                        _gameState.value = GameState.Finished("Hai trovato tutti i tag!")
+                        _gameState.value = GameState.Finished(StringResource(R.string.all_tags_found))
                         return@launch
                     }
                 } else {
-                    _uiEvent.send("Tag non valido!")
-                    Log.d("TAG_SCANNER", "The scanned tag's UUID from in this event")
+                    _uiEvent.send(StringResource(R.string.invalid_tag))
+                    Log.d("TAG_SCANNER", "The scanned tag isn't from this event")
                 }
             }
         }
@@ -129,7 +131,7 @@ class GameViewModel(
                     }
 
                     now >= currentEvent.endTime -> {
-                        _gameState.value = GameState.Finished("Tempo scaduto!")
+                        _gameState.value = GameState.Finished(StringResource(R.string.out_of_time))
                         break
                     }
 

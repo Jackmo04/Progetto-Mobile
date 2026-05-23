@@ -140,4 +140,17 @@
     <string name="event_created">Evento creato!</string>
     <string name="error_save_event">Errore durante il salvataggio!</string>
     <string name="select_meeting_point_first">Prima seleziona un punto di ritrovo!</string>
+    <string name="nfc_game_required">Per poter collezionare i Tag è necessario attivare l\'NFC!</string>
+    <string name="hint">Indizio</string>
+    <string name="no_hint">Nessun indizio</string>
+    <string name="show">Mostra</string>
+    <string name="no_hint_available">Nessun indizio disponibile per questo tag.</string>
+    <string name="event_starting_in">L\'evento inizia tra:</string>
+    <string name="game_ended">Partita terminata!</string>
+    <string name="ok">OK</string>
+    <string name="invalid_tag">Tag non valido!</string>
+    <string name="found_tag_n">Trovato tag #%1$d</string>
+    <string name="already_found_all_tags">Hai già trovato tutti i tag!</string>
+    <string name="all_tags_found">Hai trovato tutti i tag!</string>
+    <string name="out_of_time">Tempo scaduto!</string>
 </resources>
