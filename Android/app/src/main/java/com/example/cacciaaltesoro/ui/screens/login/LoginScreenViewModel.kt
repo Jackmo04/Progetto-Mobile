@@ -90,7 +90,7 @@ class LoginScreenViewModel(
                 successMessage = null
                 try {
                     repository.onSignOn(username, password)
-                    successMessage = R.string.signon_complete
+                    successMessage = R.string.sing_complete
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
                     errorMessage = mapSupabaseError(e)
@@ -135,7 +135,7 @@ class LoginScreenViewModel(
                 successMessage = null
                 try {
                     repository.sendResetPasswordEmail(email)
-                    successMessage = R.string.reset_email_sended
+                    successMessage = R.string.reset_email_sent
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
                     errorMessage = mapSupabaseError(e)
@@ -201,11 +201,11 @@ class LoginScreenViewModel(
                         repository.uploadProfileImage(ctx,uid, imageBytes, fileName)
 
                         _state.update { it.copy(imageUri = uri) }
-                        successMessage = R.string.profile_immage_updated
+                        successMessage = R.string.profile_image_updated
                     }
                 } catch (e: Exception) {
                     Log.e("UploadPhoto" , e.toString())
-                    errorMessage = R.string.error_during_immage_update
+                    errorMessage = R.string.error_during_image_update
                 } finally {
                     disableLoading()
                 }

@@ -212,7 +212,7 @@ fun EventCard(
                 InfoRow(icon = Icons.Default.AccessTime, text = "${stringResource(R.string.start_event)} ${getStartTime(event)}")
                 InfoRow(icon = Icons.Default.Timer, text = "${stringResource(R.string.duration)} ${getGameDuration(event,context)}")
                 if(!isMineEvent && state.imSubscribe)
-                    InfoRow(icon = Icons.Default.Tag, text = "${stringResource(R.string.tag_catched)} ${state.userTagCached}")
+                    InfoRow(icon = Icons.Default.Tag, text = "${stringResource(R.string.tags_collected)} ${state.userTagCached}")
                 else
                     InfoRow(icon = Icons.Default.PersonAdd, text = "${stringResource(R.string.subscribed)} ${state.registeredUser}")
             }
@@ -258,7 +258,7 @@ fun EventCard(
                             CircularProgressIndicator(modifier = Modifier.size(16.dp), strokeWidth = 2.dp)
                         } else {
                             Text(if (!state.imSubscribe) stringResource(R.string.subscribe) else stringResource(
-                                R.string.unscribe
+                                R.string.unsubscribe
                             ))
                         }
                     }
@@ -295,7 +295,7 @@ fun EventCard(
         AlertDialog(
             onDismissRequest = { showDeleteDialog = false },
             title = { Text(text = stringResource(R.string.delete_confirm)) },
-            text = { Text(text = stringResource(R.string.delete_answare)) },
+            text = { Text(text = stringResource(R.string.delete_answerer)) },
             confirmButton = {
                 TextButton(
                     onClick = {
