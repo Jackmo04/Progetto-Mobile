@@ -11,6 +11,7 @@ import com.example.cacciaaltesoro.data.domain.Tag
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
+import com.example.cacciaaltesoro.utils.StringResource
 import com.google.maps.GeoApiContext
 import com.google.maps.GeocodingApi
 import com.google.maps.model.LatLng
@@ -107,7 +108,7 @@ class EventEditorViewModel(
     private val _uiState = MutableStateFlow(UIState())
     val uiState = _uiState.asStateFlow()
 
-    private val _uiEvent = Channel<String>()
+    private val _uiEvent = Channel<StringResource>()
     val uiEvent = _uiEvent.receiveAsFlow()
 
     private val geoApiContext = GeoApiContext.Builder()
@@ -139,7 +140,7 @@ class EventEditorViewModel(
                         eventState.value.location?.let { updateAddress(it) }
                     }
                 } catch (e: Exception) {
-                    _uiEvent.send("Errore durante il caricamento dell'evento!") // TODO change to res
+                    _uiEvent.send(StringResource(R.string.error_insert_event))
                     e.printStackTrace()
                 }
                 _uiState.update { it.copy(isLoading = false) }
@@ -201,7 +202,7 @@ class EventEditorViewModel(
             viewModelScope.launch(Dispatchers.IO) {
                 val user = loginRepository.getLoggedUser()
                 if (user == null) {
-                    _uiEvent.send("Errore! Login non effettuato!") // TODO change this
+                    _uiEvent.send(StringResource(R.string.error_no_login))
                     return@launch
                 }
                 _uiState.update { it.copy(isLoading = true) }
@@ -235,23 +236,24 @@ class EventEditorViewModel(
                     } else {
                         eventRepository.updateEvent(event)
                     }
-                    val message = if (uiState.value.isEditMode) "Evento aggiornato!" else "Evento creato!"
-                    _uiEvent.send(message)
+                    val resId = if (uiState.value.isEditMode) R.string.event_updated else R.string.event_created
+                    _uiEvent.send(StringResource(resId))
                     _eventState.update { EventState() }
                 } catch (e: Exception) {
-                    _uiEvent.send("Errore durante il salvataggio!")
+                    _uiEvent.send(StringResource(R.string.error_save_event))
                     e.printStackTrace()
                 }
                 _uiState.update { it.copy(isLoading = false) }
             }
         },
         onCancelCreation = {
-            // TODO add functionality to remove tags if needed
             _eventState.update { EventState() }
         },
         onEditTagsClick = {
             if (eventState.value.location == null) {
-                viewModelScope.launch { _uiEvent.trySend("Prima seleziona un punto di ritrovo!") }
+                viewModelScope.launch {
+                    _uiEvent.trySend(StringResource(R.string.select_meeting_point_first))
+                }
             }
             eventState.value.location != null
         }
@@ -305,7 +307,6 @@ class EventEditorViewModel(
         }
     }
 
-    // TODO improve this if I have time
     private fun checkTimestamps() {
         val now = LocalDateTime.now()
         val startDateTime = eventState.value.let { it.startDate.atTime(it.startTime) }

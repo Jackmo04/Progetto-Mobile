@@ -148,7 +148,7 @@ fun EventEditorScreen(
         LaunchedEffect(Unit) {
             viewModel.uiEvent.collect { message ->
                 snackbarHostState.showSnackbar(
-                    message = message,
+                    message = message.asString(ctx),
                     duration = SnackbarDuration.Short
                 )
             }

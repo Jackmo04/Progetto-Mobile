@@ -135,4 +135,10 @@
     <string name="visual_hint">Indizio visivo</string>
     <string name="nfc_write_success">Tag NFC scritto correttamente!</string>
     <string name="error_please_retry">Errore! Riprova per favore!</string>
+    <string name="error_insert_event">Errore durante il caricamento dell\'evento!</string>
+    <string name="error_no_login">Errore! Login non effettuato!</string>
+    <string name="event_updated">Evento aggiornato!</string>
+    <string name="event_created">Evento creato!</string>
+    <string name="error_save_event">Errore durante il salvataggio!</string>
+    <string name="select_meeting_point_first">Prima seleziona un punto di ritrovo!</string>
 </resources>
