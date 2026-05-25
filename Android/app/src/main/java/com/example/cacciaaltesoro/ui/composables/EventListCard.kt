@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.ui.composables
 
+import android.location.Location
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -24,9 +25,10 @@ import kotlinx.coroutines.withContext
 
 @Composable
 fun EventListCard(
-    events: Event,
+    event: Event,
     isMyEvent: Boolean,
-    onClick: () -> Unit
+    onClick: () -> Unit,
+    location: Location? = null
 ) {
     val surfaceColor = if (isMyEvent) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
     val outlineVariant = MaterialTheme.colorScheme.outlineVariant
@@ -38,9 +40,9 @@ fun EventListCard(
 
     var addressText by remember { mutableStateOf(loading) }
 
-    LaunchedEffect(events.lat, events.lon) {
+    LaunchedEffect(event.lat, event.lon) {
         addressText = withContext(Dispatchers.IO) {
-            getAddressFromCords(events.lat, events.lon, onlyCity = true , contextMain = context)
+            getAddressFromCords(event.lat, event.lon, onlyCity = true , contextMain = context)
         }
     }
 
@@ -70,7 +72,7 @@ fun EventListCard(
                 contentAlignment = Alignment.Center
             ) {
                 Text(
-                    text = events.name.take(1).uppercase(),
+                    text = event.name.take(1).uppercase(),
                     style = MaterialTheme.typography.titleMedium,
                     color = onPrimaryContainer,
                     textAlign = TextAlign.Center
@@ -82,20 +84,47 @@ fun EventListCard(
                 verticalArrangement = Arrangement.spacedBy(4.dp)
             ) {
                 Text(
-                    text = events.name,
+                    text = event.name,
                     maxLines = 1,
                     overflow = TextOverflow.Ellipsis,
                     style = MaterialTheme.typography.titleMedium,
                     color = onSurface
                 )
-                Text(
-                    text = addressText,
-                    maxLines = 1,
-                    overflow = TextOverflow.Ellipsis,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
-                )
-            }
-        }
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween,
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    Text(
+                        text = addressText,
+                        modifier = Modifier.weight(1f),
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                    Text(
+                        text = if (location != null) getDistanceFromMe(event, location) else "",
+                        maxLines = 1,
+                        overflow = TextOverflow.Ellipsis,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.onSurfaceVariant
+                    )
+                }
+        }}
+    }
+}
+
+private fun getDistanceFromMe(event: Event, currentLocation: Location?): String {
+    if (currentLocation == null) return ""
+    val eventLocation = Location("").apply {
+        latitude = event.lat
+        longitude = event.lon
+    }
+    val distanceInMeters = currentLocation.distanceTo(eventLocation)
+    return if (distanceInMeters < 1000) {
+        "${distanceInMeters.toInt()} m"
+    } else {
+        "%.1f km".format(distanceInMeters / 1000)
     }
 }

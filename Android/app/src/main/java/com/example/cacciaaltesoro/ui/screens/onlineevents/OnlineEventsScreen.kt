@@ -60,6 +60,9 @@ fun OnlineEventsScreen(
     val orderOptionsMap = EventOrderType.entries.associateBy { stringResource(it.stringResId) }
     val optionsList = orderOptionsMap.keys.toList()
 
+    val locationService = remember { LocationService(context) }
+    val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
+
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
@@ -78,8 +81,9 @@ fun OnlineEventsScreen(
         }
     }
 
-    val locationService = remember { LocationService(context) }
-    val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
+
+
+
 
     fun getCurrentLocation() = scope.launch {
         try {
@@ -108,6 +112,12 @@ fun OnlineEventsScreen(
                 longitude = it.longitude
             })
             viewModel.action.onOrderChanged(EventOrderType.DISTANCE.name)
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        if (locationPermissions.statuses.any { it.value.isGranted }) {
+            getCurrentLocation()
         }
     }
 
@@ -263,13 +273,15 @@ fun OnlineEventsScreen(
                             ) {
                                 items(items = list, key = { event -> event.id!! }) { event ->
                                     EventListCard(
-                                        events = event,
+                                        event = event,
                                         isMyEvent = event.organizerUUID == state.uuid,
-                                        onClick = { if(stateLogin.isLogin)
-                                            event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id)) }
+                                        onClick = {
+                                            if(stateLogin.isLogin)
+                                            event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id))}
                                         else
                                             navController.navigate(NavigationRoute.Login)
-                                        }
+                                        },
+                                        viewModel.currentLocation
                                     )
                                 }
                             }
