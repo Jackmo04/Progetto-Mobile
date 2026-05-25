@@ -3,6 +3,7 @@ agp = "9.2.1"
 bom = "3.6.0"
 coilCompose = "2.7.0"
 composeBom = "2026.05.01"
+composeBomVersion = "2024.09.00"
 compressor = "3.0.1"
 coreKtx = "1.18.0"
 coreSplashscreen = "1.2.0"
@@ -32,6 +33,7 @@ storageKt = "3.6.0"
 
 [libraries]
 androidx-compose-bom = { group = "androidx.compose", name = "compose-bom", version.ref = "composeBom" }
+androidx-compose-bom-v20240900 = { module = "androidx.compose:compose-bom", version.ref = "composeBomVersion" }
 androidx-compose-material-icons-extended = { module = "androidx.compose.material:material-icons-extended" }
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
