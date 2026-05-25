@@ -82,9 +82,6 @@ fun OnlineEventsScreen(
     }
 
 
-
-
-
     fun getCurrentLocation() = scope.launch {
         try {
             locationService.getCurrentLocation()
@@ -111,7 +108,6 @@ fun OnlineEventsScreen(
                 latitude = it.latitude
                 longitude = it.longitude
             })
-            viewModel.action.onOrderChanged(EventOrderType.DISTANCE.name)
         }
     }
 
@@ -126,6 +122,7 @@ fun OnlineEventsScreen(
             isPullRefreshing = false
         }
     }
+
     Scaffold(
         topBar = {
             AppBar(
