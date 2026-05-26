@@ -25,8 +25,6 @@ import io.github.jan.supabase.storage.storage
 import java.io.File
 
 interface LoginRepository {
-    suspend fun setIsSignUp(isSignUp: Boolean) : Preferences
-    suspend fun clearSession():Preferences
     suspend fun onLogIn(username: String, password: String)
     suspend fun logOut()
     suspend fun getLoggedUser() : UserInfo?
@@ -38,19 +36,9 @@ class LoginRepositoryImpl (
     val supabase: SupabaseClient
 ): LoginRepository {
     val authStatus = supabase.auth.sessionStatus
-    companion object {
-        private val IS_SIGN_UP = booleanPreferencesKey("isSignUp")
-    }
 
-    val isSignUp = dataStore.data.map { it[IS_SIGN_UP] ?: false }
     private val _isPasswordUpdateRequested = MutableStateFlow(false)
 
-    override suspend fun setIsSignUp(isSignUp: Boolean) = dataStore.edit { it[IS_SIGN_UP] = isSignUp }
-
-    override suspend fun clearSession() = dataStore.edit {
-        it.remove(IS_SIGN_UP)
-
-    }
 
     override suspend fun onLogIn(username: String, password: String) {
             supabase.auth.signInWith(Email) {
@@ -58,9 +46,6 @@ class LoginRepositoryImpl (
                 this.password = password
             }
             val userId = supabase.auth.currentUserOrNull()?.id
-            if (userId != null) {
-                setIsSignUp(false)
-            }
 
     }
 
@@ -70,16 +55,11 @@ class LoginRepositoryImpl (
                 this.password = password
             }
             val userId = supabase.auth.currentUserOrNull()?.id
-            if (userId != null) {
-                setIsSignUp(false)
-            }
     }
 
 
     override suspend fun logOut() {
             supabase.auth.signOut()
-            clearSession()
-            setIsSignUp(false)
     }
 
     suspend fun sendResetPasswordEmail(email: String) {

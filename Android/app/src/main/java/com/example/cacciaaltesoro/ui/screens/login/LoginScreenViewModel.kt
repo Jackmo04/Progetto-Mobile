@@ -106,6 +106,9 @@ class LoginScreenViewModel(
                     errorMessage = mapSupabaseError(e)
                 } finally {
                    disableLoading()
+                    _state.update {
+                        it.copy(isSignUp = false)
+                    }
                 }
             }
         },
@@ -135,7 +138,9 @@ class LoginScreenViewModel(
         },
         changeSignScreen = {
             viewModelScope.launch {
-                repository.setIsSignUp(!_state.value.isSignUp)
+                _state.update {
+                    it.copy(isSignUp = true)
+                }
             }
         },
         callResetPasswordEmail={email->
@@ -238,9 +243,8 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             combine(
                 repository.authStatus,
-                repository.isSignUp,
                 repository.isPasswordUpdateRequested
-            ) { authStatus, isSignUp, isRequested ->
+            ) { authStatus,  isRequested ->
                 val isUserActuallyLoggedIn = authStatus is SessionStatus.Authenticated
                 val user = repository.getLoggedUser()
                 val userId = user?.id ?: ""
@@ -248,7 +252,7 @@ class LoginScreenViewModel(
                     isLogin = isUserActuallyLoggedIn,
                     username = user?.email ?: "",
                     userId = userId,
-                    isSignUp = isSignUp,
+                    isSignUp = false,
                     isUpdatePassword = isRequested,
                     isInitializing = false
                 )
