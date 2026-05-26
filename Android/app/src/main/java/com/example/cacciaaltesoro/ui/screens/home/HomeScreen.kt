@@ -84,22 +84,6 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
                     else
                         navController.navigate(NavigationRoute.Login)
                 }
-
-                // TODO START DELETE BLOCK
-                HorizontalDivider(modifier = Modifier.padding(vertical = 24.dp))
-                var gameID by remember { mutableStateOf("") }
-                Text("DA ELIMINARE IN PRODUZIONE", color = MaterialTheme.colorScheme.error)
-                OutlinedTextField(
-                    value = gameID,
-                    label = { Text("ID partita test") },
-                    onValueChange = { gameID = it }
-                )
-                Button(
-                    onClick = { navController.navigate(NavigationRoute.Game(gameID.toInt())) }
-                ) {
-                    Text("Partecipa")
-                }
-                // TODO END DELETE BLOCK
             }
         }
     }
