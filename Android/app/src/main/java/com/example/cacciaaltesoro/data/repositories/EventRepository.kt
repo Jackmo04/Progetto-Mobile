@@ -153,31 +153,26 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     }
 
     override suspend fun getEvent(id: Int): Event? {
-        return try {
-            Log.i("CardLog", id.toString() + "repo")
-            val fetchedEvent = supabase.from(SupabaseTables.EVENTS.tableName).select(
+        return withContext(Dispatchers.IO) {
+            supabase.from(SupabaseTables.EVENTS.tableName).select(
                 columns = Columns.raw("*, utenti!partite_par_organizzatore_fkey(*)")) {
                 filter {
                     EventDTO::id eq id
                 }
             }.decodeSingle<EventDTO>().toDomain()
-            Log.i("CardLog", fetchedEvent.toString())
-            fetchedEvent
-        } catch (e: Exception) {
-            Log.e("CardLog", "Error fetching event details for id: $id", e)
-            null
-        }
+    }
     }
     override suspend fun getEventsByCode(code: String): Event? {
-          return  supabase.from(SupabaseTables.EVENTS.tableName).select {
+          return withContext(Dispatchers.IO) { supabase.from(SupabaseTables.EVENTS.tableName).select {
                 filter {
-                    EventDTO::code eq code
+                    EventDTO::code ilike code
                     EventDTO::organizerUUID neq supabase.auth.currentUserOrNull()?.id
                 }
             }.decodeSingleOrNull<EventDTO>()?.toDomain()
-    }
+    }}
 
     override suspend fun getAllEvents(): List<Event> {
+        return withContext(Dispatchers.IO) {
         val uuid = supabase.auth.currentUserOrNull()?.id
         val localTime = Clock.System.now()
         if (uuid == null){
@@ -188,7 +183,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())
-            return  listEvent.map{e -> e.toDomain()}
+            return@withContext listEvent.map{ e -> e.toDomain()}
 
         } else {
             val listEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
@@ -199,10 +194,10 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
             Log.i("Event", listEvent.toString())
-            return  listEvent.map{e -> e.toDomain()}
+           listEvent.map{ e -> e.toDomain()}
 }
 
-    }
+    }}
 
     @OptIn(ExperimentalTime::class)
     override suspend fun getOrderedEvent(type: String , location: Location? , listEvent: List<Event>): List<Event> {
@@ -236,7 +231,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     }
 
     override suspend fun getAllMyEvents(): List<Event> {
-
+        return withContext(Dispatchers.IO) {
             val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
                 ?: throw IllegalStateException("utente non loggato")
             val createdEvent = supabase.from(SupabaseTables.EVENTS.tableName).select {
@@ -246,11 +241,12 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             }.decodeList<EventDTO>()
 
             Log.d("SavedEventRepository", "Fetched events: $createdEvent")
-            return createdEvent.distinct().map{e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
+            createdEvent.distinct().map{ e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
+    }
     }
 
     override suspend fun getAllMySubscribedEvents(): List<Event> {
-
+        return withContext(Dispatchers.IO) {
             val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
                 ?: throw IllegalStateException("utente non loggato")
 
@@ -261,11 +257,12 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                     UserDTO::uuid eq uuidC
                 }
             }.decodeSingle<UserDTO>().eventDTOS
-            return userSaved.map{e -> e.toDomain()}
-    }
+            userSaved.map{e -> e.toDomain()}
+    }}
 
     override suspend fun getRegisteredAtEventNumber(idEvent: Int): Int? {
-            val result = supabase.from(SupabaseTables.SUBSCRIPTION.tableName).select {
+        return withContext(Dispatchers.IO) {
+        val result = supabase.from(SupabaseTables.SUBSCRIPTION.tableName).select {
                 filter {
                     eq("prt_partita", idEvent)
                 }
@@ -273,8 +270,8 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 head = true
             }.countOrNull()
             Log.i("CountR", result.toString())
-            return result?.toInt()
-    }
+            result?.toInt()
+    }}
 
 
     override suspend fun joinToEvent(idEvent: Int) {
@@ -304,19 +301,22 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     }
 
     override suspend fun getTagCachedByMe(idEvent: Int): List<Tag> {
-        val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
-            ?: throw IllegalStateException("utente non loggato")
+        return withContext(Dispatchers.IO) {
+            val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
+                ?: throw IllegalStateException("utente non loggato")
 
-        val  tags = supabase.from(SupabaseTables.USERS.tableName).select(
-            columns = Columns.raw("*,  tags!tagraccolti(*)")) {
-            filter {
-                UserDTO::uuid eq uuidC
-            }
-        }.decodeSingle<UserDTO>().tagDTOS.filter { t -> t.eventId == idEvent }.map { t -> t.toDomain() }
-        Log.i("tagc", tags.toString())
-        return tags
+            val tags = supabase.from(SupabaseTables.USERS.tableName).select(
+                columns = Columns.raw("*,  tags!tagraccolti(*)")
+            ) {
+                filter {
+                    UserDTO::uuid eq uuidC
+                }
+            }.decodeSingle<UserDTO>().tagDTOS.filter { t -> t.eventId == idEvent }
+                .map { t -> t.toDomain() }
+            Log.i("tagc", tags.toString())
+            tags
+        }
     }
-
     private  fun orderLocationByDistance(
         eventList: List<Event>,
         location: Location?
