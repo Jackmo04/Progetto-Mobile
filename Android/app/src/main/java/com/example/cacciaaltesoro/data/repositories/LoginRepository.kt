@@ -4,8 +4,6 @@ import android.content.Context
 import android.graphics.Bitmap
 import androidx.datastore.core.DataStore
 import androidx.datastore.preferences.core.Preferences
-import androidx.datastore.preferences.core.booleanPreferencesKey
-import androidx.datastore.preferences.core.edit
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import id.zelory.compressor.Compressor
@@ -19,7 +17,6 @@ import io.github.jan.supabase.auth.user.UserInfo
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.map
 import kotlin.time.Duration.Companion.minutes
 import io.github.jan.supabase.storage.storage
 import java.io.File
@@ -38,6 +35,7 @@ class LoginRepositoryImpl (
     val authStatus = supabase.auth.sessionStatus
 
     private val _isPasswordUpdateRequested = MutableStateFlow(false)
+    private val _isFromDeepLink = MutableStateFlow(false)
 
 
     override suspend fun onLogIn(username: String, password: String) {
@@ -82,9 +80,12 @@ class LoginRepositoryImpl (
 
 
     val isPasswordUpdateRequested = _isPasswordUpdateRequested.asStateFlow()
+    val isFromDeepLink = _isFromDeepLink.asStateFlow()
 
-    fun setPasswordUpdateRequested(value: Boolean) {
+
+    fun setPasswordUpdateRequested(value: Boolean, fromDeepLink: Boolean = false) {
         _isPasswordUpdateRequested.value = value
+        _isFromDeepLink.value = fromDeepLink
     }
 
 

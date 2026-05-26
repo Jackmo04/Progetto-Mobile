@@ -4,6 +4,7 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
+import androidx.activity.compose.BackHandler
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -150,9 +151,27 @@ fun LoginScreen(
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
+    if (state.isUpdatePassword && state.isFromDeepLink) {
+        BackHandler {
+            viewModel.action.toggleUpdatePassword(false)
+            navController.popBackStack()
+        }
+    }
+
+    val customBackAction: (() -> Unit)? = if (state.isUpdatePassword && state.isFromDeepLink) {
+        {
+            viewModel.action.toggleUpdatePassword(false)
+            navController.popBackStack()
+        }
+    } else {
+        null
+    }
 
     Scaffold(
-        topBar = { AppBar(title, navController) },
+        topBar = { AppBar(
+            title = title,
+            navController=navController,
+            onBackClick=customBackAction) },
         snackbarHost = {
             SnackbarHost(
                 snackbarHostState,

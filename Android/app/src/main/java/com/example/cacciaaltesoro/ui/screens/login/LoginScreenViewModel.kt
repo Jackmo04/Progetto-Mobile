@@ -26,6 +26,7 @@ data class LoginState(
     val isLogin: Boolean = false,
     val isSignUp: Boolean = false,
     val isUpdatePassword: Boolean = false,
+    val isFromDeepLink: Boolean = false,
     val isLoading: Boolean = false,
     val isInitializing: Boolean = true,
     val imageUri: Uri? = null
@@ -180,7 +181,7 @@ class LoginScreenViewModel(
                     repository.updatePassword(password)
                     successMessage = R.string.password_update
 
-                    repository.setPasswordUpdateRequested(false)
+                    repository.setPasswordUpdateRequested(false, false)
                     _state.update {
                         it.copy(isUpdatePassword = false)
                     }
@@ -194,9 +195,24 @@ class LoginScreenViewModel(
         },
 
         toggleUpdatePassword = { isVisible ->
-            repository.setPasswordUpdateRequested(isVisible)
-            _state.update {
-                it.copy(isUpdatePassword = isVisible)
+            if (!isVisible && _state.value.isFromDeepLink) {
+                viewModelScope.launch {
+                    enableLoading()
+                    try {
+                        repository.logOut()
+                        repository.setPasswordUpdateRequested(value = false, fromDeepLink = false)
+                        _state.update { it.copy(isUpdatePassword = false, isLogin = false) }
+                    } catch (e: Exception) {
+                        Log.e("Login", e.toString())
+                    } finally {
+                        disableLoading()
+                    }
+                }
+            } else {
+                repository.setPasswordUpdateRequested(isVisible, _state.value.isFromDeepLink)
+                _state.update {
+                    it.copy(isUpdatePassword = isVisible)
+                }
             }
         },
         getImageFromCloud = {
@@ -243,8 +259,9 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             combine(
                 repository.authStatus,
-                repository.isPasswordUpdateRequested
-            ) { authStatus,  isRequested ->
+                repository.isPasswordUpdateRequested,
+                repository.isFromDeepLink
+            ) { authStatus,  isRequested , isFromDeepLink ->
                 val isUserActuallyLoggedIn = authStatus is SessionStatus.Authenticated
                 val user = repository.getLoggedUser()
                 val userId = user?.id ?: ""
@@ -254,6 +271,7 @@ class LoginScreenViewModel(
                     userId = userId,
                     isSignUp = false,
                     isUpdatePassword = isRequested,
+                    isFromDeepLink = isFromDeepLink,
                     isInitializing = false
                 )
             }.collect { newState ->

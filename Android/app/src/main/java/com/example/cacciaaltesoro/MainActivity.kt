@@ -59,7 +59,7 @@ class MainActivity : ComponentActivity() {
                         try {
                             loginRepositoryImpl.supabase.auth.importAuthToken(accessToken, refreshToken)
                             Log.i("MainActivity", "Token importato con successo!")
-                            loginRepositoryImpl.setPasswordUpdateRequested(true)
+                            loginRepositoryImpl.setPasswordUpdateRequested(true, fromDeepLink = true)
                         } catch (e: Exception) {
                             Log.e("MainActivity", "Errore durante l'importazione del token", e)
                         }
@@ -73,14 +73,14 @@ class MainActivity : ComponentActivity() {
                     try {
                         loginRepositoryImpl.supabase.auth.exchangeCodeForSession(code)
                         Log.i("MainActivity", "Codice PKCE scambiato con successo!")
-                        loginRepositoryImpl.setPasswordUpdateRequested(true)
+                        loginRepositoryImpl.setPasswordUpdateRequested(true, fromDeepLink = true)
                     } catch (e: Exception) {
                         Log.e("MainActivity", "Errore nello scambio del codice PKCE", e)
                     }
                 }
                 return
             }
-            loginRepositoryImpl.setPasswordUpdateRequested(true)
+            loginRepositoryImpl.setPasswordUpdateRequested(true, fromDeepLink = true)
         }
     }
 }
