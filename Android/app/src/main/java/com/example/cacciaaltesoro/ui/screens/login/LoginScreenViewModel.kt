@@ -238,15 +238,15 @@ class LoginScreenViewModel(
         viewModelScope.launch {
             combine(
                 repository.authStatus,
-                repository.username,
                 repository.isSignUp,
                 repository.isPasswordUpdateRequested
-            ) { authStatus, username, isSignUp, isRequested ->
+            ) { authStatus, isSignUp, isRequested ->
                 val isUserActuallyLoggedIn = authStatus is SessionStatus.Authenticated
-                val userId = repository.getLoggedUser()?.id ?: ""
+                val user = repository.getLoggedUser()
+                val userId = user?.id ?: ""
                 _state.value.copy(
                     isLogin = isUserActuallyLoggedIn,
-                    username = username,
+                    username = user?.email ?: "",
                     userId = userId,
                     isSignUp = isSignUp,
                     isUpdatePassword = isRequested,
