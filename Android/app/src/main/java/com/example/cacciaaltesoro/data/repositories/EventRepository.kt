@@ -262,7 +262,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
 
     override suspend fun getRegisteredAtEventNumber(idEvent: Int): Int? {
         return withContext(Dispatchers.IO) {
-        val result = supabase.from(SupabaseTables.SUBSCRIPTION.tableName).select {
+            val result = supabase.from(SupabaseTables.SUBSCRIPTION.tableName).select {
                 filter {
                     eq("prt_partita", idEvent)
                 }
@@ -271,7 +271,8 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             }.countOrNull()
             Log.i("CountR", result.toString())
             result?.toInt()
-    }}
+        }
+    }
 
 
     override suspend fun joinToEvent(idEvent: Int) {
