@@ -43,7 +43,7 @@ interface EventRepository {
     suspend fun getRegisteredAtEventNumber(idEvent: Int): Int?
     suspend fun joinToEvent(idEvent: Int )
 
-    suspend fun unscribeFromEvent(idEvent: Int)
+    suspend fun unsubscribeFromEvent(idEvent: Int)
 
     suspend fun deleteEvent(idEvent: Int)
 
@@ -280,7 +280,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         supabase.from(SupabaseTables.SUBSCRIPTION.tableName).insert(link)
     }
 
-    override suspend fun unscribeFromEvent(idEvent: Int) {
+    override suspend fun unsubscribeFromEvent(idEvent: Int) {
         supabase.from(SupabaseTables.SUBSCRIPTION.tableName).delete {
             filter {
                 eq("prt_partita", idEvent)
@@ -314,7 +314,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 }
             }.decodeSingle<UserDTO>().tagDTOS.filter { t -> t.eventId == idEvent }
                 .map { t -> t.toDomain() }
-            Log.i("tagc", tags.toString())
             tags
         }
     }

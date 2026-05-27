@@ -102,7 +102,7 @@ class EventDetailsViewModel(
             viewModelScope.launch {
                 _state.update { it.copy(isLoadingSubscription = true) }
                 try {
-                    repository.unscribeFromEvent(_state.value.idEvent)
+                    repository.unsubscribeFromEvent(_state.value.idEvent)
                     _state.update { state ->
                         state.copy(
                             imSubscribe = false,
