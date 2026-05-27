@@ -181,7 +181,7 @@ class LoginScreenViewModel(
                     repository.updatePassword(password)
                     successMessage = R.string.password_update
 
-                    repository.setPasswordUpdateRequested(false, false)
+                    repository.setPasswordUpdateRequested(value = false, fromDeepLink = false)
                     _state.update {
                         it.copy(isUpdatePassword = false)
                     }

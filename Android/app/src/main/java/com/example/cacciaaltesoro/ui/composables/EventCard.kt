@@ -400,7 +400,7 @@ suspend fun openInMaps(event: Event, context: Context, snackbarHostState: Snackb
         val uri = "https://maps.google.com/?q=${event.lat},${event.lon}".toUri()
         val mapIntent = Intent(Intent.ACTION_VIEW, uri)
         context.startActivity(mapIntent)
-    } catch (e: Exception) {
+    } catch (_: Exception) {
         snackbarHostState.showSnackbar(context.getString(R.string.impossible_open_map))
     }
 }

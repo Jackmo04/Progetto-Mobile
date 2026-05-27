@@ -164,4 +164,6 @@
     <string name="unexpected_error">An unexpected error occurred. Please try again later.</string>
     <string name="need_email_for_reset">Enter an email to request the reset!</string>
     <string name="enter_email_and_password">Enter email and password to log in!</string>
+    <string name="password_forgotten">"Forgot your password? "</string>
+    <string name="e_mail">E-mail</string>
 </resources>

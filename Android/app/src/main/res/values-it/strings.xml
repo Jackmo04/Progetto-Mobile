@@ -165,4 +165,6 @@
     <string name="unexpected_error">Si è verificato un errore imprevisto. Riprova più tardi.</string>
     <string name="need_email_for_reset">Inserisci una mail per richiedere il reset!</string>
     <string name="enter_email_and_password">Inserisci mail e password per accedere!</string>
+    <string name="password_forgotten">"Password dimenticata? "</string>
+    <string name="e_mail">E-mail</string>
 </resources>

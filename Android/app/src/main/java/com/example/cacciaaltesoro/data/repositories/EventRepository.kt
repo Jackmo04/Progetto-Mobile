@@ -152,7 +152,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
 
-    override suspend fun getEvent(id: Int): Event? {
+    override suspend fun getEvent(id: Int): Event {
         return withContext(Dispatchers.IO) {
             supabase.from(SupabaseTables.EVENTS.tableName).select(
                 columns = Columns.raw("*, utenti!partite_par_organizzatore_fkey(*)")) {

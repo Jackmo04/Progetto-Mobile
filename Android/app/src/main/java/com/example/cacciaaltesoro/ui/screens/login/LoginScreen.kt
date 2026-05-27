@@ -208,7 +208,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = username,
                         onValueChange = { text -> username = text },
-                        label = { Text("E-mail") },
+                        label = { Text(stringResource(R.string.e_mail)) },
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isLoading,
                         readOnly = state.isLogin,
@@ -424,9 +424,9 @@ fun LoginAnswer(isSignUp: Boolean, onToggle: () -> Unit) {
 @Composable
 fun SendEmail(email: String, onToggle: (String) -> Unit) {
     Row(verticalAlignment = Alignment.CenterVertically) {
-        Text(text = "Vuoi cambiare password? ")
+        Text(text = stringResource(R.string.password_forgotten))
         Text(
-            text = "E-mail",
+            text = stringResource(R.string.e_mail),
             color = MaterialTheme.colorScheme.primary,
             fontWeight = FontWeight.Bold,
             modifier = Modifier
