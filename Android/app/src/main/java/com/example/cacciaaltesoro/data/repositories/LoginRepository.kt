@@ -2,8 +2,6 @@ package com.example.cacciaaltesoro.data.repositories
 
 import android.content.Context
 import android.graphics.Bitmap
-import androidx.datastore.core.DataStore
-import androidx.datastore.preferences.core.Preferences
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import id.zelory.compressor.Compressor
@@ -29,7 +27,6 @@ interface LoginRepository {
     suspend fun uploadProfileImage(context: Context, uid: String, imageBytes: ByteArray, fileName: String)
 }
 class LoginRepositoryImpl (
-    private val dataStore: DataStore<Preferences>,
     val supabase: SupabaseClient
 ): LoginRepository {
     val authStatus = supabase.auth.sessionStatus
@@ -43,8 +40,6 @@ class LoginRepositoryImpl (
                 this.email = username
                 this.password = password
             }
-            val userId = supabase.auth.currentUserOrNull()?.id
-
     }
 
     suspend fun onSignOn(username: String, password: String) {
@@ -52,7 +47,6 @@ class LoginRepositoryImpl (
                 this.email = username
                 this.password = password
             }
-            val userId = supabase.auth.currentUserOrNull()?.id
     }
 
 

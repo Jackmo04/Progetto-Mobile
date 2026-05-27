@@ -23,7 +23,7 @@ val Context.dataStore by preferencesDataStore("settings")
 val appModule = module {
     single { get<Context>().dataStore }
 
-    single<LoginRepositoryImpl> { LoginRepositoryImpl(get() , get()) }
+    single<LoginRepositoryImpl> { LoginRepositoryImpl(get()) }
     single<EventRepository> { EventRepositoryImpl(get()) }
 
     single<SupabaseClient> { Supabase().supabase }
