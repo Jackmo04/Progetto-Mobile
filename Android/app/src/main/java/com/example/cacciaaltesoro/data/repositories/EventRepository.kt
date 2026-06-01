@@ -194,7 +194,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                     EventDTO::endTime.gte( localTime)
                 }
             }.decodeList<EventDTO>().sortedBy { eventDTO -> eventDTO.name }
-            Log.i("Event", listEvent.toString())
            listEvent.map{ e -> e.toDomain()}
 }
 
@@ -240,8 +239,6 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                     EventDTO::organizerUUID eq uuidC
                 }
             }.decodeList<EventDTO>()
-
-            Log.d("SavedEventRepository", "Fetched events: $createdEvent")
             createdEvent.distinct().map{ e -> e.toDomain()}.sortedBy { eventDTO -> eventDTO.name }
     }
     }
