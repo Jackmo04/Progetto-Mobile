@@ -158,18 +158,30 @@ class EventEditorViewModel(
         },
         onStartDateChange = { year, month, day ->
             val localDate = LocalDate.of(year, month, day)
-            if (localDate.isAfter(eventState.value.endDate)) {
-                _eventState.update { it.copy(endDate = localDate) }
+            _eventState.update { currentState ->
+                val updatedEndDate = if (localDate.isAfter(currentState.endDate))
+                    localDate
+                else
+                    currentState.endDate
+                currentState.copy(
+                    startDate = localDate,
+                    endDate = updatedEndDate
+                )
             }
-            _eventState.update { it.copy(startDate = localDate) }
             checkTimestamps()
         },
         onStartTimeChange = { hour, minute ->
             val localTime = LocalTime.of(hour, minute)
-            if (localTime.isAfter(eventState.value.endTime)) {
-                _eventState.update { it.copy(endTime = localTime.plusHours(1)) }
+            _eventState.update { currentState ->
+                val updatedEndTime = if (localTime.isAfter(currentState.endTime))
+                    localTime.plusHours(1)
+                else
+                    currentState.endTime
+                currentState.copy(
+                    startTime = localTime,
+                    endTime = updatedEndTime
+                )
             }
-            _eventState.update { it.copy(startTime = localTime) }
             checkTimestamps()
         },
         onEndDateChange = { year, month, day ->
