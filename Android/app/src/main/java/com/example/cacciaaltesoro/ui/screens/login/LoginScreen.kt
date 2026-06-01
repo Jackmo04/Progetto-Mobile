@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.ui.screens.login
 
 import android.Manifest
+import android.content.Context
 import android.content.pm.PackageManager
 import android.net.Uri
 import android.util.Log
@@ -49,6 +50,7 @@ import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.rememberCameraLauncher
 import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
+import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -270,41 +272,8 @@ fun LoginScreen(
 
                         Spacer(modifier = Modifier.size(16.dp))
 
-                        OutlinedButton(
-                            modifier = Modifier.requiredSize(200.dp, 50.dp),
-                            shape = RoundedCornerShape(16.dp),
-                            onClick = {
-                                scope.launch {
-                                    try {
-                                        val credentialManager = CredentialManager.create(context)
 
-                                        val googleIdOption = GetGoogleIdOption.Builder()
-                                            .setFilterByAuthorizedAccounts(false)
-                                            .setServerClientId(BuildConfig.WEB_CLIENT_ID)
-                                            .setAutoSelectEnabled(true)
-                                            .build()
 
-                                        val request = GetCredentialRequest.Builder()
-                                            .addCredentialOption(googleIdOption)
-                                            .build()
-
-                                        val result = credentialManager.getCredential(context, request)
-                                        val credential = result.credential
-
-                                        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                                            val idToken = googleIdTokenCredential.idToken
-
-                                            viewModel.action.onGoogleSignIn(idToken)
-                                        }
-                                    } catch (e: Exception) {
-                                        Log.e("GoogleSignIn", "Accesso con Google annullato o fallito", e)
-                                    }
-                                }
-                            }
-                        ) {
-                            Text("Accedi con Google")
-                        }
                     }
                 } else {
                     OutlinedTextField(
@@ -358,6 +327,8 @@ fun LoginScreen(
 
                             } else if (!isSignUp && !state.isLogin) {
                                 MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
+                                Spacer(modifier = Modifier.size(16.dp))
+                                GoogleSignIn(scope,context,viewModel)
                                 Spacer(modifier = Modifier.size(36.dp))
                                 LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen(true) })
                                 Spacer(modifier = Modifier.size(8.dp))
@@ -491,5 +462,48 @@ fun SendEmail(email: String, onToggle: (String) -> Unit) {
                 .padding(4.dp)
         )
         Text(text = ".")
+    }
+}
+
+@Composable
+fun GoogleSignIn(
+    scope: CoroutineScope,
+    context: Context,
+    viewModel: LoginScreenViewModel
+){
+    OutlinedButton(
+        modifier = Modifier.requiredSize(200.dp, 50.dp),
+        shape = RoundedCornerShape(16.dp),
+        onClick = {
+            scope.launch {
+                try {
+                    val credentialManager = CredentialManager.create(context)
+
+                    val googleIdOption = GetGoogleIdOption.Builder()
+                        .setFilterByAuthorizedAccounts(false)
+                        .setServerClientId(BuildConfig.WEB_CLIENT_ID)
+                        .setAutoSelectEnabled(true)
+                        .build()
+
+                    val request = GetCredentialRequest.Builder()
+                        .addCredentialOption(googleIdOption)
+                        .build()
+
+                    val result = credentialManager.getCredential(context, request)
+                    val credential = result.credential
+
+                    if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                        val idToken = googleIdTokenCredential.idToken
+
+                        viewModel.action.onGoogleSignIn(idToken)
+                    }
+                } catch (e: Exception) {
+                    Log.e("GoogleSignIn", "Accesso con Google annullato o fallito", e)
+                }
+            }
+        }
+    ) {
+        Text("Accedi con Google")
     }
 }
