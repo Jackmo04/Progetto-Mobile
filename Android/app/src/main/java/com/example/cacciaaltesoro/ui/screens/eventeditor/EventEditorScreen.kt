@@ -341,12 +341,12 @@ fun EventEditorScreen(
                 text = { Text(stringResource(R.string.unsaved_changes_body)) },
                 onDismissRequest = { showExitConfirmationDialog = false },
                 dismissButton = {
-                    TextButton(onClick = { showExitConfirmationDialog = false }) {
-                        Text(stringResource(R.string.cancel))
+                    Button(onClick = { showExitConfirmationDialog = false }) {
+                        Text(stringResource(R.string.keep_editing))
                     }
                 },
                 confirmButton = {
-                    Button(onClick = { navController.popBackStack() }) {
+                    TextButton(onClick = { navController.navigateUp() }) {
                         Text(stringResource(R.string.exit_wo_saving))
                     }
                 }
