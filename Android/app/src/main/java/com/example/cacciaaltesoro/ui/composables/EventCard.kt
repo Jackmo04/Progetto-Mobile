@@ -40,12 +40,9 @@ import com.google.maps.model.LatLng
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
-import java.time.ZoneId
-import java.time.format.DateTimeFormatter
 import kotlin.time.ExperimentalTime
 import androidx.core.net.toUri
 import com.example.cacciaaltesoro.data.domain.Event
-import java.time.Instant
 
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.material.icons.filled.AccessTime
@@ -58,11 +55,15 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cacciaaltesoro.R
+import com.example.cacciaaltesoro.data.mappers.getGameDuration
+import com.example.cacciaaltesoro.data.mappers.getImageUrl
+import com.example.cacciaaltesoro.data.mappers.getStartTime
+import com.example.cacciaaltesoro.data.mappers.isAvailableTheEvent
+import com.example.cacciaaltesoro.data.mappers.isEditableTheEvent
+import com.example.cacciaaltesoro.data.mappers.shareTextBuilder
 import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.google.maps.model.AddressComponentType
-import java.time.format.FormatStyle
 import java.util.Locale
-import kotlin.time.Clock
 
 @OptIn(ExperimentalTime::class)
 @Composable
@@ -94,13 +95,13 @@ fun EventCard(
         addressText = address
     }
 
-    val mapImageUrl = getImageUrl(event)
+    val mapImageUrl = event.getImageUrl()
     val backgroundColor = if (isMineEvent) MaterialTheme.colorScheme.primaryContainer else MaterialTheme.colorScheme.surface
 
     fun shareDetails() {
         coroutineScope.launch(Dispatchers.IO) {
             try {
-                val textToShare = shareTextBuilder(event, addressText)
+                val textToShare = event.shareTextBuilder( addressText)
                 withContext(Dispatchers.Main) {
                     val sendIntent = Intent(Intent.ACTION_SEND).apply {
                         type = "text/plain"
@@ -213,8 +214,8 @@ fun EventCard(
                 InfoRow(icon = Icons.Default.Person, text = "${stringResource(R.string.master)} ${event.organizer?.username ?: stringResource(
                     R.string.unknow)}")
                 InfoRow(icon = Icons.Default.LocationOn, text = "${stringResource(R.string.Address)} $addressText")
-                InfoRow(icon = Icons.Default.AccessTime, text = "${stringResource(R.string.start_event)} ${getStartTime(event)}")
-                InfoRow(icon = Icons.Default.Timer, text = "${stringResource(R.string.duration)} ${getGameDuration(event,context)}")
+                InfoRow(icon = Icons.Default.AccessTime, text = "${stringResource(R.string.start_event)} ${event.getStartTime()}")
+                InfoRow(icon = Icons.Default.Timer, text = "${stringResource(R.string.duration)} ${event.getGameDuration(context)}")
                 if(!isMineEvent && state.imSubscribe)
                     InfoRow(icon = Icons.Default.Tag, text = "${stringResource(R.string.tags_collected)} ${state.userTagCached}")
                 else
@@ -280,7 +281,7 @@ fun EventCard(
                                     event.id ?: throw IllegalArgumentException())
                                 )
                             } },
-                        enabled = state.imSubscribe && isAvailableTheEvent(event)
+                        enabled = state.imSubscribe && event.isAvailableTheEvent()
                     ) {
                         Text(stringResource(R.string.start))
                     }
@@ -295,7 +296,7 @@ fun EventCard(
 
                     Button(
                         onClick = { navController.navigate(NavigationRoute.EventEditor(eventId = event.id)) },
-                        enabled = isEditableTheEvent(event)
+                        enabled =event.isEditableTheEvent()
                     ) {
                         Text(stringResource(R.string.edit))
                     }
@@ -344,39 +345,6 @@ fun InfoRow(icon: ImageVector, text: String) {
         )
     }
 }
-
-fun getImageUrl(event: Event) : String{
-   return "https://maps.googleapis.com/maps/api/staticmap?" +
-            "center=${event.lat},${event.lon}" +
-            "&zoom=15" +
-            "&size=600x300" +
-            "&markers=color:red%7C${event.lat},${event.lon}" +
-            "&key=${BuildConfig.MAPS_KEY}"
-}
-
-@OptIn(ExperimentalTime::class)
-fun shareTextBuilder(event: Event, resolvedAddress: String): String {
-    val dateTime = getStartTime(event)
-    return """
-        *📍 NUOVA CACCIA AL TESORO!*
-        
-        Ciao! Sei stato invitato a partecipare a un nuovo evento. Ecco i dettagli:
-        
-        *🏆 Nome:* ${event.name}
-        *📅 Data:* $dateTime
-        *📍 Punto di ritrovo:* $resolvedAddress
-        
-        *Codice di accesso:* `${event.code}`
-        
-        ---
-        
-        *📲 Come partecipare:*
-        Scarica l'app, inserisci il codice qui sopra e preparati a trovare tutti i Tag!
-        
-        *Mappa:* https://maps.google.com/?q=${event.lat},${event.lon}
-    """.trimIndent()
-}
-
 fun getAddressFromCords(lat: Double, lng: Double, onlyCity: Boolean = false, contextMain: Context): String {
     val context = GeoApiContext.Builder()
         .apiKey(BuildConfig.MAPS_KEY)
@@ -417,8 +385,6 @@ suspend fun openInMaps(event: Event, context: Context, snackbarHostState: Snackb
         snackbarHostState.showSnackbar(context.getString(R.string.impossible_open_map))
     }
 }
-
-
 @OptIn(ExperimentalTime::class)
 suspend fun addToCalendar(event: Event, address: String, context: Context, snackbarHostState: SnackbarHostState) {
     try {
@@ -439,40 +405,4 @@ suspend fun addToCalendar(event: Event, address: String, context: Context, snack
         snackbarHostState.showSnackbar(context.getString(R.string.no_app_found_calendar))
         Log.e("CalendarError", "Errore durante l'apertura del calendario", e)
     }
-}
-@OptIn(ExperimentalTime::class)
-fun getStartTime(event: Event): String {
-    val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
-        .withLocale(Locale.getDefault())
-
-    return Instant.ofEpochSecond(event.startTime.epochSeconds)
-        .atZone(ZoneId.systemDefault())
-        .format(formatter)
-}
-
-@OptIn(ExperimentalTime::class)
-fun getGameDuration(event: Event , context: Context): String {
-    val diffInSeconds = event.endTime.epochSeconds - event.startTime.epochSeconds
-    val minutes = diffInSeconds / 60
-
-    return if (minutes >= 60) {
-        val hours = minutes / 60
-        val remainingMinutes = minutes % 60
-        if (remainingMinutes > 0) "$hours h e $remainingMinutes min" else "$hours h"
-    } else {
-        "$minutes"+ context.getString(R.string.minute)
-    }
-}
-
-@OptIn(ExperimentalTime::class)
-fun isAvailableTheEvent(event: Event): Boolean {
-    val now = Clock.System.now().toEpochMilliseconds()
-    val extraTime = 15 * 60 * 1000
-    return (event.startTime.epochSeconds * 1000L - now - extraTime) <= 0 && (event.endTime.epochSeconds *1000L - now)>=0
-}
-
-@OptIn(ExperimentalTime::class)
-fun isEditableTheEvent(event: Event): Boolean {
-    val now = Clock.System.now().toEpochMilliseconds()
-    return (event.startTime.epochSeconds * 1000L) > now
 }

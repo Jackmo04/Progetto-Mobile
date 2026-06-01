@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
+import com.example.cacciaaltesoro.data.mappers.isAvailableTheEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
 
@@ -31,7 +32,7 @@ fun EventListCard(
     location: Location? = null
 ) {
     val surfaceColor = if (isMyEvent) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
-    val outlineVariant = if( !isAvailableTheEvent(event))MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.error
+    val outlineVariant = if( !event.isAvailableTheEvent())MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.error
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
     val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
     val onSurface = MaterialTheme.colorScheme.onSurface
