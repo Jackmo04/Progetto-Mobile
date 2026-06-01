@@ -3,6 +3,7 @@ package com.example.cacciaaltesoro.data.repositories
 import android.content.Context
 import android.graphics.Bitmap
 import android.net.Uri
+import android.util.Log
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import com.example.cacciaaltesoro.data.mappers.isUrl
@@ -104,6 +105,8 @@ class LoginRepositoryImpl (
 
         val imgName = userDto?.image
         if (imgName.isNullOrEmpty()) return null
+
+        Log.d("PROFILE_IMG", imgName.isUrl().toString() + imgName)
 
         return when {
             imgName.isUrl() -> imgName

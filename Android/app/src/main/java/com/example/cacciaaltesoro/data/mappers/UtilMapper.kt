@@ -3,6 +3,7 @@ package com.example.cacciaaltesoro.data.mappers
 import android.util.Patterns
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.google.android.gms.maps.model.LatLng
+import java.util.regex.Pattern
 
 fun Coordinates.toLatLng(): LatLng {
     return LatLng(latitude, longitude)
