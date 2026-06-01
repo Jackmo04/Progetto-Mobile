@@ -28,7 +28,7 @@
     <string name="date">Date</string>
     <string name="time">Time</string>
     <string name="timezone_abbr">Zone</string>
-    <string name="start_date">Start date</string>
+    <string name="from_oldest">From oldest</string>
     <string name="end_date">End date</string>
     <string name="start_time">Start time</string>
     <string name="end_time">End time</string>
@@ -172,4 +172,5 @@
     <string name="error_during_search">Error during search</string>
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="log_out">Log Out</string>
+    <string name="from_newest">From newest</string>
 </resources>

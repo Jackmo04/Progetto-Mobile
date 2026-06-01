@@ -210,7 +210,11 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 result = listEvent.sortedByDescending{ it.name.uppercase() }
             }
 
-            EventOrderType.START_DATE.name -> {
+            EventOrderType.OLDEST_DATE.name -> {
+                result = listEvent.sortedByDescending { it.startTime }
+            }
+
+            EventOrderType.NEWEST_DATE.name -> {
                 result = listEvent.sortedBy { it.startTime }
             }
 

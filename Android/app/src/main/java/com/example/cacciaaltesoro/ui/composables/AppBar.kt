@@ -63,7 +63,7 @@ fun AppBar(
                 ) {
                     if(!imLogged){
                         AsyncImage(
-                            model = painterResource(R.drawable.profilo_default),
+                            model = R.drawable.profilo_default,
                             contentDescription = "Foto default",
                             modifier = Modifier
                                 .size(36.dp)
