@@ -62,11 +62,16 @@ data class EventState(
     val fEndTime: String get() = endTime.formatShortTime()
     val fLocation: String get() = address.ifBlank { location?.let { "${it.latitude}, ${it.longitude}" } ?: "" }
 
-    private fun LocalDate.formatShortDate(): String = formatWithStyle(FormatStyle.SHORT, isDate = true)
-    private fun LocalTime.formatShortTime(): String = formatWithStyle(FormatStyle.SHORT, isDate = false)
+    private fun LocalDate.formatShortDate(): String = formatWithStyle(isDate = true)
+    private fun LocalTime.formatShortTime(): String = formatWithStyle(isDate = false)
 
-    private fun TemporalAccessor.formatWithStyle(style: FormatStyle, isDate: Boolean): String {
-        val formatter = if (isDate) DateTimeFormatter.ofLocalizedDate(style) else DateTimeFormatter.ofLocalizedTime(style)
+    private fun TemporalAccessor.formatWithStyle(isDate: Boolean): String {
+        val formatter = if (isDate) {
+            DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+        }
+        else {
+            DateTimeFormatter.ofLocalizedTime(FormatStyle.SHORT)
+        }
         return formatter.withLocale(Locale.getDefault()).format(this)
     }
 }
