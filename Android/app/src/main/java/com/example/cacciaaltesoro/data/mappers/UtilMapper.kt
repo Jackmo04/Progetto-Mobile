@@ -1,5 +1,6 @@
 package com.example.cacciaaltesoro.data.mappers
 
+import android.util.Patterns
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.google.android.gms.maps.model.LatLng
 
@@ -17,4 +18,8 @@ fun List<Coordinates>.toLatLngList(): List<LatLng> {
 
 fun List<LatLng>.toCoordinatesList(): List<Coordinates> {
     return map { it.toCoordinates() }
+}
+
+fun String.isUrl(): Boolean {
+    return this.isNotBlank() && Patterns.WEB_URL.matcher(this).matches()
 }

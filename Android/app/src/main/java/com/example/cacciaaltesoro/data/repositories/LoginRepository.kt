@@ -2,8 +2,10 @@ package com.example.cacciaaltesoro.data.repositories
 
 import android.content.Context
 import android.graphics.Bitmap
+import android.net.Uri
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
+import com.example.cacciaaltesoro.data.mappers.isUrl
 import id.zelory.compressor.Compressor
 import id.zelory.compressor.constraint.format
 import id.zelory.compressor.constraint.quality
@@ -19,6 +21,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.time.Duration.Companion.minutes
 import io.github.jan.supabase.storage.storage
+import io.ktor.http.Url
 import java.io.File
 
 interface LoginRepository {
@@ -93,17 +96,20 @@ class LoginRepositoryImpl (
 
     override suspend fun getImageFromBucket(uid: String): String? {
         val bucketName = "Upload"
-            val userDto = supabase.from(SupabaseTables.USERS.tableName).select {
-                filter {
-                    UserDTO::uuid eq uid
-                }
-            }.decodeSingleOrNull<UserDTO>()
+        val userDto = supabase.from(SupabaseTables.USERS.tableName).select {
+            filter {
+                UserDTO::uuid eq uid
+            }
+        }.decodeSingleOrNull<UserDTO>()
 
-            val imgName = userDto?.image
-            if (imgName.isNullOrEmpty()) return null
+        val imgName = userDto?.image
+        if (imgName.isNullOrEmpty()) return null
 
-            return  supabase.storage.from(bucketName)
+        return when {
+            imgName.isUrl() -> imgName
+            else -> supabase.storage.from(bucketName)
                 .createSignedUrl(path = imgName, expiresIn = 60.minutes)
+        }
     }
 
     override suspend fun uploadProfileImage(context: Context, uid: String, imageBytes: ByteArray, fileName: String) {
