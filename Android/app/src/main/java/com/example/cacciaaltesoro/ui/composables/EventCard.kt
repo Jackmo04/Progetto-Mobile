@@ -59,6 +59,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cacciaaltesoro.R
 import com.google.maps.model.AddressComponentType
+import java.time.format.FormatStyle
 import java.util.Locale
 import kotlin.time.Clock
 
@@ -428,13 +429,13 @@ suspend fun addToCalendar(event: Event, address: String, context: Context, snack
     }
 }
 @OptIn(ExperimentalTime::class)
-fun getStartTime(event: Event): String{
-    val formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy 'alle' HH:mm", Locale.ITALY)
-    val dateTime = Instant.ofEpochSecond(event.startTime.epochSeconds)
+fun getStartTime(event: Event): String {
+    val formatter = DateTimeFormatter.ofLocalizedDateTime(FormatStyle.LONG, FormatStyle.SHORT)
+        .withLocale(Locale.getDefault())
+
+    return Instant.ofEpochSecond(event.startTime.epochSeconds)
         .atZone(ZoneId.systemDefault())
         .format(formatter)
-
-    return dateTime
 }
 
 @OptIn(ExperimentalTime::class)
