@@ -152,14 +152,14 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         }
     }
 
-    override suspend fun getEvent(id: Int): Event {
+    override suspend fun getEvent(id: Int): Event? {
         return withContext(Dispatchers.IO) {
             supabase.from(SupabaseTables.EVENTS.tableName).select(
                 columns = Columns.raw("*, utenti!partite_par_organizzatore_fkey(*)")) {
                 filter {
                     EventDTO::id eq id
                 }
-            }.decodeSingle<EventDTO>().toDomain()
+            }.decodeSingleOrNull<EventDTO>()?.toDomain()
     }
     }
     override suspend fun getEventsByCode(code: String): Event? {
@@ -256,7 +256,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
                 filter {
                     UserDTO::uuid eq uuidC
                 }
-            }.decodeSingle<UserDTO>().eventDTOS
+            }.decodeSingleOrNull<UserDTO>()?.eventDTOS ?: emptyList()
             userSaved.map{e -> e.toDomain()}
     }}
 
@@ -304,16 +304,16 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     override suspend fun getTagCachedByMe(idEvent: Int): List<Tag> {
         return withContext(Dispatchers.IO) {
             val uuidC = supabase.auth.currentSessionOrNull()?.user?.id
-                ?: throw IllegalStateException("utente non loggato")
-
+                ?: return@withContext emptyList<Tag>()
+            
             val tags = supabase.from(SupabaseTables.USERS.tableName).select(
                 columns = Columns.raw("*,  tags!tagraccolti(*)")
             ) {
                 filter {
                     UserDTO::uuid eq uuidC
                 }
-            }.decodeSingle<UserDTO>().tagDTOS.filter { t -> t.eventId == idEvent }
-                .map { t -> t.toDomain() }
+            }.decodeSingleOrNull<UserDTO>()?.tagDTOS?.filter { t -> t.eventId == idEvent }
+                ?.map { t -> t.toDomain() } ?: emptyList()
             tags
         }
     }

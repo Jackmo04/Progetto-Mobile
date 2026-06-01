@@ -273,11 +273,11 @@ fun OnlineEventsScreen(
                                         event = event,
                                         isMyEvent = event.organizerUUID == state.uuid,
                                         onClick = {
-                                            if(stateLogin.isLogin)
+                                          //  if(stateLogin.isLogin)
                                             event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id))}
-                                        else
+                                            /*  else
                                             navController.navigate(NavigationRoute.Login)
-                                        },
+                                       */ },
                                         viewModel.currentLocation
                                     )
                                 }

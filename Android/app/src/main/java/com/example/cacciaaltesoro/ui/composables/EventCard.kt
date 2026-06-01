@@ -58,6 +58,7 @@ import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import com.example.cacciaaltesoro.R
+import com.example.cacciaaltesoro.ui.screens.login.LoginScreenViewModel
 import com.google.maps.model.AddressComponentType
 import java.time.format.FormatStyle
 import java.util.Locale
@@ -68,11 +69,13 @@ import kotlin.time.Clock
 fun EventCard(
     event: Event,
     viewModel: EventDetailsViewModel,
+    loginScreenViewModel: LoginScreenViewModel,
     navController: NavHostController,
     context: Context,
     snackbarHostState: SnackbarHostState
 ) {
     val state by viewModel.state.collectAsStateWithLifecycle()
+    val loginState by loginScreenViewModel.state.collectAsStateWithLifecycle()
 
     LaunchedEffect(Unit) {
         viewModel.action.saveIdUser()
@@ -249,9 +252,13 @@ fun EventCard(
                 if (!isMineEvent) {
                     OutlinedButton(
                         onClick = {
+                            if (!loginState.isLogin) {
+                                navController.navigate(NavigationRoute.Login)}
+                            else{
+
                             if (!state.imSubscribe) viewModel.action.joinToEvent()
                             else viewModel.action.unscribeFromEvent()
-                        },
+                        }},
                         enabled = !state.isLoadingSubscription,
                         modifier = Modifier.padding(end = 8.dp)
                     ) {
@@ -265,9 +272,14 @@ fun EventCard(
                     }
 
                     Button(
-                        onClick = { navController.navigate(NavigationRoute.Game(
-                            event.id ?: throw IllegalArgumentException())
-                        ) },
+                        onClick = {
+                            if (!loginState.isLogin) {
+                                navController.navigate(NavigationRoute.Login)}
+                            else{
+                                navController.navigate(NavigationRoute.Game(
+                                    event.id ?: throw IllegalArgumentException())
+                                )
+                            } },
                         enabled = state.imSubscribe && isAvailableTheEvent(event)
                     ) {
                         Text(stringResource(R.string.start))

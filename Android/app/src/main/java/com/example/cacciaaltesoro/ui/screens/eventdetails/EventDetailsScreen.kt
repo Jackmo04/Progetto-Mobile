@@ -70,7 +70,7 @@ fun EventDetailsScreen(navController: NavHostController,
                         .verticalScroll(rememberScrollState()),
                     horizontalAlignment = Alignment.CenterHorizontally
                 ) {
-                    EventCard(state.event!!, viewModel, navController,context,snackbarHostState )
+                    EventCard(state.event!!, viewModel, loginViewModel,navController,context,snackbarHostState )
                 }
             } else {
                 CircularProgressIndicator(modifier = Modifier.align(Alignment.Center))
