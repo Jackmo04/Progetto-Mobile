@@ -236,15 +236,21 @@ class LoginScreenViewModel(
         },
         getImageFromCloud = {
             viewModelScope.launch {
+
                 val uid = _state.value.userId
                 if (uid.isNotEmpty()) {
                     val url = repository.getImageFromBucket(uid)
                     if (url != null) {
+                        try {
                         _state.update { it.copy(imageUri = url.toUri()) }
+                    }catch (_: Exception){
+                        Log.e("GetImage", "Errore nel caricamento immagine")
+                    }
                     }else{
                         _state.update { it.copy(imageUri = null) }
-                    }
-                }
+                    }}
+
+
             }
         },
 
