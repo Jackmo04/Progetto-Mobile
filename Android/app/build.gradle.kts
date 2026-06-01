@@ -1,4 +1,5 @@
-@file:Suppress("SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection",
+@file:Suppress(
+    "SpellCheckingInspection", "SpellCheckingInspection",
     "SpellCheckingInspection"
 )
 

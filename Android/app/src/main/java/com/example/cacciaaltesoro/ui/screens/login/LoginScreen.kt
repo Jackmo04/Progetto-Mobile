@@ -161,12 +161,6 @@ fun LoginScreen(
             cameraPermissionLauncher.launch(Manifest.permission.CAMERA)
         }
     }
-    if (state.isUpdatePassword && state.isFromDeepLink) {
-        BackHandler {
-            viewModel.action.toggleUpdatePassword(false)
-            navController.popBackStack()
-        }
-    }
 
     val customBackAction = {
         when {
@@ -185,6 +179,8 @@ fun LoginScreen(
             }
         }
     }
+
+    BackHandler(onBack = { customBackAction() })
 
     Scaffold(
         topBar = { AppBar(
@@ -356,12 +352,14 @@ fun LoginScreen(
                                     password = ""
 
                                 })
-                                Spacer(modifier = Modifier.size(8.dp))
-                                MyButton(stringResource(R.string.change_password), onClick = {
-                                    viewModel.action.toggleUpdatePassword(true)
-                                    password = ""
-                                    passwordConfirm = ""
-                                })
+                                if (!state.isGoogleAuth) {
+                                    Spacer(modifier = Modifier.size(8.dp))
+                                    MyButton(stringResource(R.string.change_password), onClick = {
+                                        viewModel.action.toggleUpdatePassword(true)
+                                        password = ""
+                                        passwordConfirm = ""
+                                    })
+                                }
                                 Spacer(Modifier.size(24.dp))
                                 Text(stringResource(R.string.update_profile_photo), style = MaterialTheme.typography.titleMedium)
                                 Spacer(Modifier.size(16.dp))

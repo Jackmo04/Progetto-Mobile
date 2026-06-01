@@ -29,6 +29,7 @@ data class LoginState(
     val isFromDeepLink: Boolean = false,
     val isLoading: Boolean = false,
     val isInitializing: Boolean = true,
+    val isGoogleAuth: Boolean = false,
     val imageUri: Uri? = null
 )
 
@@ -289,12 +290,14 @@ class LoginScreenViewModel(
                 val isUserActuallyLoggedIn = authStatus is SessionStatus.Authenticated
                 val user = repository.getLoggedUser()
                 val userId = user?.id ?: ""
+                val isGoogle = user?.identities?.any { it.provider == "google" } ?: false
                 _state.value.copy(
                     isLogin = isUserActuallyLoggedIn,
                     username = user?.email ?: "",
                     userId = userId,
                     isSignUp = false,
                     isUpdatePassword = isRequested,
+                    isGoogleAuth = isGoogle,
                     isFromDeepLink = isFromDeepLink,
                     isInitializing = false
                 )
