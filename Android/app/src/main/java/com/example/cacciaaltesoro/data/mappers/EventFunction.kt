@@ -67,7 +67,7 @@ fun Event.shareTextBuilder(resolvedAddress: String): String {
         
         Ciao! Sei stato invitato a partecipare a un nuovo evento. Ecco i dettagli:
         
-        *🏆 Nome:* ${name}
+        *🏆 Nome:* $name
         *📅 Data:* $dateTime
         *📍 Punto di ritrovo:* $resolvedAddress
         

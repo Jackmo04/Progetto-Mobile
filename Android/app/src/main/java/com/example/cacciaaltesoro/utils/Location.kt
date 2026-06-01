@@ -9,7 +9,6 @@ import androidx.core.content.ContextCompat
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.google.android.gms.location.LocationServices
 import com.google.android.gms.location.Priority
-import com.google.android.gms.maps.model.LatLng
 import com.google.android.gms.tasks.CancellationTokenSource
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -22,30 +21,21 @@ class LocationService(private val ctx: Context) {
     private val _coordinates = MutableStateFlow<Coordinates?>(null)
     val coordinates = _coordinates.asStateFlow()
 
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading = _isLoading.asStateFlow()
-
     suspend fun getCurrentLocation(usePreciseLocation: Boolean = true): Coordinates? {
-        _coordinates.value = try {
-            _isLoading.value = true
+        val locationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
+        if (!locationEnabled) throw IllegalStateException("Location is disabled")
 
-            val locationEnabled = locationManager.isProviderEnabled(LocationManager.GPS_PROVIDER)
-            if (!locationEnabled) throw IllegalStateException("Location is disabled")
+        val permissionGranted = ContextCompat.checkSelfPermission(
+            ctx,
+            Manifest.permission.ACCESS_COARSE_LOCATION
+        ) == PackageManager.PERMISSION_GRANTED
+        if (!permissionGranted) throw SecurityException("Location permission not granted")
 
-            val permissionGranted = ContextCompat.checkSelfPermission(
-                ctx,
-                Manifest.permission.ACCESS_COARSE_LOCATION
-            ) == PackageManager.PERMISSION_GRANTED
-            if (!permissionGranted) throw SecurityException("Location permission not granted")
-
-            fusedLocationClient.getCurrentLocation(
-                if (usePreciseLocation) Priority.PRIORITY_HIGH_ACCURACY
-                else Priority.PRIORITY_BALANCED_POWER_ACCURACY,
-                CancellationTokenSource().token
-            ).await()?.toCoordinates()
-        } finally {
-            _isLoading.value = false
-        }
+        _coordinates.value = fusedLocationClient.getCurrentLocation(
+            if (usePreciseLocation) Priority.PRIORITY_HIGH_ACCURACY
+            else Priority.PRIORITY_BALANCED_POWER_ACCURACY,
+            CancellationTokenSource().token
+        ).await()?.toCoordinates()
 
         return coordinates.value
     }

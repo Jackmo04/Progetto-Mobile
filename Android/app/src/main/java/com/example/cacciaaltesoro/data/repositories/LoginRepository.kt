@@ -2,7 +2,6 @@ package com.example.cacciaaltesoro.data.repositories
 
 import android.content.Context
 import android.graphics.Bitmap
-import android.net.Uri
 import android.util.Log
 import com.example.cacciaaltesoro.data.database.SupabaseTables
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
@@ -18,12 +17,11 @@ import io.github.jan.supabase.auth.providers.builtin.Email
 import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.user.UserInfo
 import io.github.jan.supabase.postgrest.from
+import io.github.jan.supabase.storage.storage
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
-import kotlin.time.Duration.Companion.minutes
-import io.github.jan.supabase.storage.storage
-import io.ktor.http.Url
 import java.io.File
+import kotlin.time.Duration.Companion.minutes
 
 interface LoginRepository {
     suspend fun onLogIn(username: String, password: String)
