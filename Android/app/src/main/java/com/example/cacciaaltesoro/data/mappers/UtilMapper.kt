@@ -3,6 +3,7 @@ package com.example.cacciaaltesoro.data.mappers
 import android.util.Patterns
 import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.google.android.gms.maps.model.LatLng
+import java.net.URL
 import java.util.regex.Pattern
 
 fun Coordinates.toLatLng(): LatLng {
@@ -22,5 +23,10 @@ fun List<LatLng>.toCoordinatesList(): List<Coordinates> {
 }
 
 fun String.isUrl(): Boolean {
-    return this.isNotBlank() && Patterns.WEB_URL.matcher(this).matches()
+    return try {
+        URL(this)
+        true
+    } catch (_: Exception) {
+        false
+    }
 }
