@@ -102,14 +102,16 @@ class LoginScreenViewModel(
                 try {
                     repository.onSignOn(username, password)
                     successMessage = R.string.sing_complete
+                    _state.update {
+                        it.copy(isSignUp = false)}
                 } catch (e: Exception) {
                     Log.e("Login" , e.toString())
                     errorMessage = mapSupabaseError(e)
+                    return@launch
                 } finally {
                    disableLoading()
-                    _state.update {
-                        it.copy(isSignUp = false)
-                    }
+
+
                 }
             }
         },
