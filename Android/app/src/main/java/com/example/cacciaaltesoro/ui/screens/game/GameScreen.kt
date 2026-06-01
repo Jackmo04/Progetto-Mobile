@@ -60,6 +60,7 @@ import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Tag
+import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import com.example.cacciaaltesoro.data.mappers.toLatLng
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.LocationService
@@ -361,7 +362,7 @@ fun TagView(
 @Composable
 fun GamePlaying(
     viewModel: GameViewModel,
-    coordinates: com.example.cacciaaltesoro.utils.Coordinates?,
+    coordinates: Coordinates?,
     tagsToFind: List<Tag>
 ) {
     val cameraPositionState = rememberCameraPositionState {

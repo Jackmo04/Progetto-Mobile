@@ -1,6 +1,6 @@
 package com.example.cacciaaltesoro.data.domain
 
-import com.example.cacciaaltesoro.utils.Coordinates
+import com.example.cacciaaltesoro.data.domain.utils.Coordinates
 import kotlin.time.ExperimentalTime
 import kotlin.time.Instant
 
