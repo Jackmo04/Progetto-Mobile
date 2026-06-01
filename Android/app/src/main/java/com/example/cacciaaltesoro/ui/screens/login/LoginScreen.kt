@@ -158,13 +158,13 @@ fun LoginScreen(
         }
     }
 
-    val customBackAction: (() -> Unit)? = if (state.isUpdatePassword && state.isFromDeepLink) {
-        {
+    val customBackAction = {
+        if (state.isUpdatePassword && state.isFromDeepLink) {
             viewModel.action.toggleUpdatePassword(false)
             navController.popBackStack()
+        } else {
+            navController.navigateUp()
         }
-    } else {
-        null
     }
 
     Scaffold(

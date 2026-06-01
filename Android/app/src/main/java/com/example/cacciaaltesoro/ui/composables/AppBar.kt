@@ -35,7 +35,7 @@ fun AppBar(
     showProfile: Boolean = false,
     imageUri: Any? = null,
     onProfileClick: () -> Unit = {},
-    onBackClick: (() -> Unit)? = null
+    onBackClick: (() -> Any) = { navController.navigateUp() }
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -46,13 +46,7 @@ fun AppBar(
         },
         navigationIcon = {
             if (showBackArrow && navController.previousBackStackEntry != null) {
-                IconButton(onClick = {
-                    if (onBackClick != null) {
-                        onBackClick()
-                    } else {
-                        navController.navigateUp() // Comportamento normale
-                    }
-                }) {
+                IconButton(onClick = { onBackClick() }) {
                     Icon(
                         Icons.AutoMirrored.Outlined.ArrowBack,
                         "Go Back"
