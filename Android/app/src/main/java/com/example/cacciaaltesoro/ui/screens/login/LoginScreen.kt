@@ -28,6 +28,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
@@ -429,6 +430,9 @@ fun LoginScreen(
                                 Spacer(Modifier.size(16.dp))
                                 AsyncImage(
                                     model = state.imageUri,
+                                    placeholder = painterResource(R.drawable.profilo_default),
+                                    fallback = painterResource(R.drawable.profilo_default),
+                                    error = painterResource(R.drawable.profilo_default),
                                     contentDescription = stringResource(R.string.profile_photo),
                                     modifier = Modifier
                                         .size(140.dp)
