@@ -36,7 +36,7 @@ data class LoginAction(
     val onLogIn: (String, String) -> Unit,
     val onSignOn: (String, String, String) -> Unit,
     val onLogOut: (()-> Unit) -> Unit,
-    val changeSignScreen: () -> Unit,
+    val changeSignScreen: (Boolean) -> Unit,
     val callResetPasswordEmail:(String) -> Unit,
     val changePassword: (String, String) -> Unit,
     val toggleUpdatePassword: (Boolean) -> Unit,
@@ -139,10 +139,10 @@ class LoginScreenViewModel(
 
             }
         },
-        changeSignScreen = {
+        changeSignScreen = { isVisible ->
             viewModelScope.launch {
                 _state.update {
-                    it.copy(isSignUp = true)
+                    it.copy(isSignUp = isVisible)
                 }
             }
         },

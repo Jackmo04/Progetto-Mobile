@@ -167,6 +167,9 @@ fun LoginScreen(
             state.isUpdatePassword -> {
                 viewModel.action.toggleUpdatePassword(false)
             }
+            state.isSignUp->{
+                viewModel.action.changeSignScreen(false)
+            }
             else -> {
                 navController.navigateUp()
             }
@@ -311,7 +314,7 @@ fun LoginScreen(
                             } else if (!isSignUp && !state.isLogin) {
                                 MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
                                 Spacer(modifier = Modifier.size(36.dp))
-                                LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen() })
+                                LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen(true) })
                                 Spacer(modifier = Modifier.size(8.dp))
                                 SendEmail(username, viewModel.action.callResetPasswordEmail)
 
@@ -320,7 +323,7 @@ fun LoginScreen(
                                     viewModel.action.onSignOn(username, password, passwordConfirm)
                                 })
                                 Spacer(modifier = Modifier.size(36.dp))
-                                LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen() })
+                                LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen(false) })
 
                             } else {
                                 MyButton("Log Out", onClick = {
