@@ -1,3 +1,7 @@
+@file:Suppress("SpellCheckingInspection", "SpellCheckingInspection", "SpellCheckingInspection",
+    "SpellCheckingInspection"
+)
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.compose)
@@ -78,7 +82,7 @@ dependencies {
     implementation(libs.androidx.core.splashscreen)
     implementation(platform(libs.androidx.compose.bom))
 
-    //Supbase dependence
+    //Supabase dependence
     implementation(libs.auth.kt)
     implementation(libs.slf4j.simple)
     implementation(libs.storage.kt)

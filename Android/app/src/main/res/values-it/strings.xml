@@ -171,6 +171,6 @@
     <string name="insert_code_to_search">Inserisci codice evento per cercare!</string>
     <string name="event_not_found">Evento non trovato</string>
     <string name="error_during_search">Errore durante la ricerca</string>
-    <string name="signin_with_google">Accedi con Google</string>
+    <string name="sign_in_with_google">Accedi con Google</string>
     <string name="log_out">Esci</string>
 </resources>

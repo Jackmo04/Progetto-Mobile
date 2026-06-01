@@ -26,7 +26,7 @@ data class EventDetailsEventAction(
     val findEventByID: (Int) -> Unit,
     val saveIdUser: () -> Unit,
     val joinToEvent:() -> Unit,
-    val unscribeFromEvent:() -> Unit,
+    val unsubscribeFromEvent:() -> Unit,
     val deleteEvent:() -> Unit
 )
 
@@ -98,7 +98,7 @@ class EventDetailsViewModel(
                 }
             }
         },
-        unscribeFromEvent = {
+        unsubscribeFromEvent = {
             viewModelScope.launch {
                 _state.update { it.copy(isLoadingSubscription = true) }
                 try {
@@ -110,7 +110,7 @@ class EventDetailsViewModel(
                         )
                     }
                 } catch (e: Exception) {
-                    Log.e("EventDetailsViewModel", "Errore durante la disiscrizione", e)
+                    Log.e("EventDetailsViewModel", "Errore durante disiscrizione evento", e)
                 } finally {
                     _state.update { it.copy(isLoadingSubscription = false) }
                 }

@@ -514,6 +514,6 @@ fun GoogleSignIn(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Text(stringResource(R.string.signin_with_google))
+        Text(stringResource(R.string.sign_in_with_google))
     }
 }

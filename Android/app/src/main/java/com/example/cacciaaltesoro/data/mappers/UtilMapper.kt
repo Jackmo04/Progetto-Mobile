@@ -12,14 +12,6 @@ fun LatLng.toCoordinates(): Coordinates {
     return Coordinates(latitude, longitude)
 }
 
-fun List<Coordinates>.toLatLngList(): List<LatLng> {
-    return map { it.toLatLng() }
-}
-
-fun List<LatLng>.toCoordinatesList(): List<Coordinates> {
-    return map { it.toCoordinates() }
-}
-
 fun String.isUrl(): Boolean {
     return try {
         URL(this)

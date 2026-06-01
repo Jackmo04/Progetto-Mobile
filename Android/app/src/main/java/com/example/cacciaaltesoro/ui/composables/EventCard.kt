@@ -258,7 +258,7 @@ fun EventCard(
                             else{
 
                             if (!state.imSubscribe) viewModel.action.joinToEvent()
-                            else viewModel.action.unscribeFromEvent()
+                            else viewModel.action.unsubscribeFromEvent()
                         }},
                         enabled = !state.isLoadingSubscription,
                         modifier = Modifier.padding(end = 8.dp)
