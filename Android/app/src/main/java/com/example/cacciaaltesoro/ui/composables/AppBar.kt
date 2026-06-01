@@ -35,7 +35,8 @@ fun AppBar(
     showProfile: Boolean = false,
     imageUri: Any? = null,
     onProfileClick: () -> Unit = {},
-    onBackClick: (() -> Any) = { navController.navigateUp() }
+    onBackClick: (() -> Any) = { navController.navigateUp() },
+    imLogged: Boolean = false
 ) {
     CenterAlignedTopAppBar(
         title = {
@@ -60,6 +61,21 @@ fun AppBar(
                     onClick = onProfileClick,
                     modifier = Modifier.padding(end = 4.dp)
                 ) {
+                    if(!imLogged){
+                        AsyncImage(
+                            model = painterResource(R.drawable.profilo_default),
+                            contentDescription = "Foto default",
+                            modifier = Modifier
+                                .size(36.dp)
+                                .aspectRatio(1f)
+                                .clip(CircleShape)
+                                .background(MaterialTheme.colorScheme.surfaceVariant)
+                                .clickable(onClick = {navController.navigate(NavigationRoute.Login)}),
+                            contentScale = ContentScale.Crop
+                        )
+
+                    }
+                    else {
                     AsyncImage(
                         model = imageUri,
                         placeholder = painterResource(R.drawable.profilo_default),
@@ -74,7 +90,7 @@ fun AppBar(
                             .clickable(onClick = {navController.navigate(NavigationRoute.Login)}),
                         contentScale = ContentScale.Crop
                     )
-                }
+                }}
             }
         }
     )

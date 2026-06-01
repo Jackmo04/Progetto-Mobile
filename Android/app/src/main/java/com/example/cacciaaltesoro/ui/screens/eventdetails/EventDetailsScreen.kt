@@ -52,7 +52,8 @@ fun EventDetailsScreen(navController: NavHostController,
             title = stringResource(R.string.event_details),
             navController = navController,
             showProfile = true,
-            imageUri = stateLogin.imageUri
+            imageUri = stateLogin.imageUri,
+            imLogged = stateLogin.isLogin
         ) },
         snackbarHost = { SnackbarHost(snackbarHostState) }
     ) { innerPadding ->

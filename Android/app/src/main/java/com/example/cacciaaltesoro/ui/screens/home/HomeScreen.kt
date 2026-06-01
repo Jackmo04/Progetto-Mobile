@@ -42,7 +42,8 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
             title = stringResource(R.string.home),
             navController = navController,
             showProfile = true,
-            imageUri = stateLogin.imageUri
+            imageUri = stateLogin.imageUri,
+            imLogged = stateLogin.isLogin
         ) }
     ) { innerPadding ->
         Column(
