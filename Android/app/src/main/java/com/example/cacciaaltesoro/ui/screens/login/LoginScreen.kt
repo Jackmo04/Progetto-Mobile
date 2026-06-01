@@ -35,13 +35,19 @@ import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
+import androidx.credentials.CredentialManager
+import androidx.credentials.CustomCredential
+import androidx.credentials.GetCredentialRequest
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.example.cacciaaltesoro.BuildConfig
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.ui.NavigationRoute
 import com.example.cacciaaltesoro.ui.composables.AppBar
 import com.example.cacciaaltesoro.utils.rememberCameraLauncher
+import com.google.android.libraries.identity.googleid.GetGoogleIdOption
+import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
@@ -259,6 +265,48 @@ fun LoginScreen(
                                     imeAction = ImeAction.Done
                                 )
                             )
+                        }
+
+                        Spacer(modifier = Modifier.size(16.dp))
+
+                        OutlinedButton(
+                            modifier = Modifier.requiredSize(200.dp, 50.dp),
+                            shape = RoundedCornerShape(16.dp),
+                            onClick = {
+                                scope.launch {
+                                    try {
+                                        val credentialManager = CredentialManager.create(context)
+
+                                        // Configura la richiesta a Google
+                                        val googleIdOption = GetGoogleIdOption.Builder()
+                                            .setFilterByAuthorizedAccounts(false)
+                                            .setServerClientId(BuildConfig.WEB_CLIENT_ID)
+                                            .setAutoSelectEnabled(true)
+                                            .build()
+
+                                        val request = GetCredentialRequest.Builder()
+                                            .addCredentialOption(googleIdOption)
+                                            .build()
+
+                                        // Avvia il popup nativo di Android
+                                        val result = credentialManager.getCredential(context, request)
+                                        val credential = result.credential
+
+                                        // Se l'utente accetta, estrai il token e passalo al ViewModel
+                                        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                                            val idToken = googleIdTokenCredential.idToken
+
+                                            viewModel.action.onGoogleSignIn(idToken)
+                                        }
+                                    } catch (e: Exception) {
+                                        Log.e("GoogleSignIn", "Accesso con Google annullato o fallito", e)
+                                        // Opzionale: mostra uno snackbar di errore se l'utente chiude il popup
+                                    }
+                                }
+                            }
+                        ) {
+                            Text("Accedi con Google")
                         }
                     }
                 } else {

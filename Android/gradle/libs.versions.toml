@@ -7,7 +7,10 @@ composeBomVersion = "2024.09.00"
 compressor = "3.0.1"
 coreKtx = "1.18.0"
 coreSplashscreen = "1.2.0"
+credentials = "1.6.0"
+credentialsPlayServicesAuth = "1.6.0"
 datastorePreferences = "1.2.1"
+googleid = "1.2.0"
 googleMapsServices = "2.2.0"
 gotrueKt = "2.5.0"
 junit = "4.13.2"
@@ -38,6 +41,8 @@ androidx-compose-material-icons-extended = { module = "androidx.compose.material
 androidx-compose-material3 = { group = "androidx.compose.material3", name = "material3", version.ref = "material3" }
 androidx-core-ktx = { group = "androidx.core", name = "core-ktx", version.ref = "coreKtx" }
 androidx-core-splashscreen = { module = "androidx.core:core-splashscreen", version.ref = "coreSplashscreen" }
+androidx-credentials = { module = "androidx.credentials:credentials", version.ref = "credentials" }
+androidx-credentials-play-services-auth = { module = "androidx.credentials:credentials-play-services-auth", version.ref = "credentialsPlayServicesAuth" }
 androidx-datastore-preferences = { module = "androidx.datastore:datastore-preferences", version.ref = "datastorePreferences" }
 androidx-lifecycle-runtime-compose = { module = "androidx.lifecycle:lifecycle-runtime-compose", version.ref = "lifecycleRuntimeKtx" }
 androidx-lifecycle-viewmodel-compose = { module = "androidx.lifecycle:lifecycle-viewmodel-compose", version.ref = "lifecycleRuntimeKtx" }
@@ -47,6 +52,7 @@ bom = { module = "io.github.jan-tennert.supabase:bom", version.ref = "bom" }
 coil-compose = { module = "io.coil-kt:coil-compose", version.ref = "coilCompose" }
 compressor = { module = "id.zelory:compressor", version.ref = "compressor" }
 google-maps-services = { module = "com.google.maps:google-maps-services", version.ref = "googleMapsServices" }
+googleid = { module = "com.google.android.libraries.identity.googleid:googleid", version.ref = "googleid" }
 gotrue-kt = { module = "io.github.jan-tennert.supabase:gotrue-kt", version.ref = "gotrueKt" }
 junit = { group = "junit", name = "junit", version.ref = "junit" }
 androidx-junit = { group = "androidx.test.ext", name = "junit", version.ref = "junitVersion" }

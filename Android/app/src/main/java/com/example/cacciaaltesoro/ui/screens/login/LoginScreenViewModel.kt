@@ -35,6 +35,7 @@ data class LoginState(
 data class LoginAction(
     val onLogIn: (String, String) -> Unit,
     val onSignOn: (String, String, String) -> Unit,
+    val onGoogleSignIn: (String) -> Unit,
     val onLogOut: (()-> Unit) -> Unit,
     val changeSignScreen: (Boolean) -> Unit,
     val callResetPasswordEmail:(String) -> Unit,
@@ -112,6 +113,22 @@ class LoginScreenViewModel(
                    disableLoading()
 
 
+                }
+            }
+        },
+        onGoogleSignIn = { idToken ->
+            enableLoading()
+            viewModelScope.launch {
+                errorMessage = null
+                successMessage = null
+                try {
+                    repository.signInWithGoogle(idToken)
+                    successMessage = R.string.login_done_with_success
+                } catch (e: Exception) {
+                    Log.e("LoginGoogle", e.toString())
+                    errorMessage = mapSupabaseError(e)
+                } finally {
+                    disableLoading()
                 }
             }
         },

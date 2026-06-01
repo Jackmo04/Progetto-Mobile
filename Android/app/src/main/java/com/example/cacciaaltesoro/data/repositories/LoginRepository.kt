@@ -10,7 +10,9 @@ import id.zelory.compressor.constraint.quality
 import id.zelory.compressor.constraint.resolution
 import io.github.jan.supabase.SupabaseClient
 import io.github.jan.supabase.auth.auth
+import io.github.jan.supabase.auth.providers.Google
 import io.github.jan.supabase.auth.providers.builtin.Email
+import io.github.jan.supabase.auth.providers.builtin.IDToken
 import io.github.jan.supabase.auth.user.UserInfo
 import io.github.jan.supabase.postgrest.from
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -49,6 +51,12 @@ class LoginRepositoryImpl (
             }
     }
 
+    suspend fun signInWithGoogle(idToken: String) {
+        supabase.auth.signInWith(IDToken) {
+            provider = Google
+            this.idToken = idToken
+        }
+    }
 
     override suspend fun logOut() {
             supabase.auth.signOut()
