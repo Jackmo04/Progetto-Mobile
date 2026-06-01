@@ -31,7 +31,7 @@ fun EventListCard(
     location: Location? = null
 ) {
     val surfaceColor = if (isMyEvent) MaterialTheme.colorScheme.secondaryContainer else MaterialTheme.colorScheme.surface
-    val outlineVariant = MaterialTheme.colorScheme.outlineVariant
+    val outlineVariant = if( !isAvailableTheEvent(event))MaterialTheme.colorScheme.outlineVariant else MaterialTheme.colorScheme.error
     val primaryContainer = MaterialTheme.colorScheme.primaryContainer
     val onPrimaryContainer = MaterialTheme.colorScheme.onPrimaryContainer
     val onSurface = MaterialTheme.colorScheme.onSurface
