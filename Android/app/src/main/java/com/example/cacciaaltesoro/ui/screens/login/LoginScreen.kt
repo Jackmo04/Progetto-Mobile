@@ -277,7 +277,6 @@ fun LoginScreen(
                                     try {
                                         val credentialManager = CredentialManager.create(context)
 
-                                        // Configura la richiesta a Google
                                         val googleIdOption = GetGoogleIdOption.Builder()
                                             .setFilterByAuthorizedAccounts(false)
                                             .setServerClientId(BuildConfig.WEB_CLIENT_ID)
@@ -288,11 +287,9 @@ fun LoginScreen(
                                             .addCredentialOption(googleIdOption)
                                             .build()
 
-                                        // Avvia il popup nativo di Android
                                         val result = credentialManager.getCredential(context, request)
                                         val credential = result.credential
 
-                                        // Se l'utente accetta, estrai il token e passalo al ViewModel
                                         if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
                                             val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
                                             val idToken = googleIdTokenCredential.idToken
@@ -301,7 +298,6 @@ fun LoginScreen(
                                         }
                                     } catch (e: Exception) {
                                         Log.e("GoogleSignIn", "Accesso con Google annullato o fallito", e)
-                                        // Opzionale: mostra uno snackbar di errore se l'utente chiude il popup
                                     }
                                 }
                             }
