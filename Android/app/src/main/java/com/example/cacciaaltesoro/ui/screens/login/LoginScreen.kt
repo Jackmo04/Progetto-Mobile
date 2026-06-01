@@ -27,6 +27,7 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -424,7 +425,7 @@ fun LoginScreen(
 @Composable
 fun MyButton(label: String, onClick: () -> Unit) {
     Button(
-        modifier = Modifier.requiredSize(200.dp, 50.dp),
+        modifier = Modifier.requiredSize(240.dp, 50.dp),
         shape = RoundedCornerShape(16.dp),
         onClick = onClick
     ) {
@@ -472,7 +473,7 @@ fun GoogleSignIn(
     viewModel: LoginScreenViewModel
 ){
     OutlinedButton(
-        modifier = Modifier.requiredSize(200.dp, 50.dp),
+        modifier = Modifier.requiredSize(240.dp, 50.dp),
         shape = RoundedCornerShape(16.dp),
         onClick = {
             scope.launch {
@@ -504,6 +505,15 @@ fun GoogleSignIn(
             }
         }
     ) {
+        Icon(
+            painter = painterResource(id = R.drawable.ic_google_logo),
+            contentDescription = "Logo Google",
+            modifier = Modifier.size(24.dp),
+            tint = Color.Unspecified
+        )
+
+        Spacer(modifier = Modifier.width(12.dp))
+
         Text("Accedi con Google")
     }
 }
