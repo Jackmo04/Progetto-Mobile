@@ -41,6 +41,8 @@ import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
 import androidx.credentials.CustomCredential
 import androidx.credentials.GetCredentialRequest
+import androidx.credentials.exceptions.GetCredentialCancellationException
+import androidx.credentials.exceptions.NoCredentialException
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
@@ -470,48 +472,67 @@ fun GoogleSignIn(
     context: Context,
     viewModel: LoginScreenViewModel
 ){
-    OutlinedButton(
+    var isLoading by remember { mutableStateOf(false) }
+    Box(
         modifier = Modifier.requiredSize(240.dp, 50.dp),
-        shape = RoundedCornerShape(16.dp),
-        onClick = {
-            scope.launch {
-                try {
-                    val credentialManager = CredentialManager.create(context)
+        contentAlignment = Alignment.Center
+    ) {
+        if (isLoading) {
+            CircularProgressIndicator()
+        }
+        OutlinedButton(
+            modifier = Modifier.matchParentSize(),
+            shape = RoundedCornerShape(16.dp),
+            enabled = !isLoading,
+            onClick = {
+                scope.launch {
+                    isLoading = true
+                    try {
+                        val credentialManager = CredentialManager.create(context)
 
-                    val googleIdOption = GetGoogleIdOption.Builder()
-                        .setFilterByAuthorizedAccounts(false)
-                        .setServerClientId(BuildConfig.WEB_CLIENT_ID)
-                        .setAutoSelectEnabled(true)
-                        .build()
+                        val googleIdOption = GetGoogleIdOption.Builder()
+                            .setFilterByAuthorizedAccounts(false)
+                            .setServerClientId(BuildConfig.WEB_CLIENT_ID)
+                            .setAutoSelectEnabled(true)
+                            .build()
 
-                    val request = GetCredentialRequest.Builder()
-                        .addCredentialOption(googleIdOption)
-                        .build()
+                        val request = GetCredentialRequest.Builder()
+                            .addCredentialOption(googleIdOption)
+                            .build()
 
-                    val result = credentialManager.getCredential(context, request)
-                    val credential = result.credential
+                        val result = credentialManager.getCredential(context, request)
+                        isLoading = false
+                        val credential = result.credential
 
-                    if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
-                        val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
-                        val idToken = googleIdTokenCredential.idToken
+                        if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
+                            val googleIdTokenCredential = GoogleIdTokenCredential.createFrom(credential.data)
+                            val idToken = googleIdTokenCredential.idToken
 
-                        viewModel.action.onGoogleSignIn(idToken)
+                            viewModel.action.onGoogleSignIn(idToken)
+                        }
+                    } catch (e: GetCredentialCancellationException) {
+                        Log.i("GoogleSignIn", "Accesso con Google annullato", e)
+                    } catch (e: NoCredentialException) {
+                        Log.e("GoogleSignIn", "Non ci sono credenziali disponibili", e)
+                    } catch (e: Exception) {
+                        Log.e("GoogleSignIn", "Accesso con Google fallito", e)
+                    } finally {
+                        isLoading = false
                     }
-                } catch (e: Exception) {
-                    Log.e("GoogleSignIn", "Accesso con Google annullato o fallito", e)
                 }
             }
+        ) {
+            Icon(
+                painter = painterResource(id = R.drawable.ic_google_logo),
+                contentDescription = "Logo Google",
+                modifier = Modifier.size(24.dp),
+                tint = Color.Unspecified
+            )
+
+            Spacer(modifier = Modifier.width(12.dp))
+
+            Text(stringResource(R.string.sign_in_with_google))
         }
-    ) {
-        Icon(
-            painter = painterResource(id = R.drawable.ic_google_logo),
-            contentDescription = "Logo Google",
-            modifier = Modifier.size(24.dp),
-            tint = Color.Unspecified
-        )
-
-        Spacer(modifier = Modifier.width(12.dp))
-
-        Text(stringResource(R.string.sign_in_with_google))
     }
+
 }
