@@ -7,6 +7,7 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.repositories.EventRepository
 import com.example.cacciaaltesoro.data.repositories.LoginRepositoryImpl
@@ -43,7 +44,7 @@ class OnlineEventsViewModel(
 
     var currentLocation by mutableStateOf<Location?>(null)
         private set
-    var errorMessage by mutableStateOf<String?>(null)
+    var errorMessage by mutableStateOf<Int?>(null)
         private set
     var isLoading by mutableStateOf(false)
         private set
@@ -88,7 +89,7 @@ class OnlineEventsViewModel(
                     }
                 } catch (e: Exception) {
                     Log.e("EventsViewModel", "Errore caricamento", e)
-                    errorMessage = "Errore durante il caricamento degli eventi"
+                    errorMessage = R.string.errore_during_event_loading
                 } finally {
                     isLoading = false
                 }
@@ -97,17 +98,21 @@ class OnlineEventsViewModel(
 
         saveIdEventCodeSearched = { code ->
             viewModelScope.launch {
+                if(code.isEmpty()){
+                    errorMessage= R.string.insert_code_to_search
+                    return@launch
+                }
                 isLoading = true
                 try {
                     val eventId = repository.getEventsByCode(code)?.id
                     _state.update { it.copy(idEventCodeSearched = eventId) }
 
                     if (eventId == null) {
-                        errorMessage = "Evento non trovato"
+                        errorMessage = R.string.event_not_found
                     }
                 } catch (e: Exception) {
                     Log.e("EventsViewModel", "Errore ricerca", e)
-                    errorMessage = "Errore durante la ricerca"
+                    errorMessage = R.string.error_during_search
                 } finally {
                     isLoading = false
                 }

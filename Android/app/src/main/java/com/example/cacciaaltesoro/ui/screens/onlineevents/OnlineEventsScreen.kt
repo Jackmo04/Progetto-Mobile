@@ -36,6 +36,8 @@ import com.example.cacciaaltesoro.utils.LocationService
 import com.example.cacciaaltesoro.utils.rememberMultiplePermissions
 import kotlinx.coroutines.launch
 import androidx.compose.material3.pulltorefresh.PullToRefreshBox
+import com.example.cacciaaltesoro.utils.StringResource
+
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun OnlineEventsScreen(
@@ -63,6 +65,9 @@ fun OnlineEventsScreen(
     val locationService = remember { LocationService(context) }
     val coordinates by locationService.coordinates.collectAsStateWithLifecycle()
 
+    val errorStringRes = viewModel.errorMessage
+    val errorString = errorStringRes?.let { stringResource(it) }
+
     LaunchedEffect(state.idEventCodeSearched) {
         state.idEventCodeSearched?.let { id ->
             viewModel.action.resetIdEventCodeSearched()
@@ -74,9 +79,9 @@ fun OnlineEventsScreen(
         viewModel.action.loadEvents(state.currentFilter)
     }
 
-    LaunchedEffect(viewModel.errorMessage) {
-        viewModel.errorMessage?.let { message ->
-            snackbarHostState.showSnackbar(message = message, duration = SnackbarDuration.Short)
+    LaunchedEffect(errorString) {
+        if (errorString != null) {
+            snackbarHostState.showSnackbar(errorString)
             viewModel.action.clearErrorMessage()
         }
     }
@@ -273,11 +278,7 @@ fun OnlineEventsScreen(
                                         event = event,
                                         isMyEvent = event.organizerUUID == state.uuid,
                                         onClick = {
-                                          //  if(stateLogin.isLogin)
-                                            event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id))}
-                                            /*  else
-                                            navController.navigate(NavigationRoute.Login)
-                                       */ },
+                                            event.id?.let { id -> navController.navigate(NavigationRoute.EventDetails(id))} },
                                         viewModel.currentLocation
                                     )
                                 }

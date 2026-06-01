@@ -167,4 +167,8 @@
     <string name="enter_email_and_password">Inserisci mail e password per accedere!</string>
     <string name="password_forgotten">"Password dimenticata? "</string>
     <string name="e_mail">E-mail</string>
+    <string name="errore_during_event_loading">Errore durante il caricamento degli eventi</string>
+    <string name="insert_code_to_search">Inserisci codice evento per cercare!</string>
+    <string name="event_not_found">Evento non trovato</string>
+    <string name="error_during_search">Errore durante la ricerca</string>
 </resources>
