@@ -121,7 +121,6 @@ fun EventTagEditorScreen(
                 }
             }
         }
-
     }
 
     val sheetState = rememberStandardBottomSheetState(
@@ -145,7 +144,13 @@ fun EventTagEditorScreen(
             AppBar(
                 title = stringResource(R.string.new_event),
                 navController = navController,
-                showBackArrow = false
+                onBackClick = {
+                    if (sharedViewModel.tagActions.areAllValid()) {
+                        navController.navigateUp()
+                    } else {
+                        showDiscardChangesDialog = true
+                    }
+                }
             )
         },
         sheetPeekHeight = 200.dp,

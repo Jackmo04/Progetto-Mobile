@@ -99,8 +99,16 @@ fun GameScreen(
         }
     )
 
-    BackHandler(enabled = gameState is GameState.Playing) {
+    fun shouldHandleBack() : Boolean {
+        return gameState is GameState.Playing
+    }
+
+    fun backHandlerAction() {
         showExitConfirmation = true
+    }
+
+    BackHandler(enabled = shouldHandleBack()) {
+        backHandlerAction()
     }
 
     BackHandler(enabled = sheetContentState is SheetContentState.SingleTagView) {
@@ -168,7 +176,7 @@ fun GameScreen(
                 is GameState.Playing -> (gameState as GameState.Playing).remainingTime
                 is GameState.Finished -> stringResource(R.string.game_finished)
             },
-            showBackArrow = false,
+            onBackClick = { if (shouldHandleBack()) backHandlerAction() else navController.navigateUp() },
             navController = navController
         ) },
         sheetPeekHeight = 160.dp,

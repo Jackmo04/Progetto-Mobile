@@ -138,12 +138,16 @@ fun EventEditorScreen(
 
     var showExitConfirmationDialog by remember { mutableStateOf(false) }
 
-    BackHandler(
-        enabled = eventState.name.isNotEmpty()
-                || eventState.location != null
-                || eventState.description.isNotEmpty()
-    ) {
+    fun shouldHandleBack(): Boolean {
+        return eventState.name.isNotEmpty() || eventState.location != null || eventState.description.isNotEmpty()
+    }
+
+    fun backHandleAction() {
         showExitConfirmationDialog = true
+    }
+
+    BackHandler(enabled = shouldHandleBack()) {
+        backHandleAction()
     }
 
     Scaffold(
@@ -153,7 +157,9 @@ fun EventEditorScreen(
                 title = if (uiState.isEditMode) stringResource(R.string.edit_event)
                         else stringResource(R.string.new_event),
                 navController = navController,
-                showBackArrow = false
+                onBackClick = {
+                    if (shouldHandleBack()) backHandleAction() else navController.navigateUp()
+                }
             )
         },
         snackbarHost = { SnackbarHost(snackbarHostState) }
