@@ -162,6 +162,8 @@ fun LoginScreen(
         if (state.isUpdatePassword && state.isFromDeepLink) {
             viewModel.action.toggleUpdatePassword(false)
             navController.popBackStack()
+        } else if (state.isUpdatePassword) {
+            viewModel.action.toggleUpdatePassword(false)
         } else {
             navController.navigateUp()
         }
