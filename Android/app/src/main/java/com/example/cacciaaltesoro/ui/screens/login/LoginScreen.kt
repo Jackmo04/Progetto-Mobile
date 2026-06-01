@@ -159,13 +159,17 @@ fun LoginScreen(
     }
 
     val customBackAction = {
-        if (state.isUpdatePassword && state.isFromDeepLink) {
-            viewModel.action.toggleUpdatePassword(false)
-            navController.popBackStack()
-        } else if (state.isUpdatePassword) {
-            viewModel.action.toggleUpdatePassword(false)
-        } else {
-            navController.navigateUp()
+        when {
+            state.isUpdatePassword && state.isFromDeepLink -> {
+                viewModel.action.toggleUpdatePassword(false)
+                navController.popBackStack()
+            }
+            state.isUpdatePassword -> {
+                viewModel.action.toggleUpdatePassword(false)
+            }
+            else -> {
+                navController.navigateUp()
+            }
         }
     }
 
