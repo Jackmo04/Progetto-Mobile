@@ -1,6 +1,7 @@
 package com.example.cacciaaltesoro.data.mappers
 
 import android.content.Context
+import android.location.Location
 import com.example.cacciaaltesoro.BuildConfig
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
@@ -79,4 +80,18 @@ fun Event.shareTextBuilder(resolvedAddress: String): String {
         
         *Mappa:* https://maps.google.com/?q=${lat},${lon}
     """.trimIndent()
+}
+
+fun Event.getDistanceFromPoint(myLocation: Location?): String {
+    if (myLocation == null) return ""
+    val eventLocation = Location("").apply {
+        latitude = lat
+        longitude = lon
+    }
+    val distanceInMeters = myLocation.distanceTo(eventLocation)
+    return if (distanceInMeters < 1000) {
+        "${distanceInMeters.toInt()} m"
+    } else {
+        "%.1f km".format(distanceInMeters / 1000)
+    }
 }

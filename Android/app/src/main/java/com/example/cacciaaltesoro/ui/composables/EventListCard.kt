@@ -20,6 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
+import com.example.cacciaaltesoro.data.mappers.getDistanceFromPoint
 import com.example.cacciaaltesoro.data.mappers.isAvailableTheEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -105,7 +106,7 @@ fun EventListCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = if (location != null) getDistanceFromMe(event, location) else "",
+                        text = if (location != null) event.getDistanceFromPoint(location) else "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyMedium,
@@ -113,19 +114,5 @@ fun EventListCard(
                     )
                 }
         }}
-    }
-}
-
-private fun getDistanceFromMe(event: Event, currentLocation: Location?): String {
-    if (currentLocation == null) return ""
-    val eventLocation = Location("").apply {
-        latitude = event.lat
-        longitude = event.lon
-    }
-    val distanceInMeters = currentLocation.distanceTo(eventLocation)
-    return if (distanceInMeters < 1000) {
-        "${distanceInMeters.toInt()} m"
-    } else {
-        "%.1f km".format(distanceInMeters / 1000)
     }
 }
