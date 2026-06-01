@@ -343,7 +343,7 @@ fun LoginScreen(
                                 LoginAnswer(isSignUp = true, onToggle = { viewModel.action.changeSignScreen(false) })
 
                             } else {
-                                MyButton("Log Out", onClick = {
+                                MyButton(stringResource(R.string.log_out), onClick = {
                                     viewModel.action.onLogOut {
                                         navController.navigate(NavigationRoute.Home) {
                                             popUpTo(0) {
@@ -514,6 +514,6 @@ fun GoogleSignIn(
 
         Spacer(modifier = Modifier.width(12.dp))
 
-        Text("Accedi con Google")
+        Text(stringResource(R.string.signin_with_google))
     }
 }
