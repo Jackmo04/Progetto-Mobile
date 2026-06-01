@@ -10,6 +10,7 @@ import com.example.cacciaaltesoro.data.database.dto.TagDTO
 import com.example.cacciaaltesoro.data.database.dto.UserDTO
 import com.example.cacciaaltesoro.data.domain.Event
 import com.example.cacciaaltesoro.data.domain.Tag
+import com.example.cacciaaltesoro.data.mappers.getDistanceFromPoint
 import com.example.cacciaaltesoro.data.mappers.toDomain
 import com.example.cacciaaltesoro.data.mappers.toDto
 import com.example.cacciaaltesoro.data.mappers.toInsertDto
@@ -290,15 +291,11 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
     }
 
     override suspend fun deleteEvent(idEvent: Int) {
-        try {
             supabase.from(SupabaseTables.EVENTS.tableName).delete {
                 filter {
                     eq("par_id", idEvent)
                 }
             }
-        }catch (e: Exception){
-            Log.e("DeleteEvent",e.toString())
-        }
     }
 
     override suspend fun getTagCachedByMe(idEvent: Int): List<Tag> {
@@ -322,14 +319,7 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
         location: Location?
     ): List<Event> {
 
-        return eventList.sortedBy { place ->
-            val eventPosition = Location("provider_temporaneo").apply {
-                latitude = place.lat
-                longitude = place.lon
-            }
-            Log.i("Location" , location.toString())
-
-            location?.distanceTo(eventPosition)
+        return eventList.sortedBy { place -> place.getDistanceFromPoint(location)
         }
     }
 }

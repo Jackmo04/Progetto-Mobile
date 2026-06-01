@@ -118,7 +118,12 @@ class EventDetailsViewModel(
         },
         deleteEvent = {
             viewModelScope.launch {
-                repository.deleteEvent(_state.value.idEvent)
+                try {
+                    repository.deleteEvent(_state.value.idEvent)
+                }catch (e: Exception){
+                    Log.e("DeleteEvent", "Errore cancellazione evento$e")
+                }
+
             }
         }
     )

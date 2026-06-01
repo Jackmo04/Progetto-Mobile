@@ -82,16 +82,26 @@ fun Event.shareTextBuilder(resolvedAddress: String): String {
     """.trimIndent()
 }
 
-fun Event.getDistanceFromPoint(myLocation: Location?): String {
-    if (myLocation == null) return ""
+fun Event.getDistanceFromPointString(myLocation: Location?): String {
+
     val eventLocation = Location("").apply {
         latitude = lat
         longitude = lon
     }
-    val distanceInMeters = myLocation.distanceTo(eventLocation)
+    val distanceInMeters = getDistanceFromPoint(myLocation) ?: return ""
     return if (distanceInMeters < 1000) {
         "${distanceInMeters.toInt()} m"
     } else {
         "%.1f km".format(distanceInMeters / 1000)
     }
+}
+
+fun Event.getDistanceFromPoint(myLocation: Location?): Float? {
+    if (myLocation == null) return null
+    val eventLocation = Location("").apply {
+        latitude = lat
+        longitude = lon
+    }
+ return  myLocation.distanceTo(eventLocation)
+
 }

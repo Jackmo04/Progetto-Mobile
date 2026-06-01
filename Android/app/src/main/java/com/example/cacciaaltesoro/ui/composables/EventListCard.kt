@@ -20,7 +20,7 @@ import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import com.example.cacciaaltesoro.R
 import com.example.cacciaaltesoro.data.domain.Event
-import com.example.cacciaaltesoro.data.mappers.getDistanceFromPoint
+import com.example.cacciaaltesoro.data.mappers.getDistanceFromPointString
 import com.example.cacciaaltesoro.data.mappers.isAvailableTheEvent
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.withContext
@@ -106,7 +106,7 @@ fun EventListCard(
                         color = MaterialTheme.colorScheme.onSurfaceVariant
                     )
                     Text(
-                        text = if (location != null) event.getDistanceFromPoint(location) else "",
+                        text = if (location != null) event.getDistanceFromPointString(location) else "",
                         maxLines = 1,
                         overflow = TextOverflow.Ellipsis,
                         style = MaterialTheme.typography.bodyMedium,
