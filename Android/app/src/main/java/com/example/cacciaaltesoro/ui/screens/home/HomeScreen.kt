@@ -75,10 +75,16 @@ fun HomeScreen(navController: NavHostController, loginViewModel: LoginScreenView
                 }
 
                 MyButton(stringResource(R.string.new_event)) {
-                    if (stateLogin.isLogin)
+                    if (stateLogin.isLogin) {
                         navController.navigate(NavigationRoute.EventEditor())
-                    else
+                    }
+                    else {
+                        navController.currentBackStackEntry?.savedStateHandle?.set(
+                            "login_reason",
+                            R.string.login_required
+                        )
                         navController.navigate(NavigationRoute.Login)
+                    }
                 }
             }
         }

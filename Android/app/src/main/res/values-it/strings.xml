@@ -174,4 +174,5 @@
     <string name="sign_in_with_google">Accedi con Google</string>
     <string name="log_out">Esci</string>
     <string name="from_newest">Dal più recente</string>
+    <string name="login_required">Necessario il login per proseguire!</string>
 </resources>

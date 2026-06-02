@@ -77,6 +77,7 @@ fun LoginScreen(
     var password by rememberSaveable { mutableStateOf("") }
     var passwordConfirm by rememberSaveable { mutableStateOf("") }
     val imageRequiredString = stringResource(R.string.camera_permission_required)
+    val loginRequiredMessage = stringResource(R.string.login_required)
 
     val errorStringRes = viewModel.errorMessage
     val errorString = errorStringRes?.let { stringResource(it) }
@@ -105,6 +106,18 @@ fun LoginScreen(
     LaunchedEffect(state.username) {
         if (state.username.isNotEmpty() && username.isEmpty()) {
             username = state.username
+        }
+    }
+
+    LaunchedEffect(Unit) {
+        val savedStateHandle = navController.previousBackStackEntry?.savedStateHandle
+        val reasonMsgResId = savedStateHandle?.get<Int>("login_reason")
+
+        if (reasonMsgResId != null) {
+            savedStateHandle.remove<Int>("login_reason")
+
+            isErrorSnackbar = true
+            snackbarHostState.showSnackbar(loginRequiredMessage )
         }
     }
 
@@ -168,12 +181,15 @@ fun LoginScreen(
         when {
             state.isUpdatePassword && state.isFromDeepLink -> {
                 viewModel.action.toggleUpdatePassword(false)
+                snackbarHostState.currentSnackbarData?.dismiss()
                 navController.popBackStack()
             }
             state.isUpdatePassword -> {
+                snackbarHostState.currentSnackbarData?.dismiss()
                 viewModel.action.toggleUpdatePassword(false)
             }
             state.isSignUp->{
+                snackbarHostState.currentSnackbarData?.dismiss()
                 viewModel.action.changeSignScreen(false)
             }
             else -> {

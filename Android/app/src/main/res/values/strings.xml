@@ -173,4 +173,5 @@
     <string name="sign_in_with_google">Sign in with Google</string>
     <string name="log_out">Log Out</string>
     <string name="from_newest">From newest</string>
+    <string name="login_required">Login required to continue!</string>
 </resources>

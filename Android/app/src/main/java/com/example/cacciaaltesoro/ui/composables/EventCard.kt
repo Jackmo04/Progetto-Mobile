@@ -254,6 +254,10 @@ fun EventCard(
                     OutlinedButton(
                         onClick = {
                             if (!loginState.isLogin) {
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "login_reason",
+                                    R.string.login_required
+                                )
                                 navController.navigate(NavigationRoute.Login)}
                             else{
 
@@ -275,7 +279,12 @@ fun EventCard(
                     Button(
                         onClick = {
                             if (!loginState.isLogin) {
-                                navController.navigate(NavigationRoute.Login)}
+                                navController.currentBackStackEntry?.savedStateHandle?.set(
+                                    "login_reason",
+                                    R.string.login_required
+                                )
+                                navController.navigate(NavigationRoute.Login)
+                                }
                             else{
                                 navController.navigate(NavigationRoute.Game(
                                     event.id ?: throw IllegalArgumentException())
