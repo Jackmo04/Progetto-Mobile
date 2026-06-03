@@ -55,6 +55,7 @@ import com.google.android.libraries.identity.googleid.GetGoogleIdOption
 import com.google.android.libraries.identity.googleid.GoogleIdTokenCredential
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.NonCancellable
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import org.koin.androidx.compose.koinViewModel
@@ -518,8 +519,10 @@ fun GoogleSignIn(
                             .addCredentialOption(googleIdOption)
                             .build()
 
-                        val result = credentialManager.getCredential(context, request)
-                        isLoading = false
+                        val result = withContext(Dispatchers.Main + NonCancellable) {
+                            credentialManager.getCredential(context, request)
+                        }
+
                         val credential = result.credential
 
                         if (credential is CustomCredential && credential.type == GoogleIdTokenCredential.TYPE_GOOGLE_ID_TOKEN_CREDENTIAL) {
