@@ -116,7 +116,7 @@ fun LoginScreen(
         if (reasonMsgResId != null) {
             savedStateHandle.remove<Int>("login_reason")
 
-            isErrorSnackbar = true
+            isErrorSnackbar = false
             snackbarHostState.showSnackbar(loginRequiredMessage )
         }
     }
@@ -211,8 +211,8 @@ fun LoginScreen(
                 modifier = Modifier.imePadding()) { data ->
                 Snackbar(
                     snackbarData = data,
-                    containerColor = if (isErrorSnackbar) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.primaryContainer,
-                    contentColor = if (isErrorSnackbar) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.primary
+                    containerColor = if (isErrorSnackbar) MaterialTheme.colorScheme.error else MaterialTheme.colorScheme.inverseSurface,
+                    contentColor = if (isErrorSnackbar) MaterialTheme.colorScheme.onError else MaterialTheme.colorScheme.inverseOnSurface
                 )
             }
         }
