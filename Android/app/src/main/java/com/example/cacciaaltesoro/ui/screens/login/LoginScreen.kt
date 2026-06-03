@@ -343,6 +343,8 @@ fun LoginScreen(
                             } else if (!isSignUp && !state.isLogin) {
                                 MyButton(stringResource(R.string.login_title), onClick = { viewModel.action.onLogIn(username, password) })
                                 Spacer(modifier = Modifier.size(16.dp))
+                                Text(stringResource(R.string.or))
+                                Spacer(modifier = Modifier.size(16.dp))
                                 GoogleSignIn(scope,context,viewModel)
                                 Spacer(modifier = Modifier.size(36.dp))
                                 LoginAnswer(isSignUp = false, onToggle = { viewModel.action.changeSignScreen(true) })
@@ -490,14 +492,14 @@ fun GoogleSignIn(
 ){
     var isLoading by remember { mutableStateOf(false) }
     Box(
-        modifier = Modifier.requiredSize(240.dp, 50.dp),
-        contentAlignment = Alignment.Center
+        modifier = Modifier
+            .wrapContentSize()
+            .requiredSize(240.dp, 50.dp),
+        contentAlignment = Alignment.BottomCenter
     ) {
-        if (isLoading) {
-            CircularProgressIndicator()
-        }
         OutlinedButton(
             modifier = Modifier.matchParentSize(),
+            contentPadding = PaddingValues(bottom = 0.dp),
             shape = RoundedCornerShape(16.dp),
             enabled = !isLoading,
             onClick = {
@@ -538,6 +540,7 @@ fun GoogleSignIn(
                 }
             }
         ) {
+
             Icon(
                 painter = painterResource(id = R.drawable.ic_google_logo),
                 contentDescription = "Logo Google",
@@ -548,7 +551,19 @@ fun GoogleSignIn(
             Spacer(modifier = Modifier.width(12.dp))
 
             Text(stringResource(R.string.sign_in_with_google))
+
         }
+
+        if (isLoading) {
+            LinearProgressIndicator(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(horizontal = 12.dp),
+                color = MaterialTheme.colorScheme.primary,
+                trackColor = MaterialTheme.colorScheme.primaryContainer
+            )
+        }
+
     }
 
 }

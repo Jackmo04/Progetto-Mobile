@@ -175,4 +175,5 @@
     <string name="log_out">Esci</string>
     <string name="from_newest">Dal più recente</string>
     <string name="login_required">Necessario il login per proseguire!</string>
+    <string name="or">oppure</string>
 </resources>
