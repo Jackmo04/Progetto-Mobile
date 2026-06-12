@@ -175,4 +175,6 @@
     <string name="from_newest">From newest</string>
     <string name="login_required">Login required to continue!</string>
     <string name="or">or</string>
+    <string name="hided_password">Hidden password</string>
+    <string name="show_password">Show password</string>
 </resources>

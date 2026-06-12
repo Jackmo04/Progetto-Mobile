@@ -176,4 +176,6 @@
     <string name="from_newest">Dal più recente</string>
     <string name="login_required">Necessario il login per proseguire!</string>
     <string name="or">oppure</string>
+    <string name="hided_password">Nascondi password</string>
+    <string name="show_password">Mostra password</string>
 </resources>

@@ -19,6 +19,8 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.foundation.verticalScroll
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Visibility
+import androidx.compose.material.icons.filled.VisibilityOff
 import androidx.compose.material.icons.outlined.PhotoCamera
 import androidx.compose.material.icons.outlined.PhotoLibrary
 import androidx.compose.material3.*
@@ -36,6 +38,7 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.ImeAction
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.unit.dp
 import androidx.core.content.ContextCompat
 import androidx.credentials.CredentialManager
@@ -73,10 +76,12 @@ fun LoginScreen(
     val state by viewModel.state.collectAsStateWithLifecycle()
     val isUpdatePassword = state.isUpdatePassword
     val isSignUp = state.isSignUp
-
+    var passwordVisible by rememberSaveable { mutableStateOf(false) }
+    var passwordConfirmVisible by rememberSaveable { mutableStateOf(false) }
     var username by rememberSaveable { mutableStateOf("") }
     var password by rememberSaveable { mutableStateOf("") }
     var passwordConfirm by rememberSaveable { mutableStateOf("") }
+
     val imageRequiredString = stringResource(R.string.camera_permission_required)
     val loginRequiredMessage = stringResource(R.string.login_required)
 
@@ -259,14 +264,23 @@ fun LoginScreen(
                             value = password,
                             onValueChange = { password = it },
                             label = { Text(stringResource(R.string.password)) },
-                            visualTransformation = PasswordVisualTransformation(),
+                            visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                             modifier = Modifier.fillMaxWidth(),
                             enabled = !state.isLoading,
                             singleLine = true,
                             keyboardOptions = KeyboardOptions(
                                 keyboardType = KeyboardType.Password,
                                 imeAction = if (isSignUp) ImeAction.Next else ImeAction.Done
-                            )
+                            ),
+                            trailingIcon = {
+                                val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                                val description = if (passwordVisible) stringResource(R.string.hided_password) else stringResource(
+                                    R.string.show_password
+                                )
+                                IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                    Icon(imageVector = image, contentDescription = description)
+                                }
+                            }
                         )
 
                         if (isSignUp) {
@@ -275,14 +289,23 @@ fun LoginScreen(
                                 value = passwordConfirm,
                                 onValueChange = { passwordConfirm = it },
                                 label = { Text(stringResource(R.string.password_confirm)) },
-                                visualTransformation = PasswordVisualTransformation(),
+                                visualTransformation = if (passwordConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
                                 modifier = Modifier.fillMaxWidth(),
                                 enabled = !state.isLoading,
                                 singleLine = true,
                                 keyboardOptions = KeyboardOptions(
                                     keyboardType = KeyboardType.Password,
                                     imeAction = ImeAction.Done
-                                )
+                                ),
+                                trailingIcon = {
+                                    val image = if (passwordConfirmVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                                    val description = if (passwordConfirmVisible) stringResource(R.string.hided_password) else stringResource(
+                                        R.string.show_password
+                                    )
+                                    IconButton(onClick = { passwordConfirmVisible = !passwordConfirmVisible }) {
+                                        Icon(imageVector = image, contentDescription = description)
+                                    }
+                                }
                             )
                         }
 
@@ -296,21 +319,30 @@ fun LoginScreen(
                         value = password,
                         onValueChange = { password = it },
                         label = { Text(stringResource(R.string.new_password)) },
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (passwordVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isLoading,
                         singleLine = true,
                         keyboardOptions = KeyboardOptions(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Next
-                        )
+                        ),
+                        trailingIcon = {
+                            val image = if (passwordVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                            val description = if (passwordVisible) stringResource(R.string.hided_password) else stringResource(
+                                R.string.show_password
+                            )
+                            IconButton(onClick = { passwordVisible = !passwordVisible }) {
+                                Icon(imageVector = image, contentDescription = description)
+                            }
+                        }
                     )
                     Spacer(modifier = Modifier.size(8.dp))
                     OutlinedTextField(
                         value = passwordConfirm,
                         onValueChange = { passwordConfirm = it },
                         label = { Text(stringResource(R.string.password_confirm)) },
-                        visualTransformation = PasswordVisualTransformation(),
+                        visualTransformation = if (passwordConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isLoading,
                         singleLine = true,
@@ -318,7 +350,17 @@ fun LoginScreen(
                             keyboardType = KeyboardType.Password,
                             imeAction = ImeAction.Done
                         )
-                    )
+                    ,
+                    trailingIcon = {
+                        val image = if (passwordConfirmVisible) Icons.Default.Visibility else Icons.Default.VisibilityOff
+                        val description = if (passwordConfirmVisible) stringResource(R.string.hided_password) else stringResource(
+                            R.string.show_password
+                        )
+
+                        IconButton(onClick = { passwordConfirmVisible = !passwordConfirmVisible }) {
+                            Icon(imageVector = image, contentDescription = description)
+                        }
+                    })
                 }
 
                 Spacer(modifier = Modifier.size(16.dp))
@@ -371,6 +413,8 @@ fun LoginScreen(
                                     }
                                     username = ""
                                     password = ""
+                                    passwordConfirmVisible = false;
+                                    passwordVisible = false;
 
                                 })
                                 if (!state.isGoogleAuth) {
