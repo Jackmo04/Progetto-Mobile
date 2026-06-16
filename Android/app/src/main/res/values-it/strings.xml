@@ -29,7 +29,7 @@
     <string name="date">Data</string>
     <string name="time">Ora</string>
     <string name="timezone_abbr">Fuso</string>
-    <string name="from_oldest">Dal meno recente</string>
+    <string name="from_oldest">Data inizio crescente</string>
     <string name="end_date">Data fine</string>
     <string name="start_time">Ora inizio</string>
     <string name="end_time">Ora fine</string>
@@ -173,7 +173,7 @@
     <string name="error_during_search">Errore durante la ricerca</string>
     <string name="sign_in_with_google">Accedi con Google</string>
     <string name="log_out">Esci</string>
-    <string name="from_newest">Dal più recente</string>
+    <string name="from_newest">Data inizio decrescente</string>
     <string name="login_required">Necessario il login per proseguire!</string>
     <string name="or">oppure</string>
 </resources>
