@@ -341,7 +341,7 @@ fun LoginScreen(
                     OutlinedTextField(
                         value = passwordConfirm,
                         onValueChange = { passwordConfirm = it },
-                        label = { Text(stringResource(R.string.password_confirm)) },
+                        label = { Text(stringResource(R..password_confirm)) },
                         visualTransformation = if (passwordConfirmVisible) VisualTransformation.None else PasswordVisualTransformation(),
                         modifier = Modifier.fillMaxWidth(),
                         enabled = !state.isLoading,
