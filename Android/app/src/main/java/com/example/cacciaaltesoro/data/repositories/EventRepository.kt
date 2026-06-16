@@ -211,11 +211,11 @@ class EventRepositoryImpl(private val supabase: SupabaseClient) : EventRepositor
             }
 
             EventOrderType.OLDEST_DATE.name -> {
-                result = listEvent.sortedByDescending { it.startTime }
+                result = listEvent.sortedBy { it.startTime }
             }
 
             EventOrderType.NEWEST_DATE.name -> {
-                result = listEvent.sortedBy { it.startTime }
+                result = listEvent.sortedByDescending { it.startTime }
             }
 
             EventOrderType.EVENT_DURATION.name -> {

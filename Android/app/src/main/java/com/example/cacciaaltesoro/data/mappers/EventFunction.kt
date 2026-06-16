@@ -33,6 +33,16 @@ fun Event.getStartTime(): String {
 }
 
 @OptIn(ExperimentalTime::class)
+fun Event.getStartDate(): String {
+    val formatter = DateTimeFormatter.ofLocalizedDate(FormatStyle.SHORT)
+        .withLocale(Locale.getDefault())
+
+    return Instant.ofEpochSecond(startTime.epochSeconds)
+        .atZone(ZoneId.systemDefault())
+        .format(formatter)
+}
+
+@OptIn(ExperimentalTime::class)
 fun Event.isAvailableTheEvent(): Boolean {
     val now = Clock.System.now().toEpochMilliseconds()
     val extraTime = 15 * 60 * 1000
