@@ -1,2 +1,2 @@
-# Caccia al Tesoro (App Android)
+# GeoTag (App Android)
 
